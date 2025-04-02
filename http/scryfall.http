@@ -1,0 +1,10 @@
+### RANDOM
+GET {{host}}/cards/random
+
+### PARSE MANA
+@manaCost={1}{W}
+GET {{host}}/symbology/parse-mana?cost={{manaCost}}
+
+### SEARCH
+@q="black%20lotus"
+GET {{host}}/cards/search?q={{q}}

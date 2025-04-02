@@ -1,0 +1,6 @@
+{
+  "singleQuote": true,
+  "trailingComma": "all",
+  "max_line_length": 120,
+  "endOfLine": "lf"
+}

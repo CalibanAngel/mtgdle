@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: mtgdle_db
+    restart: always
+    environment:
+      POSTGRES_USER: goat
+      POSTGRES_PASSWORD: black_lotus
+      POSTGRES_DB: mtgdle
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
