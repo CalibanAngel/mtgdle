@@ -4,8 +4,7 @@ import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import configuration from '../config/configuration';
 import { validate } from '../config/env.validation';
-import { CardModule } from './card/card.module';
-import { SetModule } from './set/set.module';
+import { ModelsModule } from './models/models.module';
 
 @Module({
   imports: [
@@ -14,8 +13,7 @@ import { SetModule } from './set/set.module';
       isGlobal: true,
       validate,
     }),
-    CardModule,
-    SetModule,
+    ModelsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
