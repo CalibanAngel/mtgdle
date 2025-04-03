@@ -15,6 +15,10 @@ export interface Configuration {
   database: {
     host: string;
     port: number;
+    synchronize: boolean;
+    username: string;
+    password: string;
+    databaseName: string;
   };
   scryfall: {
     host: string;
@@ -30,6 +34,10 @@ export default (): Configuration => ({
   database: {
     host: process.env.DATABASE_HOST,
     port: parseInt(process.env.DATABASE_PORT, 10) || 5432,
+    synchronize: process.env.DATABASE_SYNCHRONIZE === 'true',
+    username: process.env.DATABASE_USER,
+    password: process.env.DATABASE_PASSWORD,
+    databaseName: process.env.DATABASE_NAME,
   },
   scryfall: {
     host: process.env.SCRYFALL_API_HOST,

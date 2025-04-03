@@ -4,11 +4,11 @@ services:
     container_name: mtgdle_db
     restart: always
     environment:
-      POSTGRES_USER: goat
-      POSTGRES_PASSWORD: black_lotus
-      POSTGRES_DB: mtgdle
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_DB: ${DATABASE_NAME}
     ports:
-      - "5432:5432"
+      - "5442:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
 

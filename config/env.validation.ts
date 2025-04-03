@@ -1,5 +1,11 @@
 import { plainToInstance } from 'class-transformer';
-import { IsEnum, IsNumber, IsString, validateSync } from 'class-validator';
+import {
+  IsBoolean,
+  IsEnum,
+  IsNumber,
+  IsString,
+  validateSync,
+} from 'class-validator';
 import { Environment } from './configuration';
 
 class EnvironmentVariables {
@@ -15,9 +21,16 @@ class EnvironmentVariables {
   DATABASE_HOST: string;
   @IsNumber()
   DATABASE_PORT: number;
-
+  @IsBoolean()
+  DATABASE_SYNCHRONIZE: boolean;
   @IsString()
   SCRYFALL_API_HOST: string;
+  @IsString()
+  DATABASE_USER: string;
+  @IsString()
+  DATABASE_PASSWORD: string;
+  @IsString()
+  DATABASE_NAME: string;
 }
 
 export function validate(config: Record<string, unknown>) {
