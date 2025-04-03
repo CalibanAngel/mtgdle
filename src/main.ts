@@ -26,5 +26,9 @@ async function bootstrap() {
     .get('http', { infer: true });
 
   await app.listen(configHttp.port ?? 3000);
+
+  console.info(
+    `Swagger can be found at http://${configHttp.host}:${configHttp.port}/api`,
+  );
 }
 bootstrap();

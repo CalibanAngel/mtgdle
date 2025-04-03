@@ -8,3 +8,6 @@ GET {{host}}/symbology/parse-mana?cost={{manaCost}}
 ### SEARCH
 @q="black%20lotus"
 GET {{host}}/cards/search?q={{q}}
+
+### SYMBOLOGY
+GET {{host}}/symbology

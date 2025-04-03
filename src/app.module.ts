@@ -5,6 +5,7 @@ import { ConfigModule } from '@nestjs/config';
 import configuration from '../config/configuration';
 import { validate } from '../config/env.validation';
 import { ModelsModule } from './models/models.module';
+import { ApiModule } from './api/api.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { ModelsModule } from './models/models.module';
       validate,
     }),
     ModelsModule,
+    ApiModule,
   ],
   controllers: [AppController],
   providers: [AppService],
