@@ -12,6 +12,7 @@ export function scryfallSetToSetMapper(scryfallSet: ScryfallSet): CardSet {
   set.cardCount = scryfallSet.card_count;
   set.setType = scryfallSet.set_type as SetType;
   set.scryfallUri = scryfallSet.scryfall_uri;
+  set.iconSVGuri = scryfallSet.icon_svg_uri;
 
   return set;
 }

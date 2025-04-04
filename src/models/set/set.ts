@@ -51,6 +51,13 @@ export class CardSet {
   })
   scryfallUri: string;
 
+  @ApiProperty({
+    description:
+      'A URI to an SVG file for this set’s icon on Scryfall’s CDN. Hotlinking this image isn’t recommended, because it may change slightly over time. You should download it and use it locally for your particular user interface needs.',
+    type: 'string',
+  })
+  iconSVGuri: string;
+
   @Exclude()
   createdAt: string;
 
