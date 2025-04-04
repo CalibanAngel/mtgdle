@@ -1,10 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import {
-  HealthCheckService,
-  HttpHealthIndicator,
-  HealthCheckResult,
-  TerminusModule,
-} from '@nestjs/terminus';
+import { HealthCheckResult, TerminusModule } from '@nestjs/terminus';
 import { ConfigService } from '@nestjs/config';
 import * as nock from 'nock';
 import { HealthApiService } from '../../../src/api/health/health.api-service';
