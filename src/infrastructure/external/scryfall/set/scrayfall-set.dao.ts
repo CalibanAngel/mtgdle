@@ -4,7 +4,7 @@ import { ConfigService } from '@nestjs/config/dist';
 import { HttpService } from '@nestjs/axios';
 import { Observable } from 'rxjs';
 import { AxiosResponse } from 'axios';
-import { ScryfallSet } from '@scryfall/api-types';
+import { ScryfallList } from '@scryfall/api-types';
 
 @Injectable()
 export class ScrayfallSetDao {
@@ -18,7 +18,7 @@ export class ScrayfallSetDao {
     this.host = this.configService.get('scryfall.host', { infer: true });
   }
 
-  getAllSets(): Observable<AxiosResponse<ScryfallSet>> {
-    return this.httpService.get<ScryfallSet>(`${this.host}/sets`);
+  getAllSets(): Observable<AxiosResponse<ScryfallList.Sets>> {
+    return this.httpService.get<ScryfallList.Sets>(`${this.host}/sets`);
   }
 }

@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
 import { SetType } from './set.enum';
 
-export class Set {
+export class CardSet {
   @ApiProperty({
     description: 'The name of the set.',
     type: 'string',

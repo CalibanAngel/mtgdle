@@ -1,8 +1,8 @@
 import { EntitySchema } from 'typeorm';
-import { Set } from './set';
+import { CardSet } from './set';
 import { SetType } from '@scryfall/api-types';
 
-export const SetEntity = new EntitySchema<Set>({
+export const SetEntity = new EntitySchema<CardSet>({
   name: 'Set',
   tableName: 'sets',
   columns: {

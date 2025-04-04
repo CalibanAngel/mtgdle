@@ -1,9 +1,9 @@
 import { ScryfallSet } from '@scryfall/api-types';
-import { Set } from '../../../../models/set/set';
+import { CardSet } from '../../../../models/set/set';
 import { SetType } from '../../../../models/set/set.enum';
 
-export function scryfallSetToSetMapper(scryfallSet: ScryfallSet): Set {
-  const set = new Set();
+export function scryfallSetToSetMapper(scryfallSet: ScryfallSet): CardSet {
+  const set = new CardSet();
 
   set.id = scryfallSet.id;
   set.name = scryfallSet.name;

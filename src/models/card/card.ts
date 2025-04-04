@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { ManaCost } from './mana-cost/mana-cost';
 import { CardImageUris } from './card-image-uris/card-image-uris';
-import { Set } from '../set/set';
+import { CardSet } from '../set/set';
 import { Color, Rarity } from './card.enum';
 import { Legalities } from './card.interface';
 
@@ -106,9 +106,9 @@ export class Card {
   @ApiProperty({
     description:
       'The mana value. If you submit Un-set mana symbols, this decimal could include fractional parts.',
-    type: Set,
+    type: CardSet,
   })
-  set: Set;
+  set: CardSet;
 
   @ApiProperty({
     description:

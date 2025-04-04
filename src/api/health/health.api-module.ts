@@ -9,4 +9,4 @@ import { HealthApiService } from './health.api-service';
   providers: [HealthApiService],
   controllers: [HealthController],
 })
-export class HealthModule {}
+export class HealthApModule {}
