@@ -9,6 +9,6 @@ export class HealthController {
   @Get()
   @HealthCheck()
   check() {
-    return this.healthApiService.isScryfallAlive();
+    return this.healthApiService.areAllServicesAlive();
   }
 }

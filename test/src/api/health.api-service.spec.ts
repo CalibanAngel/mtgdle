@@ -1,5 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { HealthCheckResult, TerminusModule } from '@nestjs/terminus';
+import {
+  HealthCheckResult,
+  TerminusModule,
+  TypeOrmHealthIndicator,
+} from '@nestjs/terminus';
 import { ConfigService } from '@nestjs/config';
 import * as nock from 'nock';
 import { HealthApiService } from '../../../src/api/health/health.api-service';
@@ -8,13 +12,19 @@ import { HttpModule } from '@nestjs/axios';
 describe('HealthApiService', () => {
   let service: HealthApiService;
 
+  const scryfallHost = 'http://scryfall.example.com';
+
   const mockConfigService = {
     get: (key: string) => {
       if (key === 'scryfall.host') {
-        return 'http://scryfall.example.com';
+        return scryfallHost;
       }
       return null;
     },
+  };
+
+  const mockTypeOrmHealthIndicator = {
+    pingCheck: jest.fn().mockResolvedValue({ database: { status: 'up' } }),
   };
 
   beforeAll(() => {
@@ -34,6 +44,10 @@ describe('HealthApiService', () => {
           provide: ConfigService,
           useValue: mockConfigService,
         },
+        {
+          provide: TypeOrmHealthIndicator,
+          useValue: mockTypeOrmHealthIndicator,
+        },
       ],
     }).compile();
 
@@ -44,21 +58,30 @@ describe('HealthApiService', () => {
     nock.cleanAll();
   });
 
-  it('should return healthy status for scryfall', async () => {
-    nock('http://scryfall.example.com').get('/symbology').reply(200);
+  it('should return "up" for scryfall health check', async () => {
+    // Intercept the HTTP call to scryfall endpoint.
+    nock(scryfallHost).get('/symbology').reply(200);
 
-    const result: HealthCheckResult = await service.isScryfallAlive();
-    expect(result).toHaveProperty('details');
-    expect(result.details).toHaveProperty('scryfall');
-    expect(result.info?.scryfall?.status).toEqual('up');
+    const { scryfall } = await service.isScryfallAlive();
+    expect(scryfall.status).toEqual('up');
   });
 
-  it('should return healthy status for database', async () => {
-    nock('http://localhost:8080').get('/health').reply(200);
+  it('should return "up" for database health check', async () => {
+    const { database } = await service.isDatabaseAlive();
+    expect(database.status).toEqual('up');
+    // Ensure the TypeOrmHealthIndicator.pingCheck was called.
+    expect(mockTypeOrmHealthIndicator.pingCheck).toHaveBeenCalledWith(
+      'database',
+    );
+  });
 
-    const result: HealthCheckResult = await service.isDatabaseAlive();
-    expect(result).toHaveProperty('details');
-    expect(result.details).toHaveProperty('database');
+  it('should return all services "up" when both checks pass', async () => {
+    // Set up the scryfall endpoint to respond with success.
+    nock(scryfallHost).get('/symbology').reply(200);
+
+    const result: HealthCheckResult = await service.areAllServicesAlive();
+    // The health check result contains an info property with each indicator's result.
+    expect(result.info?.scryfall?.status).toEqual('up');
     expect(result.info?.database?.status).toEqual('up');
   });
 });

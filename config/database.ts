@@ -4,12 +4,16 @@ import { Configuration } from './configuration';
 
 export default (
   configService: ConfigService<Configuration>,
-): TypeOrmModuleOptions => ({
-  type: 'postgres',
-  database: configService.get('database.databaseName', { infer: true }),
-  host: configService.get('database.host', { infer: true }),
-  port: configService.get('database.port', { infer: true }),
-  username: configService.get('database.username', { infer: true }),
-  password: configService.get('database.password', { infer: true }),
-  synchronize: configService.get('database.synchronize', { infer: true }),
-});
+): TypeOrmModuleOptions => {
+  return {
+    type: 'postgres',
+    applicationName: 'mtgdle',
+    database: configService.get('database.databaseName', { infer: true }),
+    host: configService.get('database.host', { infer: true }),
+    port: configService.get('database.port', { infer: true }),
+    username: configService.get('database.username', { infer: true }),
+    password: configService.get('database.password', { infer: true }),
+    synchronize: configService.get('database.synchronize', { infer: true }),
+    entities: [__dirname + '/../src/models/**/*.schema.ts'],
+  };
+};
