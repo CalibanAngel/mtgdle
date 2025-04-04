@@ -23,4 +23,10 @@ export class HealthApiService {
       () => this.http.pingCheck('scryfall', `${scryfallApiHost}/symbology`),
     ]);
   }
+
+  isDatabaseAlive(): Promise<HealthCheckResult> {
+    return this.health.check([
+      () => this.http.pingCheck('database', 'http://localhost:8080/health'),
+    ]);
+  }
 }

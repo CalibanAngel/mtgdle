@@ -1,68 +1,69 @@
-import { Test } from '@nestjs/testing';
+import { Test, TestingModule } from '@nestjs/testing';
+import {
+  HealthCheckService,
+  HttpHealthIndicator,
+  HealthCheckResult,
+  TerminusModule,
+} from '@nestjs/terminus';
+import { ConfigService } from '@nestjs/config';
 import * as nock from 'nock';
 import { HealthApiService } from '../../../src/api/health/health.api-service';
-import { HealthModule } from '../../../src/api/health/health.module';
-import { HttpStatus } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { HttpHealthIndicator } from '@nestjs/terminus';
+import { HttpModule } from '@nestjs/axios';
 
-describe('Health Api Service Integration Test', () => {
-  let healthApiService: HealthApiService;
+describe('HealthApiService', () => {
+  let service: HealthApiService;
 
-  const host = 'localhost';
-
-  const configServiceMock = {
-    get: jest.fn(),
-  };
-  const httpHealthIndicatorMock = {
-    pingCheck: jest.fn(),
+  const mockConfigService = {
+    get: (key: string) => {
+      if (key === 'scryfall.host') {
+        return 'http://scryfall.example.com';
+      }
+      return null;
+    },
   };
 
-  beforeAll(async () => {
-    const moduleRef = await Test.createTestingModule({
-      imports: [HealthModule],
+  beforeAll(() => {
+    nock.disableNetConnect();
+  });
+
+  afterAll(() => {
+    nock.enableNetConnect();
+  });
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      imports: [TerminusModule, HttpModule],
       providers: [
         HealthApiService,
         {
           provide: ConfigService,
-          useValue: configServiceMock,
-        },
-        {
-          provide: HttpHealthIndicator,
-          useValue: httpHealthIndicatorMock,
+          useValue: mockConfigService,
         },
       ],
     }).compile();
 
-    healthApiService = moduleRef.get(HealthApiService);
-  });
-
-  beforeEach(() => {
-    configServiceMock.get.mockResolvedValue(host);
+    service = module.get<HealthApiService>(HealthApiService);
   });
 
   afterEach(() => {
     nock.cleanAll();
   });
 
-  it('should be alive when scryfall is alive', async () => {
-    nock(host) // Making this URL identical to the one in HttpModule registration
-      .get('/symbology')
-      .reply(200);
+  it('should return healthy status for scryfall', async () => {
+    nock('http://scryfall.example.com').get('/symbology').reply(200);
 
-    const result = await healthApiService.isScryfallAlive();
-    expect(result.status).toEqual(HttpStatus.OK);
+    const result: HealthCheckResult = await service.isScryfallAlive();
+    expect(result).toHaveProperty('details');
+    expect(result.details).toHaveProperty('scryfall');
+    expect(result.info?.scryfall?.status).toEqual('up');
   });
 
-  it('should call the correct url when calling isAlive', async () => {
-    nock(host) // Making this URL identical to the one in HttpModule registration
-      .get('/symbology')
-      .reply(200);
+  it('should return healthy status for database', async () => {
+    nock('http://localhost:8080').get('/health').reply(200);
 
-    await healthApiService.isScryfallAlive();
-    expect(httpHealthIndicatorMock.pingCheck).toHaveBeenCalledWith(
-      'scryfall',
-      `${host}/symbology`,
-    );
+    const result: HealthCheckResult = await service.isDatabaseAlive();
+    expect(result).toHaveProperty('details');
+    expect(result.details).toHaveProperty('database');
+    expect(result.info?.database?.status).toEqual('up');
   });
 });
