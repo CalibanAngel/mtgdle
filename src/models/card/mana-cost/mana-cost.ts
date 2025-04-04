@@ -1,12 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-
-export enum ColorIdentity {
-  WHITE = 'W',
-  BLUE = 'U',
-  BLACK = 'B',
-  RED = 'R',
-  GREEN = 'G',
-}
+import { Color } from '../card.enum';
 
 export class ManaCost {
   @ApiProperty({
@@ -36,7 +29,7 @@ export class ManaCost {
   @ApiProperty({
     description: 'The colors of the given cost.',
   })
-  colors: ColorIdentity[];
+  colors: Color[];
 
   @ApiProperty({
     description:

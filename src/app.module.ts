@@ -8,6 +8,7 @@ import { ModelsModule } from './models/models.module';
 import { ApiModule } from './api/api.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import database from '../config/database';
+import { InfrastructureModule } from './infrastructure/infrastructure.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import database from '../config/database';
     }),
     ModelsModule,
     ApiModule,
+    InfrastructureModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -1,72 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { ColorIdentity, ManaCost } from './mana-cost/mana-cost';
+import { ManaCost } from './mana-cost/mana-cost';
 import { CardImageUris } from './card-image-uris/card-image-uris';
 import { Set } from '../set/set';
-
-export enum Rarity {
-  RARE = 'rare',
-  UNCOMMON = 'uncommon',
-  COMMON = 'common',
-  MYTHIC = 'mythic',
-  BONUS = 'bonus',
-}
-
-export enum Legality {
-  LEGAL = 'legal',
-  NOT_LEGAL = 'not_legal',
-  RESTRICTED = 'restricted',
-  BANNED = 'banned',
-}
-
-export class Legalities {
-  @ApiProperty({
-    description:
-      'The mana value. If you submit Un-set mana symbols, this decimal could include fractional parts.',
-  })
-  standard: Legality;
-
-  future: Legality;
-
-  historic: Legality;
-
-  timeless: Legality;
-
-  gladiator: Legality;
-
-  pioneer: Legality;
-
-  explorer: Legality;
-
-  modern: Legality;
-
-  legacy: Legality;
-
-  pauper: Legality;
-
-  vintage: Legality;
-
-  penny: Legality;
-
-  commander: Legality;
-
-  oathbreaker: Legality;
-
-  standardbrawl: Legality;
-
-  brawl: Legality;
-
-  alchemy: Legality;
-
-  paupercommander: Legality;
-
-  duel: Legality;
-
-  oldschool: Legality;
-
-  premodern: Legality;
-
-  predh: Legality;
-}
+import { Color, Rarity } from './card.enum';
+import { Legalities } from './card.interface';
 
 export class Card {
   @ApiProperty({
@@ -139,11 +76,10 @@ export class Card {
     description:
       'This card’s colors, if the overall card has colors defined by the rules. Empty array if the card has no colors.',
     isArray: true,
-    enum: ColorIdentity,
     enumName: 'ColorIdentity',
     example: [],
   })
-  colors: ColorIdentity[];
+  colors: Color[];
 
   @ApiProperty({
     description: '',
@@ -154,11 +90,10 @@ export class Card {
     description:
       'This card’s color identity. Empty array if the card has no colors.',
     isArray: true,
-    enum: ColorIdentity,
-    enumName: 'ColorIdentity',
+    enumName: 'Color',
     example: [],
   })
-  colorIdentity: ColorIdentity[];
+  colorIdentity: Color[];
 
   @ApiProperty({
     description:
