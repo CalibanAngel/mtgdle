@@ -1,6 +1,6 @@
 import { EntitySchema } from 'typeorm';
 import { CardSet } from './set';
-import { SetType } from '@scryfall/api-types';
+import { SetType } from './set.enum';
 
 export const SetEntity = new EntitySchema<CardSet>({
   name: 'Set',
@@ -11,25 +11,24 @@ export const SetEntity = new EntitySchema<CardSet>({
       primary: true,
     },
     name: {
-      type: String,
+      type: 'text',
     },
     code: {
-      type: String,
-      length: 10,
+      type: 'text',
     },
     releasedAt: {
-      type: String,
+      type: 'text',
       nullable: true,
     },
     cardCount: {
-      type: Number,
+      type: 'int',
     },
     setType: {
       type: 'enum',
       enum: SetType,
     },
     scryfallUri: {
-      type: String,
+      type: 'text',
     },
     createdAt: {
       type: 'timestamp',

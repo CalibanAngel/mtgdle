@@ -11,3 +11,6 @@ GET {{host}}/cards/search?q={{q}}
 
 ### SYMBOLOGY
 GET {{host}}/symbology
+
+### CARD NAME
+GET {{host}}/catalog/card-names

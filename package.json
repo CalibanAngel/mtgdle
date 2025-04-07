@@ -18,7 +18,13 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/jest/bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "prepare": "husky"
+    "prepare": "husky",
+    "migration:create": "typeorm migration:create ./migrations/schema-update",
+    "migration:generate": "npx typeorm-ts-node-commonjs migration:generate ./migrations/schema-update -d ./src/infrastructure/database/datasource",
+    "migration:show": "npx typeorm-ts-node-commonjs migration:show -d ./src/infrastructure/database/datasource",
+    "migration:run": "npx typeorm-ts-node-commonjs migration:run -d  ./src/infrastructure/database/datasource",
+    "migration:revert": "npx typeorm-ts-node-commonjs migration:revert -d ./src/infrastructure/database/datasource"
+
   },
   "engines": {
     "npm": ">=10.0.0",

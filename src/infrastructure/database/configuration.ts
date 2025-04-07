@@ -1,8 +1,9 @@
 import { TypeOrmModuleOptions } from '@nestjs/typeorm/dist/interfaces/typeorm-options.interface';
 import { ConfigService } from '@nestjs/config';
-import { Configuration } from './configuration';
+import { Configuration } from '../../../config/configuration';
+import { Entities } from './entities';
 
-export default (
+export const databaseConfiguration = (
   configService: ConfigService<Configuration>,
 ): TypeOrmModuleOptions => {
   return {
@@ -14,6 +15,8 @@ export default (
     username: configService.get('database.username', { infer: true }),
     password: configService.get('database.password', { infer: true }),
     synchronize: configService.get('database.synchronize', { infer: true }),
-    entities: [__dirname + '/../src/models/**/*.schema.ts'],
+    entities: Entities,
+    autoLoadEntities: false,
+    migrations: [],
   };
 };
