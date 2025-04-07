@@ -2,10 +2,10 @@ import { Module } from '@nestjs/common';
 import { SetService } from './set.service';
 import { InfrastructureModule } from '../../infrastructure/infrastructure.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { CardSet } from './set';
+import { SetEntity } from './set.schema';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([CardSet]), InfrastructureModule],
+  imports: [TypeOrmModule.forFeature([SetEntity]), InfrastructureModule],
   providers: [SetService],
   exports: [SetService],
 })

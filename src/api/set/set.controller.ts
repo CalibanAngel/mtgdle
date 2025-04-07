@@ -1,19 +1,28 @@
-import { Controller, Get } from '@nestjs/common';
-import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { Controller, Get, Post } from '@nestjs/common';
+import { ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { SetService } from '../../models/set/set.service';
 import { CardSet } from '../../models/set/set';
+import { from, map } from 'rxjs';
 
 @ApiTags('set')
 @Controller('set')
 export class SetController {
   constructor(private readonly setService: SetService) {}
 
-  @Get()
+  @Get('scryfall')
   @ApiOkResponse({
     type: CardSet,
     isArray: true,
   })
-  getAll() {
-    return this.setService.getAll();
+  getAllFromScryfall() {
+    return this.setService.getAllFromScryfall();
+  }
+
+  @Post('insertAllFromScryfall')
+  @ApiCreatedResponse()
+  insertAllFromScryfall() {
+    return this.setService
+      .getAllFromScryfall()
+      .pipe(map((data) => from(this.setService.bulkInsert(data))));
   }
 }
