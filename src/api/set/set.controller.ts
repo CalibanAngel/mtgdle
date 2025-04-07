@@ -2,7 +2,7 @@ import { Controller, Get, Post } from '@nestjs/common';
 import { ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { SetService } from '../../models/set/set.service';
 import { CardSet } from '../../models/set/set';
-import { from, map } from 'rxjs';
+import { from, Observable, switchMap } from 'rxjs';
 
 @ApiTags('set')
 @Controller('set')
@@ -19,10 +19,13 @@ export class SetController {
   }
 
   @Post('insertAllFromScryfall')
-  @ApiCreatedResponse()
-  insertAllFromScryfall() {
+  @ApiCreatedResponse({
+    type: CardSet,
+    isArray: true,
+  })
+  insertAllFromScryfall(): Observable<CardSet[]> {
     return this.setService
       .getAllFromScryfall()
-      .pipe(map((data) => from(this.setService.bulkInsert(data))));
+      .pipe(switchMap((data) => from(this.setService.bulkInsert(data))));
   }
 }

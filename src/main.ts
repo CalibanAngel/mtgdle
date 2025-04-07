@@ -4,7 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import 'reflect-metadata';
 import { Configuration } from '../config/configuration';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { ConsoleLogger } from '@nestjs/common';
+import { ConsoleLogger, Logger } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -27,7 +27,9 @@ async function bootstrap() {
 
   await app.listen(configHttp.port ?? 3000);
 
-  console.info(
+  const logger = new Logger('bootstrap');
+
+  logger.log(
     `Swagger can be found at http://${configHttp.host}:${configHttp.port}/api`,
   );
 }

@@ -22,7 +22,7 @@ export class SetService {
     return this.scryfallSetService.getAllSets();
   }
 
-  async bulkInsert(sets: CardSet[]) {
-    return this.cardSetRepository.insert(sets);
+  async bulkInsert(sets: CardSet[]): Promise<CardSet[]> {
+    return this.cardSetRepository.save(sets);
   }
 }
