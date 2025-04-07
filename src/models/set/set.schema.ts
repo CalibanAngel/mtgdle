@@ -14,7 +14,9 @@ export const SetEntity = new EntitySchema<CardSet>({
       type: 'text',
     },
     code: {
-      type: 'text',
+      type: 'varchar',
+      length: 8,
+      unique: true,
     },
     releasedAt: {
       type: 'text',

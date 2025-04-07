@@ -3,6 +3,7 @@ import { ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { SetService } from '../../models/set/set.service';
 import { CardSet } from '../../models/set/set';
 import { from, Observable, switchMap } from 'rxjs';
+import { UpsertResult } from '../../infrastructure/database/database.interface';
 
 @ApiTags('set')
 @Controller('set')
@@ -23,7 +24,7 @@ export class SetController {
     type: CardSet,
     isArray: true,
   })
-  insertAllFromScryfall(): Observable<CardSet[]> {
+  insertAllFromScryfall(): Observable<UpsertResult<CardSet>> {
     return this.setService
       .getAllFromScryfall()
       .pipe(switchMap((data) => from(this.setService.bulkInsert(data))));

@@ -2,17 +2,15 @@ import { ScryfallSetService } from '../../infrastructure/external/scryfall/set/s
 import { Observable } from 'rxjs';
 import { CardSet } from './set';
 import { Injectable, Logger } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { SetEntity } from './set.schema';
+import { SetRepository } from './set.repository';
+import { UpsertResult } from '../../infrastructure/database/database.interface';
 
 @Injectable()
 export class SetService {
   private readonly logger = new Logger(SetService.name);
 
   constructor(
-    @InjectRepository(SetEntity)
-    private readonly cardSetRepository: Repository<CardSet>,
+    private readonly cardSetRepository: SetRepository,
     private readonly scryfallSetService: ScryfallSetService,
   ) {}
 
@@ -22,7 +20,18 @@ export class SetService {
     return this.scryfallSetService.getAllSets();
   }
 
-  async bulkInsert(sets: CardSet[]): Promise<CardSet[]> {
-    return this.cardSetRepository.save(sets);
+  async bulkInsert(sets: CardSet[]): Promise<UpsertResult<CardSet>> {
+    this.logger.debug(`Inserting ${sets.length} sets into database`);
+
+    const upsertedResult = await this.cardSetRepository.upsertBulk(sets);
+
+    this.logger.debug(
+      `Inserted ${upsertedResult.inserted.length} sets into database`,
+    );
+    this.logger.debug(
+      `Updated ${upsertedResult.updated.length} sets into database`,
+    );
+
+    return upsertedResult;
   }
 }
