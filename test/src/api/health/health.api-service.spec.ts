@@ -6,13 +6,12 @@ import {
 } from '@nestjs/terminus';
 import { ConfigService } from '@nestjs/config';
 import * as nock from 'nock';
-import { HealthApiService } from '../../../src/api/health/health.api-service';
 import { HttpModule } from '@nestjs/axios';
+import { HealthApiService } from '../../../../src/api/health/health.api-service';
+import { scryfallHost } from '../constant';
 
 describe('HealthApiService', () => {
   let service: HealthApiService;
-
-  const scryfallHost = 'http://scryfall.example.com';
 
   const mockConfigService = {
     get: (key: string) => {
