@@ -80,9 +80,7 @@ function scryfallAnySingleSidedSplitCardToCard(
 ): Card {
   const card = {
     ...scryfallRootCardToCard(scryfallCard),
-    cardFaces: {
-      ...scryfallCardFaceToCardFace(scryfallCard),
-    },
+    cardFaces: scryfallCardFaceToCardFace(scryfallCard),
   };
 
   card.cardFaces.map((cardFace) => {
@@ -131,6 +129,7 @@ function scryfallAnySingleFacedCardToCardMapper(
   cardFace.typeLine = scryfallCard.type_line;
   cardFace.description = scryfallCard.oracle_text;
   cardFace.flavorText = scryfallCard.flavor_text;
+  cardFace.name = scryfallCard.name;
 
   card.cardFaces = [cardFace];
 
@@ -140,12 +139,10 @@ function scryfallAnySingleFacedCardToCardMapper(
 export function scryfallAnyCardToCard(scryfallCard: ScryfallCard.Any): Card {
   let card = new Card();
 
-  if (card.cardFaces?.length) {
-    if (_.has(card, 'imageUris')) {
-      card = scryfallAnySingleSidedSplitCardToCard(
-        scryfallCard as ScryfallCard.AnySingleSidedSplit,
-      );
-    }
+  if (_.has(scryfallCard, 'card_faces')) {
+    card = scryfallAnySingleSidedSplitCardToCard(
+      scryfallCard as ScryfallCard.AnySingleSidedSplit,
+    );
   } else {
     card = scryfallAnySingleFacedCardToCardMapper(
       scryfallCard as ScryfallCard.AnySingleFaced,

@@ -1,13 +1,6 @@
 import { ScryfallCard } from '@scryfall/api-types';
 import { Card } from '../../../../../../src/models/card/card';
 import { scryfallAnyCardToCard } from '../../../../../../src/infrastructure/external/scryfall/card/scryfall-card-to-card.mapper';
-import {
-  BorderColor,
-  Color,
-  GameName,
-  Layout,
-  Rarity,
-} from '../../../../../../src/models/card/card.enum';
 import { scryfallSplitCard } from './multi-face-card.fake-data';
 import { scryfallNormalCard } from './single-face-card.fake-data';
 
@@ -17,10 +10,53 @@ type EachType = {
 };
 
 const splitCard = {
-  borderColor: BorderColor.BLACK,
-  layout: Layout.Split,
+  id: '4bb07091-86d6-4735-82b6-6e71e26710f4',
+  name: 'Odds // Ends',
+  releasedDate: '2006-05-05',
+  scryfallUri: 'https://scryfall.com/card/dis/153/odds-ends?utm_source=api',
+  rarity: 'rare',
+  convertedManaCost: 7,
+  detailedManaCost: undefined,
+  setId: 'fdebeda1-b95f-4343-8a94-d125821e6b5c',
+  set: undefined,
+  legalities: {
+    standard: 'not_legal',
+    future: 'not_legal',
+    historic: 'not_legal',
+    timeless: 'not_legal',
+    gladiator: 'not_legal',
+    pioneer: 'not_legal',
+    explorer: 'not_legal',
+    modern: 'legal',
+    legacy: 'legal',
+    pauper: 'not_legal',
+    vintage: 'legal',
+    penny: 'legal',
+    commander: 'legal',
+    oathbreaker: 'legal',
+    standardbrawl: 'not_legal',
+    brawl: 'not_legal',
+    alchemy: 'not_legal',
+    paupercommander: 'not_legal',
+    duel: 'legal',
+    oldschool: 'not_legal',
+    premodern: 'not_legal',
+    predh: 'legal',
+  },
+  keywords: [],
+  reprint: false,
+  borderColor: 'black',
+  colors: ['R', 'U', 'W'],
+  colorIdentity: ['R', 'U', 'W'],
+  layout: 'split',
+  games: ['paper', 'mtgo'],
   cardFaces: [
     {
+      id: undefined,
+      cardId: undefined,
+      name: 'Odds',
+      typeLine: 'Instant',
+      manaCost: '{U}{R}',
       imageUris: {
         borderCrop:
           'https://cards.scryfall.io/border_crop/front/4/b/4bb07091-86d6-4735-82b6-6e71e26710f4.jpg?1593273942',
@@ -32,45 +68,38 @@ const splitCard = {
         small:
           'https://cards.scryfall.io/small/front/4/b/4bb07091-86d6-4735-82b6-6e71e26710f4.jpg?1593273942',
       },
-      manaCost: '{U}{R} // {3}{R}{W}',
-      typeLine: 'Instant // Instant',
+      power: undefined,
+      toughness: undefined,
+      loyalty: undefined,
+      description:
+        'Flip a coin. If it comes up heads, counter target instant or sorcery spell. If it comes up tails, copy that spell and you may choose new targets for the copy.',
+      flavorText: undefined,
+    },
+    {
+      id: undefined,
+      cardId: undefined,
+      name: 'Ends',
+      typeLine: 'Instant',
+      manaCost: '{3}{R}{W}',
+      imageUris: {
+        borderCrop:
+          'https://cards.scryfall.io/border_crop/front/4/b/4bb07091-86d6-4735-82b6-6e71e26710f4.jpg?1593273942',
+        large:
+          'https://cards.scryfall.io/large/front/4/b/4bb07091-86d6-4735-82b6-6e71e26710f4.jpg?1593273942',
+        normal:
+          'https://cards.scryfall.io/normal/front/4/b/4bb07091-86d6-4735-82b6-6e71e26710f4.jpg?1593273942',
+        png: 'https://cards.scryfall.io/png/front/4/b/4bb07091-86d6-4735-82b6-6e71e26710f4.png?1593273942',
+        small:
+          'https://cards.scryfall.io/small/front/4/b/4bb07091-86d6-4735-82b6-6e71e26710f4.jpg?1593273942',
+      },
+      power: undefined,
+      toughness: undefined,
+      loyalty: undefined,
+      description:
+        'Target player sacrifices two attacking creatures of their choice.',
+      flavorText: undefined,
     },
   ],
-  colorIdentity: [Color.RED, Color.BLUE, Color.WHITE],
-  convertedManaCost: 7,
-  games: [GameName.PAPER, GameName.MTGO],
-  id: '4bb07091-86d6-4735-82b6-6e71e26710f4',
-  keywords: [],
-  legalities: {
-    alchemy: 'not_legal',
-    brawl: 'not_legal',
-    commander: 'legal',
-    duel: 'legal',
-    explorer: 'not_legal',
-    future: 'not_legal',
-    gladiator: 'not_legal',
-    historic: 'not_legal',
-    legacy: 'legal',
-    modern: 'legal',
-    oathbreaker: 'legal',
-    oldschool: 'not_legal',
-    pauper: 'not_legal',
-    paupercommander: 'not_legal',
-    penny: 'legal',
-    pioneer: 'not_legal',
-    predh: 'legal',
-    premodern: 'not_legal',
-    standard: 'not_legal',
-    standardbrawl: 'not_legal',
-    timeless: 'not_legal',
-    vintage: 'legal',
-  },
-  name: 'Odds // Ends',
-  rarity: Rarity.RARE,
-  releasedDate: '2006-05-05',
-  reprint: false,
-  scryfallUri: 'https://scryfall.com/card/dis/153/odds-ends?utm_source=api',
-  setId: 'fdebeda1-b95f-4343-8a94-d125821e6b5c',
 } as unknown as Card;
 
 const normaleCard = {
@@ -118,7 +147,7 @@ const normaleCard = {
     {
       id: undefined,
       cardId: undefined,
-      name: undefined,
+      name: 'Strip Mine',
       typeLine: 'Land',
       manaCost: '',
       imageUris: {
