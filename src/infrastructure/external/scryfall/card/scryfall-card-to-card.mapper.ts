@@ -23,7 +23,7 @@ function scryfallDoubleSidedOrReversibleCardFaceToCardFace(
     normal: scryfallCardFace.image_uris.normal,
     png: scryfallCardFace.image_uris.png,
     small: scryfallCardFace.image_uris.small,
-  };
+  } as CardImageUris;
 }
 
 function scryfallCardFaceToCardFace({
@@ -83,14 +83,17 @@ function scryfallAnySingleSidedSplitCardToCard(
     cardFaces: scryfallCardFaceToCardFace(scryfallCard),
   };
 
-  card.cardFaces.map((cardFace) => {
-    cardFace.imageUris = {
-      borderCrop: scryfallCard.image_uris.border_crop,
-      large: scryfallCard.image_uris.large,
-      normal: scryfallCard.image_uris.normal,
-      png: scryfallCard.image_uris.png,
-      small: scryfallCard.image_uris.small,
-    };
+  card.cardFaces.forEach((cardFace) => {
+    const imageUris = new CardImageUris();
+
+    imageUris.borderCrop = scryfallCard.image_uris.border_crop;
+    imageUris.large = scryfallCard.image_uris.large;
+    imageUris.normal = scryfallCard.image_uris.normal;
+    imageUris.png = scryfallCard.image_uris.png;
+    imageUris.small = scryfallCard.image_uris.small;
+
+    cardFace.imageUris = imageUris;
+    cardFace.cardId = scryfallCard.id;
   });
   return card;
 }
@@ -114,14 +117,15 @@ function scryfallAnySingleFacedCardToCardMapper(
 ): Card {
   const card = scryfallRootCardToCard(scryfallCard);
   const cardFace = new CardFace();
+  const imageUris = new CardImageUris();
 
-  cardFace.imageUris = {
-    borderCrop: scryfallCard.image_uris.border_crop,
-    large: scryfallCard.image_uris.large,
-    normal: scryfallCard.image_uris.normal,
-    png: scryfallCard.image_uris.png,
-    small: scryfallCard.image_uris.small,
-  };
+  imageUris.borderCrop = scryfallCard.image_uris.border_crop;
+  imageUris.large = scryfallCard.image_uris.large;
+  imageUris.normal = scryfallCard.image_uris.normal;
+  imageUris.png = scryfallCard.image_uris.png;
+  imageUris.small = scryfallCard.image_uris.small;
+  cardFace.imageUris = imageUris;
+
   cardFace.manaCost = scryfallCard.mana_cost;
   cardFace.power = scryfallCard.power;
   cardFace.toughness = scryfallCard.toughness;
@@ -130,6 +134,7 @@ function scryfallAnySingleFacedCardToCardMapper(
   cardFace.description = scryfallCard.oracle_text;
   cardFace.flavorText = scryfallCard.flavor_text;
   cardFace.name = scryfallCard.name;
+  cardFace.cardId = scryfallCard.id;
 
   card.cardFaces = [cardFace];
 

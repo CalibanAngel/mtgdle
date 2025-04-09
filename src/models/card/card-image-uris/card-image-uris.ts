@@ -1,6 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Exclude } from 'class-transformer';
 
 export class CardImageUris {
+  @Exclude()
+  id: string;
+
+  @Exclude()
+  cardFaceId: string;
+
   @ApiProperty({
     description:
       'A small full card image. Designed for use as thumbnail or list icon. 146 × 204',

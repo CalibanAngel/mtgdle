@@ -53,7 +53,7 @@ const splitCard = {
   cardFaces: [
     {
       id: undefined,
-      cardId: undefined,
+      cardId: '4bb07091-86d6-4735-82b6-6e71e26710f4',
       name: 'Odds',
       typeLine: 'Instant',
       manaCost: '{U}{R}',
@@ -77,7 +77,7 @@ const splitCard = {
     },
     {
       id: undefined,
-      cardId: undefined,
+      cardId: '4bb07091-86d6-4735-82b6-6e71e26710f4',
       name: 'Ends',
       typeLine: 'Instant',
       manaCost: '{3}{R}{W}',
@@ -146,7 +146,7 @@ const normaleCard = {
   cardFaces: [
     {
       id: undefined,
-      cardId: undefined,
+      cardId: 'f57fd4c9-0004-4f71-a30f-2720943f57ca',
       name: 'Strip Mine',
       typeLine: 'Land',
       manaCost: '',
