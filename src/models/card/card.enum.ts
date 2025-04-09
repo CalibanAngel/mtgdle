@@ -6,6 +6,21 @@ export enum Rarity {
   BONUS = 'bonus',
 }
 
+export enum BorderColor {
+  BLACK = 'black',
+  WHITE = 'white',
+  BORDERLESS = 'borderless',
+  YELLOW = 'yellow',
+  SILVER = 'silver',
+  GOLD = 'gold',
+}
+
+export enum GameName {
+  PAPER = 'paper',
+  ARENA = 'arena',
+  MTGO = 'mtgo',
+}
+
 export enum Legality {
   Legal = 'legal',
   NotLegal = 'not_legal',

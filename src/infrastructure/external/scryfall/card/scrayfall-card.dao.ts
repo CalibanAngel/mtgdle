@@ -18,7 +18,9 @@ export class ScrayfallCardDao {
     this.host = this.configService.get('scryfall.host', { infer: true });
   }
 
-  getRandomCard(): Observable<AxiosResponse<ScryfallCard.Any>> {
-    return this.httpService.get<ScryfallCard.Any>(`${this.host}/cards/random`);
+  getRandomCard(): Observable<AxiosResponse<ScryfallCard.AnySingleFaced>> {
+    return this.httpService.get<ScryfallCard.AnySingleFaced>(
+      `${this.host}/cards/random`,
+    );
   }
 }

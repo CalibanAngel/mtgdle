@@ -1,8 +1,41 @@
 ### RANDOM
 GET {{host}}/cards/random
 
+### ID SPLIT
+@card_id_split=4bb07091-86d6-4735-82b6-6e71e26710f4
+GET {{host}}/cards/{{card_id_split}}
+
+### ID FLIP
+@card_id_flip=6ee6cd34-c117-4d7e-97d1-8f8464bfaac8
+GET {{host}}/cards/{{card_id_flip}}
+
+### ID ADVENTURE
+@card_id_adventure=b5b71cd2-de35-451f-b16e-2e3936169407
+GET {{host}}/cards/{{card_id_adventure}}
+
+### ID TRANSFORM
+@card_id_transform=70b2cdc5-35b9-443d-b499-c8b75c0d0a64
+GET {{host}}/cards/{{card_id_transform}}
+
+### ID MODAL_DFC
+@card_id_modal_dfc=44657ab1-0a6a-4a5f-9688-86f239083821
+GET {{host}}/cards/{{card_id_modal_dfc}}
+
+### ID DOUBLE FACE TOKEN
+@card_id_double_face_token=0fd5b9c3-9c18-446d-9d81-7a3a90d7bbee
+GET {{host}}/cards/{{card_id_double_face_token}}
+
+### ID ART SERIES
+@card_id_ART_SERIES=8de2ff37-fdb7-4f77-9d48-e99afac9a79e
+GET {{host}}/cards/{{card_id_ART_SERIES}}
+
+### ID REVERSIBLE
+@card_id_reversible=087c3a0d-c710-4451-989e-596b55352184
+GET {{host}}/cards/{{card_id_reversible}}
+
+
 ### PARSE MANA
-@manaCost={1}{W}
+@manaCost={2}{R} // {1}{R}
 GET {{host}}/symbology/parse-mana?cost={{manaCost}}
 
 ### SEARCH
@@ -14,3 +47,10 @@ GET {{host}}/symbology
 
 ### CARD NAME
 GET {{host}}/catalog/card-names
+
+### NAMED DUAL CARD
+GET {{host}}/cards/named?fuzzy=Odds+and+Ends
+
+### NAMED SINGLE CARD
+GET {{host}}/cards/named?fuzzy=bonecrusher+giant
+

@@ -1,9 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { ManaCost } from './mana-cost/mana-cost';
-import { CardImageUris } from './card-image-uris/card-image-uris';
 import { CardSet } from '../set/set';
-import { Color, Rarity } from './card.enum';
+import { BorderColor, Color, GameName, Rarity } from './card.enum';
 import { Legalities } from './card.interface';
+import { Exclude } from 'class-transformer';
+import { CardFace } from './card-face/card-face';
 
 export class Card {
   @ApiProperty({
@@ -44,42 +45,12 @@ export class Card {
   rarity: Rarity;
 
   @ApiProperty({
-    description: 'The flavor text, if any.',
-    type: 'string',
-  })
-  flavorText: string;
-
-  @ApiProperty({
-    description: 'The type line of this card.',
-    type: 'string',
-    example: 'Artifact',
-  })
-  typeLine: string;
-
-  @ApiProperty({
-    description:
-      'The mana cost for this card. This value will be any empty string "" if the cost is absent. Remember that per the game rules, a missing mana cost and a mana cost of {0} are different values. Multi-faced cards will report this value in card faces.',
-    type: 'string',
-    example: '{0}',
-  })
-  manaCost: string;
-
-  @ApiProperty({
     description:
       'The card’s mana value. Note that some funny cards have fractional mana costs.',
     type: 'number',
     example: 0,
   })
   convertedManaCost: number;
-
-  @ApiProperty({
-    description:
-      'This card’s colors, if the overall card has colors defined by the rules. Empty array if the card has no colors.',
-    isArray: true,
-    enumName: 'ColorIdentity',
-    example: [],
-  })
-  colors: Color[];
 
   @ApiProperty({
     description: '',
@@ -95,19 +66,10 @@ export class Card {
   })
   colorIdentity: Color[];
 
-  @ApiProperty({
-    description:
-      "An array of keywords that this card uses, such as 'Flying' and 'Cumulative upkeep'.",
-    isArray: true,
-    example: ['Flying'],
-  })
-  keywords: string[];
+  @Exclude()
+  setId: string;
 
-  @ApiProperty({
-    description:
-      'The mana value. If you submit Un-set mana symbols, this decimal could include fractional parts.',
-    type: CardSet,
-  })
+  @Exclude()
   set: CardSet;
 
   @ApiProperty({
@@ -119,27 +81,11 @@ export class Card {
 
   @ApiProperty({
     description:
-      'The mana value. If you submit Un-set mana symbols, this decimal could include fractional parts.',
+      "An array of keywords that this card uses, such as 'Flying' and 'Cumulative upkeep'.",
+    isArray: true,
+    example: ['Flying'],
   })
-  imageUris: CardImageUris;
-
-  @ApiProperty({
-    description:
-      'This card’s power, if any. Note that some cards have powers that are not numeric, such as *.',
-  })
-  power?: string;
-
-  @ApiProperty({
-    description:
-      'This card’s toughness, if any. Note that some cards have toughnesses that are not numeric, such as *.',
-  })
-  toughness?: string;
-
-  @ApiProperty({
-    description:
-      'This loyalty if any. Note that some cards have loyalties that are not numeric, such as X.',
-  })
-  loyalty?: string;
+  keywords: string[];
 
   @ApiProperty({
     description: 'True if this card is a reprint.',
@@ -148,8 +94,26 @@ export class Card {
   reprint: boolean;
 
   @ApiProperty({
-    description: 'The full text for this card, if any.',
-    example: '{T}, Sacrifice this artifact: Add three mana of any one color.',
+    description:
+      'This card’s border color: black, white, borderless, yellow, silver, or gold.',
+    enum: BorderColor,
+    enumName: 'BorderColor',
   })
-  description?: string;
+  borderColor: BorderColor;
+
+  @ApiProperty({
+    description:
+      'A list of games that this card print is available in, paper, arena, and/or mtgo.',
+    isArray: true,
+    enumName: 'GameName',
+    enum: GameName,
+  })
+  games: GameName[];
+
+  @ApiProperty({
+    description: 'Gameplay info of the card.',
+    type: CardFace,
+    isArray: true,
+  })
+  cardFaces: CardFace[];
 }

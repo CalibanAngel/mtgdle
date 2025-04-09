@@ -1,30 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Legality } from './card.enum';
 
-export type LegalityFormat =
-  | 'standard'
-  | 'future'
-  | 'historic'
-  | 'gladiator'
-  | 'pioneer'
-  | 'explorer'
-  | 'modern'
-  | 'legacy'
-  | 'pauper'
-  | 'vintage'
-  | 'penny'
-  | 'commander'
-  | 'oathbreaker'
-  | 'brawl'
-  | 'historicbrawl'
-  | 'alchemy'
-  | 'paupercommander'
-  | 'duel'
-  | 'oldschool'
-  | 'premodern'
-  | 'predh'
-  | 'timeless';
-
 export class Legalities {
   @ApiProperty({
     enum: Legality,
@@ -179,4 +155,11 @@ export class Legalities {
     description: 'Legal status for Timeless format.',
   })
   timeless: Legality;
+
+  @ApiProperty({
+    enum: Legality,
+    example: Legality.Legal,
+    description: 'Legal status for Standard brawl format.',
+  })
+  standardbrawl: Legality;
 }

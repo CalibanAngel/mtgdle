@@ -1,8 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ScrayfallCardDao } from './scrayfall-card.dao';
-import { Observable } from 'rxjs';
-import { AxiosResponse } from 'axios';
-import { ScryfallCard } from '@scryfall/api-types';
+import { map, Observable } from 'rxjs';
+import { scryfallAnyCardToCard } from './scryfall-card-to-card.mapper';
+import { Card } from '../../../../models/card/card';
 
 @Injectable()
 export class ScryfallCardService {
@@ -10,7 +10,9 @@ export class ScryfallCardService {
 
   constructor(private readonly scryfallCardDao: ScrayfallCardDao) {}
 
-  getRandomCard(): Observable<AxiosResponse<ScryfallCard.Any>> {
-    return this.scryfallCardDao.getRandomCard();
+  getRandomCard(): Observable<Card> {
+    return this.scryfallCardDao
+      .getRandomCard()
+      .pipe(map(({ data }) => scryfallAnyCardToCard(data)));
   }
 }
