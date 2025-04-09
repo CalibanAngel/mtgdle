@@ -1,14 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Color } from '../card.enum';
 import { CardImageUris } from '../card-image-uris/card-image-uris';
+import { Exclude } from 'class-transformer';
 
 export class CardFace {
-  @ApiProperty({
-    description: 'A unique ID for this card in MTGdle’s database.',
-    type: 'string',
-    example: 'bd8fa327-dd41-4737-8f19-2cf5eb1f7cdd',
-  })
+  @Exclude()
   id: string;
+
+  @Exclude()
+  cardId: string;
 
   @ApiProperty({
     description:
@@ -31,15 +30,6 @@ export class CardFace {
     example: '{0}',
   })
   manaCost: string;
-
-  @ApiProperty({
-    description:
-      'This card’s colors, if the overall card has colors defined by the rules. Empty array if the card has no colors.',
-    isArray: true,
-    enumName: 'ColorIdentity',
-    example: [],
-  })
-  colors: Color[];
 
   @ApiProperty({
     description:
@@ -75,5 +65,5 @@ export class CardFace {
     description: 'The flavor text, if any.',
     type: 'string',
   })
-  flavorText: string;
+  flavorText?: string;
 }

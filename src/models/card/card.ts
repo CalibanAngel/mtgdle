@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { ManaCost } from './mana-cost/mana-cost';
 import { CardSet } from '../set/set';
-import { BorderColor, Color, GameName, Rarity } from './card.enum';
+import { BorderColor, Color, GameName, Layout, Rarity } from './card.enum';
 import { Legalities } from './card.interface';
 import { Exclude } from 'class-transformer';
 import { CardFace } from './card-face/card-face';
@@ -57,15 +57,6 @@ export class Card {
   })
   detailedManaCost: ManaCost;
 
-  @ApiProperty({
-    description:
-      'This card’s color identity. Empty array if the card has no colors.',
-    isArray: true,
-    enumName: 'Color',
-    example: [],
-  })
-  colorIdentity: Color[];
-
   @Exclude()
   setId: string;
 
@@ -100,6 +91,28 @@ export class Card {
     enumName: 'BorderColor',
   })
   borderColor: BorderColor;
+
+  @ApiProperty({
+    description:
+      'This card’s colors, if the overall card has colors defined by the rules. Empty array if the card has no colors.',
+    isArray: true,
+    enumName: 'Color',
+    example: [],
+  })
+  colors: Color[];
+
+  @ApiProperty({
+    description:
+      'This card’s color identity. Empty array if the card has no colors.',
+    isArray: true,
+    enumName: 'Color',
+    example: [],
+  })
+  colorIdentity: Color[];
+
+  // we only take single sided cards for now
+  @Exclude()
+  layout: Layout;
 
   @ApiProperty({
     description:

@@ -4,6 +4,7 @@ import {
   BorderColor,
   Color,
   GameName,
+  Layout,
   Rarity,
 } from '../../../../models/card/card.enum';
 import { Legalities } from '../../../../models/card/card.interface';
@@ -44,13 +45,14 @@ function scryfallCardFaceToCardFace({
     cardFace.typeLine = card_face.type_line;
     cardFace.description = card_face.oracle_text;
     cardFace.flavorText = card_face.flavor_text;
+    cardFace.name = card_face.name;
 
     return cardFace;
   });
 }
 
 function scryfallRootCardToCard(
-  scryfallCard: ScryfallCard.AnySingleFaced | ScryfallCard.AnyMultiFaced,
+  scryfallCard: ScryfallCard.AnySingleFaced | ScryfallCard.AnySingleSidedSplit,
 ): Card {
   const card = new Card();
 
@@ -65,10 +67,10 @@ function scryfallRootCardToCard(
   card.reprint = scryfallCard.reprint;
   card.borderColor = scryfallCard.border_color as BorderColor;
   card.games = scryfallCard.games as GameName[];
-  card.convertedManaCost = _.has(scryfallCard, 'cmc')
-    ? (scryfallCard as ScryfallCard.AnySingleFaced).cmc
-    : (scryfallCard as ScryfallCard.ReversibleCard).card_faces[0].cmc;
+  card.convertedManaCost = scryfallCard.cmc;
   card.colorIdentity = scryfallCard.color_identity as Color[];
+  card.colors = (scryfallCard.colors as Color[]) ?? [];
+  card.layout = scryfallCard.layout as Layout;
 
   return card;
 }
@@ -95,18 +97,19 @@ function scryfallAnySingleSidedSplitCardToCard(
   return card;
 }
 
-function scryfallAnyDoubleSidedSplitToCard(
-  scryfallCard: ScryfallCard.AnyDoubleSidedSplit,
-): Card {
-  const card = {
-    ...scryfallRootCardToCard(scryfallCard),
-    cardFaces: {
-      ...scryfallCardFaceToCardFace(scryfallCard),
-    },
-  };
-
-  return card;
-}
+// TODO : later when everything works with 1 side
+// function scryfallAnyDoubleSidedSplitToCard(
+//   scryfallCard: ScryfallCard.AnyDoubleSidedSplit,
+// ): Card {
+//   const card = {
+//     ...scryfallRootCardToCard(scryfallCard),
+//     cardFaces: {
+//       ...scryfallCardFaceToCardFace(scryfallCard),
+//     },
+//   };
+//
+//   return card;
+// }
 
 function scryfallAnySingleFacedCardToCardMapper(
   scryfallCard: ScryfallCard.AnySingleFaced,
@@ -141,10 +144,6 @@ export function scryfallAnyCardToCard(scryfallCard: ScryfallCard.Any): Card {
     if (_.has(card, 'imageUris')) {
       card = scryfallAnySingleSidedSplitCardToCard(
         scryfallCard as ScryfallCard.AnySingleSidedSplit,
-      );
-    } else {
-      card = scryfallAnyDoubleSidedSplitToCard(
-        scryfallCard as ScryfallCard.AnyDoubleSidedSplit,
       );
     }
   } else {

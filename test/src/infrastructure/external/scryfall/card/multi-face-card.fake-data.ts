@@ -1,4 +1,6 @@
-export const splitCard = {
+import { ScryfallCard } from '@scryfall/api-types';
+
+export const scryfallSplitCard = {
   object: 'card',
   id: '4bb07091-86d6-4735-82b6-6e71e26710f4',
   oracle_id: '82922f3a-a444-49cf-b136-f30a3c85f791',
@@ -144,9 +146,9 @@ export const splitCard = {
     cardhoarder:
       'https://www.cardhoarder.com/cards/24367?affiliate_id=scryfall&ref=card-profile&utm_campaign=affiliate&utm_medium=card&utm_source=scryfall',
   },
-};
+} as unknown as ScryfallCard.Split;
 
-export const flipCard = {
+export const scryfallFlipCard = {
   object: 'card',
   id: '6ee6cd34-c117-4d7e-97d1-8f8464bfaac8',
   oracle_id: '47795817-73e5-4af6-bd1e-d69b193e8e9e',
@@ -298,9 +300,9 @@ export const flipCard = {
     cardhoarder:
       'https://www.cardhoarder.com/cards/21237?affiliate_id=scryfall&ref=card-profile&utm_campaign=affiliate&utm_medium=card&utm_source=scryfall',
   },
-};
+} as unknown as ScryfallCard.Flip;
 
-export const adventureCard = {
+export const scryfallAdventureCard = {
   object: 'card',
   id: 'b5b71cd2-de35-451f-b16e-2e3936169407',
   oracle_id: 'd6d72f5f-8f5d-4180-b514-f22ff5482902',
@@ -469,9 +471,9 @@ export const adventureCard = {
     cardhoarder:
       'https://www.cardhoarder.com/cards/101104?affiliate_id=scryfall&ref=card-profile&utm_campaign=affiliate&utm_medium=card&utm_source=scryfall',
   },
-};
+} as unknown as ScryfallCard.Adventure;
 
-export const transformCard = {
+export const scryfallTransformCard = {
   object: 'card',
   id: '70b2cdc5-35b9-443d-b499-c8b75c0d0a64',
   oracle_id: '3bafc004-1c90-4939-9dcb-72667c170e39',
@@ -643,9 +645,9 @@ export const transformCard = {
     cardhoarder:
       'https://www.cardhoarder.com/cards/110246?affiliate_id=scryfall&ref=card-profile&utm_campaign=affiliate&utm_medium=card&utm_source=scryfall',
   },
-};
+} as unknown as ScryfallCard.Transform;
 
-export const modalDfcCard = {
+export const scryfallModalDfcCard = {
   object: 'card',
   id: '44657ab1-0a6a-4a5f-9688-86f239083821',
   oracle_id: 'fb81e4d3-1d8c-4779-be62-87cf49277e51',
@@ -815,9 +817,9 @@ export const modalDfcCard = {
     cardhoarder:
       'https://www.cardhoarder.com/cards/87579?affiliate_id=scryfall&ref=card-profile&utm_campaign=affiliate&utm_medium=card&utm_source=scryfall',
   },
-};
+} as unknown as ScryfallCard.ModalDfc;
 
-export const doubleFaceToken = {
+export const scryfallDoubleFaceToken = {
   object: 'card',
   id: '0fd5b9c3-9c18-446d-9d81-7a3a90d7bbee',
   oracle_id: '0f49692c-534f-443a-b0f8-59dfb44c3549',
@@ -968,9 +970,9 @@ export const doubleFaceToken = {
     cardhoarder:
       'https://www.cardhoarder.com/cards?affiliate_id=scryfall&data%5Bsearch%5D=Bounty%3A+Miron+Tillas+Jr.+%2F%2F+Wanted%21&ref=card-profile&utm_campaign=affiliate&utm_medium=card&utm_source=scryfall',
   },
-};
+} as unknown as ScryfallCard.DoubleFacedToken;
 
-export const artSeriesCard = {
+export const scryfallArtSeriesCard = {
   object: 'card',
   id: '8de2ff37-fdb7-4f77-9d48-e99afac9a79e',
   oracle_id: '7b21e8b3-8093-4773-b3d7-3647a21a3562',
@@ -1118,9 +1120,9 @@ export const artSeriesCard = {
     cardhoarder:
       'https://www.cardhoarder.com/cards?affiliate_id=scryfall&data%5Bsearch%5D=Chillerpillar&ref=card-profile&utm_campaign=affiliate&utm_medium=card&utm_source=scryfall',
   },
-};
+} as unknown as ScryfallCard.ArtSeries;
 
-export const reversibleCard = {
+export const scryfallReversibleCard = {
   object: 'card',
   id: '087c3a0d-c710-4451-989e-596b55352184',
   multiverse_ids: [],
@@ -1282,4 +1284,4 @@ export const reversibleCard = {
     cardhoarder:
       'https://www.cardhoarder.com/cards?affiliate_id=scryfall&data%5Bsearch%5D=Stitch+in+Time+%2F%2F+Stitch+in+Time&ref=card-profile&utm_campaign=affiliate&utm_medium=card&utm_source=scryfall',
   },
-};
+} as unknown as ScryfallCard.ReversibleCard;

@@ -1,0 +1,127 @@
+import { ScryfallCard } from '@scryfall/api-types';
+
+export const scryfallNormalCard = {
+  object: 'card',
+  id: 'f57fd4c9-0004-4f71-a30f-2720943f57ca',
+  oracle_id: 'd21a89eb-7c5b-459a-acc7-12b20b13bf79',
+  multiverse_ids: [383113],
+  mtgo_id: 52853,
+  mtgo_foil_id: 52854,
+  name: 'Strip Mine',
+  lang: 'en',
+  released_at: '2014-06-16',
+  uri: 'https://api.scryfall.com/cards/f57fd4c9-0004-4f71-a30f-2720943f57ca',
+  scryfall_uri: 'https://scryfall.com/card/vma/316/strip-mine?utm_source=api',
+  layout: 'normal',
+  highres_image: true,
+  image_status: 'highres_scan',
+  image_uris: {
+    small:
+      'https://cards.scryfall.io/small/front/f/5/f57fd4c9-0004-4f71-a30f-2720943f57ca.jpg?1562944463',
+    normal:
+      'https://cards.scryfall.io/normal/front/f/5/f57fd4c9-0004-4f71-a30f-2720943f57ca.jpg?1562944463',
+    large:
+      'https://cards.scryfall.io/large/front/f/5/f57fd4c9-0004-4f71-a30f-2720943f57ca.jpg?1562944463',
+    png: 'https://cards.scryfall.io/png/front/f/5/f57fd4c9-0004-4f71-a30f-2720943f57ca.png?1562944463',
+    art_crop:
+      'https://cards.scryfall.io/art_crop/front/f/5/f57fd4c9-0004-4f71-a30f-2720943f57ca.jpg?1562944463',
+    border_crop:
+      'https://cards.scryfall.io/border_crop/front/f/5/f57fd4c9-0004-4f71-a30f-2720943f57ca.jpg?1562944463',
+  },
+  mana_cost: '',
+  cmc: 0.0,
+  type_line: 'Land',
+  oracle_text: '{T}: Add {C}.\n{T}, Sacrifice this land: Destroy target land.',
+  colors: [],
+  color_identity: [],
+  keywords: [],
+  produced_mana: ['C'],
+  legalities: {
+    standard: 'not_legal',
+    future: 'not_legal',
+    historic: 'not_legal',
+    timeless: 'not_legal',
+    gladiator: 'not_legal',
+    pioneer: 'not_legal',
+    explorer: 'not_legal',
+    modern: 'not_legal',
+    legacy: 'banned',
+    pauper: 'not_legal',
+    vintage: 'restricted',
+    penny: 'not_legal',
+    commander: 'legal',
+    oathbreaker: 'legal',
+    standardbrawl: 'not_legal',
+    brawl: 'not_legal',
+    alchemy: 'not_legal',
+    paupercommander: 'not_legal',
+    duel: 'banned',
+    oldschool: 'not_legal',
+    premodern: 'banned',
+    predh: 'legal',
+  },
+  games: ['mtgo'],
+  reserved: false,
+  game_changer: false,
+  foil: true,
+  nonfoil: true,
+  finishes: ['nonfoil', 'foil'],
+  oversized: false,
+  promo: false,
+  reprint: true,
+  variation: false,
+  set_id: 'a944551a-73fa-41cd-9159-e8d0e4674403',
+  set: 'vma',
+  set_name: 'Vintage Masters',
+  set_type: 'masters',
+  set_uri: 'https://api.scryfall.com/sets/a944551a-73fa-41cd-9159-e8d0e4674403',
+  set_search_uri:
+    'https://api.scryfall.com/cards/search?order=set&q=e%3Avma&unique=prints',
+  scryfall_set_uri: 'https://scryfall.com/sets/vma?utm_source=api',
+  rulings_uri:
+    'https://api.scryfall.com/cards/f57fd4c9-0004-4f71-a30f-2720943f57ca/rulings',
+  prints_search_uri:
+    'https://api.scryfall.com/cards/search?order=released&q=oracleid%3Ad21a89eb-7c5b-459a-acc7-12b20b13bf79&unique=prints',
+  collector_number: '316',
+  digital: true,
+  rarity: 'rare',
+  flavor_text:
+    'Unlike previous conflicts, the war between Urza and Mishra made Dominaria itself a casualty of war.',
+  card_back_id: '0aeebaf5-8c7d-4636-9e82-8c27447861f7',
+  artist: 'John Avon',
+  artist_ids: ['798f3932-30e0-4420-aa3f-db4d613f89ca'],
+  illustration_id: '218a605d-a1eb-4cd4-8204-1d34cf721308',
+  border_color: 'black',
+  frame: '2015',
+  security_stamp: 'oval',
+  full_art: false,
+  textless: false,
+  booster: true,
+  story_spotlight: false,
+  edhrec_rank: 494,
+  prices: {
+    usd: null,
+    usd_foil: null,
+    usd_etched: null,
+    eur: null,
+    eur_foil: null,
+    tix: '3.60',
+  },
+  related_uris: {
+    gatherer:
+      'https://gatherer.wizards.com/Pages/Card/Details.aspx?multiverseid=383113&printed=false',
+    tcgplayer_infinite_articles:
+      'https://partner.tcgplayer.com/c/4931599/1830156/21018?subId1=api&trafcat=infinite&u=https%3A%2F%2Finfinite.tcgplayer.com%2Fsearch%3FcontentMode%3Darticle%26game%3Dmagic%26q%3DStrip%2BMine',
+    tcgplayer_infinite_decks:
+      'https://partner.tcgplayer.com/c/4931599/1830156/21018?subId1=api&trafcat=infinite&u=https%3A%2F%2Finfinite.tcgplayer.com%2Fsearch%3FcontentMode%3Ddeck%26game%3Dmagic%26q%3DStrip%2BMine',
+    edhrec: 'https://edhrec.com/route/?cc=Strip+Mine',
+  },
+  purchase_uris: {
+    tcgplayer:
+      'https://partner.tcgplayer.com/c/4931599/1830156/21018?subId1=api&u=https%3A%2F%2Fwww.tcgplayer.com%2Fsearch%2Fmagic%2Fproduct%3FproductLineName%3Dmagic%26q%3DStrip%2BMine%26view%3Dgrid',
+    cardmarket:
+      'https://www.cardmarket.com/en/Magic/Products/Search?referrer=scryfall&searchString=Strip+Mine&utm_campaign=card_prices&utm_medium=text&utm_source=scryfall',
+    cardhoarder:
+      'https://www.cardhoarder.com/cards/52853?affiliate_id=scryfall&ref=card-profile&utm_campaign=affiliate&utm_medium=card&utm_source=scryfall',
+  },
+} as unknown as ScryfallCard.Normal;

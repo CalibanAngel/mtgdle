@@ -33,6 +33,9 @@ GET {{host}}/cards/{{card_id_ART_SERIES}}
 @card_id_reversible=087c3a0d-c710-4451-989e-596b55352184
 GET {{host}}/cards/{{card_id_reversible}}
 
+### ID NORMALE
+@card_id_normale=f57fd4c9-0004-4f71-a30f-2720943f57ca
+GET {{host}}/cards/{{card_id_normale}}
 
 ### PARSE MANA
 @manaCost={2}{R} // {1}{R}
