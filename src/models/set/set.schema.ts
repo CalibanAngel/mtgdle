@@ -4,7 +4,7 @@ import { SetType } from './set.enum';
 
 export const SetEntity = new EntitySchema<CardSet>({
   name: 'Set',
-  tableName: 'sets',
+  tableName: 'set',
   columns: {
     id: {
       type: 'uuid',
@@ -20,6 +20,7 @@ export const SetEntity = new EntitySchema<CardSet>({
     },
     releasedAt: {
       type: 'text',
+      name: 'released_at',
       nullable: true,
     },
     cardCount: {
@@ -31,14 +32,25 @@ export const SetEntity = new EntitySchema<CardSet>({
     },
     scryfallUri: {
       type: 'text',
+      name: 'scryfall_uri',
     },
     createdAt: {
       type: 'timestamp',
-      createDate: true, // Automatically set when the entity is first saved.
+      createDate: true,
+      name: 'created_at',
     },
     updatedAt: {
       type: 'timestamp',
-      updateDate: true, // Automatically updated each time the entity is updated.
+      updateDate: true,
+      name: 'updated_at',
+    },
+  },
+  relations: {
+    cards: {
+      type: 'one-to-many',
+      target: 'Card',
+      inverseSide: 'set',
+      cascade: true,
     },
   },
 });

@@ -10,7 +10,7 @@ import { SetApiService } from './set.api-service';
 export class SetController {
   constructor(private readonly setApiService: SetApiService) {}
 
-  @Post('insertAllFromScryfall')
+  @Post('insert-all-from-scryfall')
   @ApiCreatedResponse({
     type: CardSet,
     isArray: true,

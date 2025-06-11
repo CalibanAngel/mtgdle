@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { CardImageUris } from '../card-image-uris/card-image-uris';
 import { Exclude } from 'class-transformer';
+import { Card } from '../card';
 
 export class CardFace {
   @Exclude()
@@ -66,4 +67,13 @@ export class CardFace {
     type: 'string',
   })
   flavorText?: string;
+
+  @Exclude()
+  card: Card;
+
+  @Exclude()
+  createdAt: string;
+
+  @Exclude()
+  updatedAt: string;
 }

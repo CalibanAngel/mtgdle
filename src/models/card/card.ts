@@ -18,6 +18,7 @@ export class Card {
     description:
       'The name of this card. If this card has multiple faces, this field will contain both names separated by ␣//␣.',
     type: 'string',
+    example: 'Black Lotus',
   })
   name: string;
 
@@ -129,4 +130,10 @@ export class Card {
     isArray: true,
   })
   cardFaces: CardFace[];
+
+  @Exclude()
+  createdAt: string;
+
+  @Exclude()
+  updatedAt: string;
 }

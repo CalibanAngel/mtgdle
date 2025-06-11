@@ -9,7 +9,16 @@ export class CardService {
 
   constructor(private readonly scryfallCardService: ScryfallCardService) {}
 
-  toto(): Observable<Card> {
+  getRandomCardFromScryfallApi(): Observable<Card> {
     return this.scryfallCardService.getRandomCard();
+  }
+
+  getFromScryfallId(id: string): Observable<Card> {
+    return this.scryfallCardService.getCardById(id);
+  }
+
+  createFromScryfallId(id: string): Card {
+    this.logger.debug('createFromScryfallId', id);
+    return new Card();
   }
 }

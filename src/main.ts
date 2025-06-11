@@ -4,7 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import 'reflect-metadata';
 import { Configuration } from '../config/configuration';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { ConsoleLogger, Logger } from '@nestjs/common';
+import { ConsoleLogger, Logger, ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -20,6 +20,8 @@ async function bootstrap() {
   const swaggerFactory = () => SwaggerModule.createDocument(app, swaggerConfig);
 
   SwaggerModule.setup('api', app, swaggerFactory);
+
+  app.useGlobalPipes(new ValidationPipe());
 
   const configHttp = app
     .get<ConfigService<Configuration>>(ConfigService)

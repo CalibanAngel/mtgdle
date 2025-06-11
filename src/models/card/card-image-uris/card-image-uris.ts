@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
+import { CardFace } from '../card-face/card-face';
 
 export class CardImageUris {
   @Exclude()
@@ -35,4 +36,13 @@ export class CardImageUris {
       'A full card image with the rounded corners and the majority of the border cropped off. Designed for dated contexts where rounded images can’t be used. 480 × 680',
   })
   borderCrop: string;
+
+  @Exclude()
+  cardFace: CardFace;
+
+  @Exclude()
+  createdAt: string;
+
+  @Exclude()
+  updatedAt: string;
 }

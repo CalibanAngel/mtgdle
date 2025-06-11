@@ -15,4 +15,10 @@ export class ScryfallCardService {
       .getRandomCard()
       .pipe(map(({ data }) => scryfallAnyCardToCard(data)));
   }
+
+  getCardById(id: string): Observable<Card> {
+    return this.scryfallCardDao
+      .getCardById(id)
+      .pipe(map(({ data }) => scryfallAnyCardToCard(data)));
+  }
 }

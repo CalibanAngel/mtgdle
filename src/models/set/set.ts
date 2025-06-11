@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
 import { SetType } from './set.enum';
+import { Card } from '../card/card';
 
 export class CardSet {
   @ApiProperty({
@@ -57,6 +58,9 @@ export class CardSet {
     type: 'string',
   })
   iconSVGuri: string;
+
+  @Exclude()
+  cards: Card[];
 
   @Exclude()
   createdAt: string;

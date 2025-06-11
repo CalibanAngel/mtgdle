@@ -1,6 +1,11 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Param, ParseUUIDPipe, Post } from '@nestjs/common';
 import { CardService } from '../../models/card/card.service';
-import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiParam,
+  ApiTags,
+} from '@nestjs/swagger';
 import { Card } from '../../models/card/card';
 
 @ApiTags('card')
@@ -8,9 +13,31 @@ import { Card } from '../../models/card/card';
 export class CardController {
   constructor(private readonly cardService: CardService) {}
 
-  @Get()
+  @Get('/get-random-card-from-scryfall-api')
   @ApiOkResponse({ type: Card })
-  toto() {
-    return this.cardService.toto();
+  getRandomCardFromScryfallApi() {
+    return this.cardService.getRandomCardFromScryfallApi();
+  }
+
+  @Get('/get-by-scryfall-id/:id')
+  @ApiParam({
+    name: 'id',
+    type: String,
+    description: 'UUID from Scryfall API',
+  })
+  @ApiOkResponse({ type: Card })
+  getFromId(@Param('id', ParseUUIDPipe) id: string) {
+    return this.cardService.getFromScryfallId(id);
+  }
+
+  @Post('/create-by-scryfall-id/:id')
+  @ApiParam({
+    name: 'id',
+    type: String,
+    description: 'UUID from Scryfall API',
+  })
+  @ApiCreatedResponse({ type: Card })
+  createFromId(@Param('id', ParseUUIDPipe) id: string) {
+    return this.cardService.createFromScryfallId(id);
   }
 }

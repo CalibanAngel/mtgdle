@@ -23,4 +23,12 @@ export class ScrayfallCardDao {
       `${this.host}/cards/random`,
     );
   }
+
+  getCardById(
+    id: string,
+  ): Observable<AxiosResponse<ScryfallCard.AnySingleFaced>> {
+    return this.httpService.get<ScryfallCard.AnySingleFaced>(
+      `${this.host}/cards/${id}`,
+    );
+  }
 }
