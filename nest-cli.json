@@ -10,7 +10,11 @@
       "type": "library",
       "root": "packages/common",
       "entryFile": "index",
-      "sourceRoot": "packages/common/src"
+      "sourceRoot": "packages/common/src",
+      "compilerOptions": {
+        "tsConfigPath": "packages/common/tsconfig.json"
+      }
+
     },
     "api": {
       "type": "application",

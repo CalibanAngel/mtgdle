@@ -13,9 +13,12 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
     "baseUrl": ".",
     "paths": {
       "@mtgdle/common": ["packages/common/src"],
+      "@mtgdle/common/*": ["packages/common/src/*"],
       "@mtgdle/api":    ["packages/api/src"],
       "@mtgdle/scripts":["packages/scripts/src"]
     }

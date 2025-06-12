@@ -1,9 +1,9 @@
 import { Controller, Post } from '@nestjs/common';
 import { ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
-import { CardSet } from '../../models/set/set';
 import { Observable } from 'rxjs';
-import { UpsertResult } from '../../infrastructure/database/database.interface';
 import { SetApiService } from './set.api-service';
+import { CardSet } from '@mtgdle/common/dist/models/set/set';
+import { UpsertResult } from '@mtgdle/common/dist/infrastructure/database/database.interface';
 
 @ApiTags('set')
 @Controller('set')

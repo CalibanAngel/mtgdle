@@ -6,17 +6,17 @@ import {
   TypeOrmHealthIndicator,
 } from '@nestjs/terminus';
 import { ConfigService } from '@nestjs/config';
-import { Configuration } from '../../../config/configuration';
 import type { HealthCheckResult } from '@nestjs/terminus/dist/health-check/health-check-result.interface';
+import { Configuration } from '@mtgdle/common';
 
 @Injectable()
 export class HealthApiService {
   private readonly logger = new Logger(HealthApiService.name);
 
   constructor(
-    private health: HealthCheckService,
-    private http: HttpHealthIndicator,
-    private db: TypeOrmHealthIndicator,
+    private readonly health: HealthCheckService,
+    private readonly http: HttpHealthIndicator,
+    private readonly db: TypeOrmHealthIndicator,
     private readonly configService: ConfigService<Configuration>,
   ) {}
 

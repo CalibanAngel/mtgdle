@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { CardController } from './card.controller';
-import { ModelsModule } from '../../models/models.module';
 import { CardApiService } from './card.api-service';
+import { ModelsModule } from '@mtgdle/common/dist/models/models.module';
 
 @Module({
   imports: [ModelsModule],

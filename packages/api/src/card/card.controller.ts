@@ -1,13 +1,13 @@
 import { Controller, Get, Param, ParseUUIDPipe, Post } from '@nestjs/common';
-import { CardService } from '../../models/card/card.service';
 import {
   ApiCreatedResponse,
   ApiOkResponse,
   ApiParam,
   ApiTags,
 } from '@nestjs/swagger';
-import { Card } from '../../models/card/card';
 import { CardApiService } from './card.api-service';
+import { CardService } from '@mtgdle/common/dist/models/card/card.service';
+import { Card } from '@mtgdle/common/dist/models/card/card';
 
 @ApiTags('card')
 @Controller('card')

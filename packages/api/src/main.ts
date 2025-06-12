@@ -2,9 +2,9 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
 import 'reflect-metadata';
-import { Configuration } from '../config/configuration';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ConsoleLogger, Logger, ValidationPipe } from '@nestjs/common';
+import { Configuration } from '@mtgdle/common/config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -25,7 +25,7 @@ async function bootstrap() {
 
   const configHttp = app
     .get<ConfigService<Configuration>>(ConfigService)
-    .get('http', { infer: true });
+    .getOrThrow('http', { infer: true });
 
   await app.listen(configHttp.port ?? 3000);
 

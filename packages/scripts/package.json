@@ -1,5 +1,5 @@
 {
-  "name": "@monorepo/scripts",
+  "name": "@mtgdle/scripts",
   "version": "1.0.0",
   "private": true,
   "main": "dist/index.js",
@@ -17,5 +17,9 @@
   "devDependencies": {
     "@nestjs/cli": "^11.0.6",
     "typescript": "^5.8.3"
+  },
+  "engines": {
+    "npm": ">=10.0.0",
+    "node": ">=20.0.0"
   }
 }

@@ -5,7 +5,8 @@
   "main": "dist/main.js",
   "scripts": {
     "build": "nest build",
-    "start": "bun run start:dev"
+    "dev": "nest start --watch",
+    "lint": "eslint . --ext .ts"
   },
   "dependencies": {
     "@nestjs/axios": "^4.0.0",
@@ -54,6 +55,11 @@
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.8.3",
-    "typescript-eslint": "^8.29.1"
+    "typescript-eslint": "^8.29.1",
+    "@mtgdle/eslint-config": "workspace:*"
+  },
+  "engines": {
+    "npm": ">=10.0.0",
+    "node": ">=20.0.0"
   }
 }

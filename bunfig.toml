@@ -2,5 +2,6 @@
 packages = [
     "packages/common",
     "packages/api",
-    "packages/scripts"
+    "packages/scripts",
+    "packages/eslint-config"
 ]

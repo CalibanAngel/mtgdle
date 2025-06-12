@@ -11,7 +11,7 @@ import { DataSource } from 'typeorm';
       inject: [ConfigService],
       useFactory: databaseConfiguration,
       dataSourceFactory: async (options) => {
-        return new DataSource(options).initialize();
+        return new DataSource(options!).initialize();
       },
     }),
   ],

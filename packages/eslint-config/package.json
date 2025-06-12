@@ -1,0 +1,14 @@
+{
+  "name": "@mtgdle/eslint-config",
+  "version": "1.0.0",
+  "private": false,
+  "type": "module",
+  "main": "eslint.config.js",
+  "peerDependencies": {
+    "eslint": "*",
+    "@eslint/js": "*",
+    "typescript-eslint": "*",
+    "eslint-plugin-prettier": "*",
+    "globals": "*"
+  }
+}
