@@ -4,18 +4,11 @@ import { InfrastructureModule } from '../../infrastructure/infrastructure.module
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { SetEntity } from './set.schema';
 import { SetRepository } from './set.repository';
-import { DataSource } from 'typeorm';
+import { createCustomRepositoryProvider } from '../../common/repository/custom-repository.helper';
 
 @Module({
   imports: [TypeOrmModule.forFeature([SetEntity]), InfrastructureModule],
-  providers: [
-    SetService,
-    {
-      provide: SetRepository,
-      inject: [DataSource],
-      useFactory: (dataSource: DataSource) => new SetRepository(dataSource),
-    },
-  ],
+  providers: [SetService, createCustomRepositoryProvider(SetRepository)],
   exports: [SetService],
 })
 export class SetModule {}

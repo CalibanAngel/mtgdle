@@ -7,11 +7,15 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { Card } from '../../models/card/card';
+import { CardApiService } from './card.api-service';
 
 @ApiTags('card')
 @Controller('card')
 export class CardController {
-  constructor(private readonly cardService: CardService) {}
+  constructor(
+    private readonly cardService: CardService,
+    private readonly cardApiService: CardApiService,
+  ) {}
 
   @Get('/get-random-card-from-scryfall-api')
   @ApiOkResponse({ type: Card })
@@ -38,6 +42,6 @@ export class CardController {
   })
   @ApiCreatedResponse({ type: Card })
   createFromId(@Param('id', ParseUUIDPipe) id: string) {
-    return this.cardService.createFromScryfallId(id);
+    return this.cardApiService.createFromScryfallId(id);
   }
 }

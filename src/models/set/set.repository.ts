@@ -1,15 +1,13 @@
-import { DataSource, Repository } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 import { SetEntity } from './set.schema';
 import { CardSet } from './set';
 import { UpsertResult } from '../../infrastructure/database/database.interface';
+import { CustomRepository } from '../../common/repository/custom-repository.decorator';
+import { CustomRepositoryBase } from '../../common/repository/custom-repository.absctract';
 
 @Injectable()
-export class SetRepository extends Repository<CardSet> {
-  constructor(private dataSource: DataSource) {
-    super(SetEntity, dataSource.createEntityManager());
-  }
-
+@CustomRepository(SetEntity)
+export class SetRepository extends CustomRepositoryBase<CardSet> {
   async upsertBulk(sets: CardSet[]): Promise<UpsertResult<CardSet>> {
     const qb = this.createQueryBuilder()
       .insert()
