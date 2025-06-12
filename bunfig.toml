@@ -1,0 +1,6 @@
+[workspaces]
+packages = [
+    "packages/common",
+    "packages/api",
+    "packages/scripts"
+]
