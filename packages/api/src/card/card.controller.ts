@@ -6,8 +6,8 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { CardApiService } from './card.api-service';
-import { CardService } from '@mtgdle/common/dist/models/card/card.service';
-import { Card } from '@mtgdle/common/dist/models/card/card';
+import { CardService } from '@mtgdle/common/models/card/card.service';
+import { Card } from '@mtgdle/common/models/card/card';
 
 @ApiTags('card')
 @Controller('card')

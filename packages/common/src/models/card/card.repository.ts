@@ -1,8 +1,8 @@
 import { Card } from './card';
 import { Injectable } from '@nestjs/common';
 import { CardEntity } from './card.schema';
-import { CustomRepository } from '../../common/repository/custom-repository.decorator';
-import { CustomRepositoryBase } from '../../common/repository/custom-repository.absctract';
+import { CustomRepository } from '@mtgdle/common/repository/custom-repository.decorator';
+import { CustomRepositoryBase } from '@mtgdle/common/repository/custom-repository.absctract';
 
 @Injectable()
 @CustomRepository(CardEntity)

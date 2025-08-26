@@ -1,11 +1,11 @@
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, ObjectLiteral, Repository } from 'typeorm';
 import {
   CUSTOM_REPOSITORY_ENTITY,
   RepositoryEntity,
 } from './custom-repository.type';
 
 export abstract class CustomRepositoryBase<
-  T = RepositoryEntity,
+  T extends ObjectLiteral = ObjectLiteral,
 > extends Repository<T> {
   constructor(dataSource: DataSource) {
     const entity = Reflect.getMetadata(

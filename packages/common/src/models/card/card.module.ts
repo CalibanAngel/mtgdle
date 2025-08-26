@@ -7,7 +7,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { CardEntity } from './card.schema';
 import { ManaCostModule } from './mana-cost/mana-cost.module';
 import { CardFaceModule } from './card-face/card-face.module';
-import { createCustomRepositoryProvider } from '../../common/repository/custom-repository.helper';
+import { createCustomRepositoryProvider } from '@mtgdle/common/repository/custom-repository.helper';
 
 @Module({
   imports: [

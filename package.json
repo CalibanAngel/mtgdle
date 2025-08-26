@@ -5,10 +5,11 @@
   "description": "Monorepo with NestJS API, scripts, and shared common package",
   "license": "MIT",
   "workspaces": [
-    "packages/common",
     "packages/api",
-    "packages/scripts",
-    "packages/eslint-config"
+    "packages/common",
+    "packages/eslint-config",
+    "packages/front",
+    "packages/scripts"
   ],
   "scripts": {
     "build:front": "(cd packages/front && bun run build)",
@@ -22,5 +23,10 @@
   "engines": {
     "npm": ">=10.0.0",
     "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "@types/lodash": "^4.17.20",
+    "lodash": "^4.17.21",
+    "type-fest": "^4.41.0"
   }
 }

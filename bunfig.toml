@@ -1,7 +1,8 @@
 [workspaces]
 packages = [
+    "packages/eslint-config",
     "packages/common",
     "packages/api",
     "packages/scripts",
-    "packages/eslint-config"
+    "packages/front"
 ]

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { firstValueFrom } from 'rxjs';
-import { CardService } from '@mtgdle/common/dist/models/card/card.service';
+import { CardService } from '@mtgdle/common/models/card/card.service';
 
 @Injectable()
 export class CardApiService {

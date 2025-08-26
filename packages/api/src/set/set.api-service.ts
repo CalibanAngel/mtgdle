@@ -1,8 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { from, Observable, switchMap } from 'rxjs';
-import { ScryfallSetService } from '@mtgdle/common/dist/infrastructure/external/scryfall/set/scryfall-set.service';
-import { SetService } from '@mtgdle/common/dist/models/set/set.service';
-import { CardSet } from '@mtgdle/common/dist/models/set/set';
+import { ScryfallSetService } from '@mtgdle/common/infrastructure/external/scryfall/set/scryfall-set.service';
+import { SetService } from '@mtgdle/common/models/set/set.service';
+import { CardSet } from '@mtgdle/common/models/set/set';
 
 @Injectable()
 export class SetApiService {

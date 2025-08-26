@@ -9,14 +9,26 @@ import {
 } from '../../../../models/card/card.enum';
 import { Legalities } from '../../../../models/card/card.interface';
 import { CardFace } from '../../../../models/card/card-face/card-face';
-import * as _ from 'lodash';
 import { ScryfallCardFields } from '@scryfall/api-types/src/objects/Card/CardFields';
 import { ScryfallCardFace } from '@scryfall/api-types/src/objects/Card/CardFace';
 import { CardImageUris } from '../../../../models/card/card-image-uris/card-image-uris';
+import { has } from 'lodash';
+
+const NOT_DEFINED = 'NOT DEFINED'
 
 function scryfallDoubleSidedOrReversibleCardFaceToCardFace(
   scryfallCardFace: ScryfallCardFace.DoubleSided | ScryfallCardFace.Reversible,
 ): CardImageUris {
+  if (!scryfallCardFace.image_uris) {
+    return {
+      borderCrop: NOT_DEFINED,
+      large: NOT_DEFINED,
+      normal: NOT_DEFINED,
+      png: NOT_DEFINED,
+      small: NOT_DEFINED,
+    } as CardImageUris;
+  }
+
   return {
     borderCrop: scryfallCardFace.image_uris.border_crop,
     large: scryfallCardFace.image_uris.large,
@@ -32,13 +44,13 @@ function scryfallCardFaceToCardFace({
   return card_faces.map((card_face) => {
     const cardFace = new CardFace();
 
-    if (_.has(card_face, 'image_uris')) {
+    if (has(card_face, 'image_uris')) {
       cardFace.imageUris = scryfallDoubleSidedOrReversibleCardFaceToCardFace(
         card_face as ScryfallCardFace.DoubleSided,
       );
     }
 
-    cardFace.manaCost = card_face.mana_cost;
+    cardFace.manaCost = card_face.mana_cost ?? NOT_DEFINED;
     cardFace.power = card_face.power;
     cardFace.toughness = card_face.toughness;
     cardFace.loyalty = card_face.loyalty;
@@ -86,11 +98,11 @@ function scryfallAnySingleSidedSplitCardToCard(
   card.cardFaces.forEach((cardFace) => {
     const imageUris = new CardImageUris();
 
-    imageUris.borderCrop = scryfallCard.image_uris.border_crop;
-    imageUris.large = scryfallCard.image_uris.large;
-    imageUris.normal = scryfallCard.image_uris.normal;
-    imageUris.png = scryfallCard.image_uris.png;
-    imageUris.small = scryfallCard.image_uris.small;
+    imageUris.borderCrop = scryfallCard.image_uris?.border_crop ?? NOT_DEFINED;
+    imageUris.large = scryfallCard.image_uris?.large ?? NOT_DEFINED;
+    imageUris.normal = scryfallCard.image_uris?.normal ?? NOT_DEFINED;;
+    imageUris.png = scryfallCard.image_uris?.png ?? NOT_DEFINED;;
+    imageUris.small = scryfallCard.image_uris?.small ?? NOT_DEFINED;;
 
     cardFace.imageUris = imageUris;
     cardFace.cardId = scryfallCard.id;
@@ -119,14 +131,14 @@ function scryfallAnySingleFacedCardToCardMapper(
   const cardFace = new CardFace();
   const imageUris = new CardImageUris();
 
-  imageUris.borderCrop = scryfallCard.image_uris.border_crop;
-  imageUris.large = scryfallCard.image_uris.large;
-  imageUris.normal = scryfallCard.image_uris.normal;
-  imageUris.png = scryfallCard.image_uris.png;
-  imageUris.small = scryfallCard.image_uris.small;
+  imageUris.borderCrop = scryfallCard.image_uris?.border_crop ?? NOT_DEFINED;
+  imageUris.large = scryfallCard.image_uris?.large ?? NOT_DEFINED;
+  imageUris.normal = scryfallCard.image_uris?.normal ?? NOT_DEFINED;
+  imageUris.png = scryfallCard.image_uris?.png ?? NOT_DEFINED;
+  imageUris.small = scryfallCard.image_uris?.small ?? NOT_DEFINED;
   cardFace.imageUris = imageUris;
 
-  cardFace.manaCost = scryfallCard.mana_cost;
+  cardFace.manaCost = scryfallCard.mana_cost ?? NOT_DEFINED;
   cardFace.power = scryfallCard.power;
   cardFace.toughness = scryfallCard.toughness;
   cardFace.loyalty = scryfallCard.loyalty;
@@ -144,7 +156,7 @@ function scryfallAnySingleFacedCardToCardMapper(
 export function scryfallAnyCardToCard(scryfallCard: ScryfallCard.Any): Card {
   let card = new Card();
 
-  if (_.has(scryfallCard, 'card_faces')) {
+  if (has(scryfallCard, 'card_faces')) {
     card = scryfallAnySingleSidedSplitCardToCard(
       scryfallCard as ScryfallCard.AnySingleSidedSplit,
     );

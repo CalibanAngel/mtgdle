@@ -7,7 +7,7 @@ import {
 } from '@nestjs/terminus';
 import { ConfigService } from '@nestjs/config';
 import type { HealthCheckResult } from '@nestjs/terminus/dist/health-check/health-check-result.interface';
-import { Configuration } from '@mtgdle/common';
+import type { Configuration } from '@mtgdle/common/config';
 
 @Injectable()
 export class HealthApiService {

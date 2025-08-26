@@ -4,9 +4,13 @@
     "composite": true,
     "rootDir": "src",
     "outDir": "dist",
+    "strictPropertyInitialization": false,
+    "baseUrl": ".",
+    "module": "CommonJS",
+    "moduleResolution": "node",
     "paths": {
-      "@mtgdle/common": ["packages/common/src"],
-      "@mtgdle/common/*": ["packages/common/src/*"]
+      "@mtgdle/common": ["../common/src"],
+      "@mtgdle/common/*": ["../common/src/*"]
     }
   },
   "include": ["src/**/*"],

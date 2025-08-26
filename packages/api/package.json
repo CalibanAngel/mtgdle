@@ -4,8 +4,9 @@
   "private": true,
   "main": "dist/main.js",
   "scripts": {
-    "build": "nest build",
-    "dev": "nest start --watch",
+    "build:nest": "nest build",
+    "dev:nest": "nest start --watch --builder swc",
+    "dev": "ts-node --transpile-only --prefer-ts-exts -r tsconfig-paths/register src/main.ts",
     "lint": "eslint . --ext .ts"
   },
   "dependencies": {
@@ -21,7 +22,6 @@
     "axios": "^1.8.4",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
-    "lodash": "^4.17.21",
     "pg": "^8.14.1",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.2",
@@ -35,8 +35,8 @@
     "@suites/di.nestjs": "^3.0.1",
     "@suites/doubles.jest": "^3.0.1",
     "@suites/unit": "^3.0.1",
-    "@swc/cli": "^0.6.0",
-    "@swc/core": "^1.11.18",
+    "@swc/cli": "^0.7.8",
+    "@swc/core": "^1.13.5",
     "@types/express": "^5.0.1",
     "@types/jest": "^29.5.14",
     "@types/node": "^22.14.0",

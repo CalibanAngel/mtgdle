@@ -3,9 +3,10 @@ import {
   CUSTOM_REPOSITORY_ENTITY,
   RepositoryEntity,
 } from './custom-repository.type';
+import { EntitySchema } from 'typeorm';
 
-export function CustomRepository<T>(
-  entity: RepositoryEntity<T>,
+export function CustomRepository<T = unknown>(
+  entity: RepositoryEntity<T> | EntitySchema<T>,
 ): ClassDecorator {
   const decorator = <TFunction extends RepositoryEntity<unknown>>(
     target: TFunction,
