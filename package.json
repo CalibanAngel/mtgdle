@@ -15,9 +15,8 @@
     "build:front": "(cd packages/front && bun run build)",
     "build:common": "(cd packages/common && bun run build)",
     "build:api": "(cd packages/api && bun run build)",
-    "start:front": "(cd packages/front && bun run start)",
-    "start:api": "(cd packages/api && bun run dev)",
-    "dev:front": "(cd packages/front && bun run dev)"
+    "start:front": "(cd packages/front && bun run dev)",
+    "start:api": "(cd packages/api && bun run dev)"
   },
   "engines": {
     "npm": ">=10.0.0",
