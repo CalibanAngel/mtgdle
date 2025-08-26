@@ -13,6 +13,7 @@
     "@heroui/react": "^2.8.2",
     "@mtgdle/common": "workspace:*",
     "axios": "^1.11.0",
+    "joi": "^18.0.1",
     "react": "^19.1.1",
     "react-dom": "^19.1.1"
   },
