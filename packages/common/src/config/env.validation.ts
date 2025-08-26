@@ -9,8 +9,11 @@ export enum Environment {
 type EnvironmentVariables = {
   NODE_ENV: Environment;
 
-  APP_HOST: string;
-  APP_PORT: number;
+  BACK_API_HOST: string;
+  BACK_API_PORT: number;
+
+  FRONT_API_HOST: string
+  FRONT_API_PORT: number
 
   DATABASE_HOST: string;
   DATABASE_PORT: number;
@@ -25,8 +28,12 @@ export const envValidationSchema = Joi.object<EnvironmentVariables>({
   NODE_ENV: Joi.string()
     .valid(...Object.values(Environment))
     .default(Environment.DEVELOPMENT),
-  APP_HOST: Joi.string().required(),
-  APP_PORT: Joi.number().default(3000),
+  BACK_API_HOST: Joi.string().required(),
+  BACK_API_PORT: Joi.number().default(3000),
+
+  FRONT_API_HOST: Joi.string().required(),
+  FRONT_API_PORT: Joi.number().default(5173),
+
   DATABASE_HOST: Joi.string().required(),
   DATABASE_PORT: Joi.number().default(5432),
   DATABASE_SYNCHRONIZE: Joi.boolean().default(false),

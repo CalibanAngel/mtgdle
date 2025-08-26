@@ -3,6 +3,7 @@
   "collection": "@nestjs/schematics",
   "monorepo": true,
   "compilerOptions": {
+    "builder": "swc",
     "deleteOutDir": true
   },
   "projects": {
@@ -14,13 +15,15 @@
       "compilerOptions": {
         "tsConfigPath": "packages/common/tsconfig.json"
       }
-
     },
     "api": {
       "type": "application",
       "root": "packages/api",
       "entryFile": "main",
-      "sourceRoot": "packages/api/src"
+      "sourceRoot": "packages/api/src",
+      "compilerOptions": {
+        "tsConfigPath": "packages/api/tsconfig.json"
+      }
     },
     "scripts": {
       "type": "application",

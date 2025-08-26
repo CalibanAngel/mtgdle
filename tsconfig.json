@@ -3,6 +3,7 @@
   "references": [
     { "path": "./packages/common" },
     { "path": "./packages/api" },
-    { "path": "./packages/scripts" }
+    { "path": "./packages/scripts" },
+    { "path": "./packages/front" }
   ]
 }

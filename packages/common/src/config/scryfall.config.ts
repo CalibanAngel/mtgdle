@@ -1,6 +1,6 @@
 import { registerAs } from '@nestjs/config';
 
-export const scryfallConfig = registerAs('http', () => ({
+export const scryfallConfig = registerAs('scryfall', () => ({
   host: process.env.SCRYFALL_API_HOST!,
 }));
 

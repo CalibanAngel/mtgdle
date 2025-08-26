@@ -7,7 +7,7 @@ import {
 } from '@nestjs/terminus';
 import { ConfigService } from '@nestjs/config';
 import type { HealthCheckResult } from '@nestjs/terminus/dist/health-check/health-check-result.interface';
-import { Configuration } from '@mtgdle/common';
+import { Configuration } from '@mtgdle/common/config';
 
 @Injectable()
 export class HealthApiService {
@@ -21,7 +21,7 @@ export class HealthApiService {
   ) {}
 
   isScryfallAlive(): Promise<HealthIndicatorResult<'scryfall'>> {
-    const scryfallApiHost = this.configService.get('scryfall.host', {
+    const scryfallApiHost = this.configService.getOrThrow('scryfall.host', {
       infer: true,
     });
 

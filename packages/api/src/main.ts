@@ -27,12 +27,22 @@ async function bootstrap() {
     .get<ConfigService<Configuration>>(ConfigService)
     .getOrThrow('http', { infer: true });
 
-  await app.listen(configHttp.port ?? 3000);
+  app.enableCors({
+    origin: [
+      `http://${configHttp.front_host}:${configHttp.front_port}`,
+    ],
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true, // only if you send cookies/auth headers cross-origin
+  });
+
+
+  await app.listen(configHttp.api_port ?? 3000);
 
   const logger = new Logger('bootstrap');
 
   logger.log(
-    `Swagger can be found at http://${configHttp.host}:${configHttp.port}/api`,
+    `Swagger can be found at http://${configHttp.api_host}:${configHttp.api_port}/api`,
   );
 }
 bootstrap();

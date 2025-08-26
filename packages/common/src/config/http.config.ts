@@ -1,8 +1,10 @@
 import { registerAs } from '@nestjs/config';
 
 export const httpConfig = registerAs('http', () => ({
-  host: process.env.APP_HOST!,
-  port: Number(process.env.APP_PORT) || 3000,
+  api_host: process.env.BACK_API_HOST!,
+  api_port: Number(process.env.BACK_API_PORT) || 3000,
+  front_host: process.env.FRONT_API_HOST!,
+  front_port: Number(process.env.FRONT_API_PORT) || 5173,
 }));
 
 // TS will infer this type for you:

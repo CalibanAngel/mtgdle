@@ -4,7 +4,7 @@ import { InfrastructureModule } from '../../infrastructure/infrastructure.module
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { SetEntity } from './set.schema';
 import { SetRepository } from './set.repository';
-import { createCustomRepositoryProvider } from '../../common/repository/custom-repository.helper';
+import { createCustomRepositoryProvider } from '@mtgdle/common/repository/custom-repository.helper';
 
 @Module({
   imports: [TypeOrmModule.forFeature([SetEntity]), InfrastructureModule],
