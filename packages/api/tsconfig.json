@@ -10,7 +10,9 @@
     "moduleResolution": "node",
     "paths": {
       "@mtgdle/common": ["../common/src"],
-      "@mtgdle/common/*": ["../common/src/*"]
+      "@mtgdle/common/*": ["../common/src/*"],
+      "@mtgdle/common/config": ["../common/src/config/index.ts"],
+      "@mtgdle/common/config/*": ["../common/src/config/*"]
     }
   },
   "include": ["src/**/*"],
