@@ -2,12 +2,12 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.tsx'
-import { HeroUIProvider } from '@heroui/react';
+import RootLayout from './components/RootLayout.tsx';
 
 createRoot(document.getElementById('root')!).render(
-  <HeroUIProvider>
-    <StrictMode>
+  <StrictMode>
+    <RootLayout>
       <App />
-    </StrictMode>,
-  </HeroUIProvider>
+    </RootLayout>
+  </StrictMode>,
 )

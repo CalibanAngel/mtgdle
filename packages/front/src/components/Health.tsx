@@ -1,4 +1,3 @@
-// src/components/ApiHealth.tsx
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Card, CardBody, CardHeader, Chip, Button, Spacer, Divider } from '@heroui/react';
 import { http } from '../config/http';

@@ -19,14 +19,6 @@
     "forceConsistentCasingInFileNames": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "baseUrl": ".",
-    "paths": {
-      "@mtgdle/common": ["packages/common/src"],
-      "@mtgdle/common/*": ["packages/common/src/*"],
-      "@mtgdle/common/config": ["packages/common/src/config/index.ts"],
-      "@mtgdle/common/config/*": ["packages/common/src/config/*"],
-      "@mtgdle/api":    ["packages/api/src"],
-      "@mtgdle/scripts":["packages/scripts/src"]
-    }
+    "baseUrl": "."
   }
 }
