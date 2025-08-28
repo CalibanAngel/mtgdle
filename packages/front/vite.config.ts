@@ -1,6 +1,9 @@
+import path from 'node:path';
+
 import { defineConfig, loadEnv } from 'vite';
-import react from '@vitejs/plugin-react'
-import * as path from 'node:path';
+import react from '@vitejs/plugin-react';
+import tsconfigPaths from 'vite-tsconfig-paths';
+import tailwindcss from '@tailwindcss/vite';
 
 function mergedClientEnv(mode: string) {
   // 1) Load env from repo root
@@ -15,17 +18,19 @@ function mergedClientEnv(mode: string) {
 
   // 4) Convert to define entries so they become available as import.meta.env.*
   const defineEntries = Object.fromEntries(
-    Object.entries(merged).map(([k, v]) => [`import.meta.env.${k}`, JSON.stringify(v)])
+    Object.entries(merged).map(([k, v]) => [
+      `import.meta.env.${k}`,
+      JSON.stringify(v),
+    ]),
   );
 
   return defineEntries;
 }
 
-
-// https://vite.dev/config/
+// https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
-  plugins: [react()],
+  plugins: [react(), tsconfigPaths(), tailwindcss()],
   define: {
     ...mergedClientEnv(mode),
   },
-}))
+}));

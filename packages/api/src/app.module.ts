@@ -1,15 +1,13 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { ApiModule } from './api.module';
-import {
-  CommonConfigModule,
-  InfrastructureModule,
-  ModelsModule,
-} from '@mtgdle/common';
+import { ApiModule } from './api/api.module';
+import { ConfigurationModule } from './config/config.module';
+import { ModelsModule } from './models/models.module';
+import { InfrastructureModule } from './infrastructure/infrastructure.module';
 
 @Module({
-  imports: [CommonConfigModule, ModelsModule, ApiModule, InfrastructureModule],
+  imports: [ConfigurationModule, ModelsModule, ApiModule, InfrastructureModule, ConfigurationModule],
   controllers: [AppController],
   providers: [AppService],
 })

@@ -4,7 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import 'reflect-metadata';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ConsoleLogger, Logger, ValidationPipe } from '@nestjs/common';
-import { Configuration } from '@mtgdle/common/config';
+import { Configuration } from './config/config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
