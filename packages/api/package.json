@@ -6,7 +6,7 @@
   "scripts": {
     "build:nest": "nest build",
     "dev:nest": "nest start --watch --builder swc",
-    "dev": "ts-node --transpile-only --prefer-ts-exts -r tsconfig-paths/register src/main.ts",
+    "dev": "ts-node-dev --respawn --transpile-only --prefer-ts-exts -r tsconfig-paths/register src/main.ts",
     "lint": "eslint . --ext .ts"
   },
   "dependencies": {
@@ -28,6 +28,7 @@
     "typeorm": "^0.3.22"
   },
   "devDependencies": {
+    "@mtgdle/eslint-config": "workspace:*",
     "@nestjs/cli": "^11.0.6",
     "@nestjs/schematics": "^11.0.4",
     "@nestjs/testing": "^11.0.13",
@@ -52,10 +53,10 @@
     "ts-jest": "^29.3.1",
     "ts-loader": "^9.5.2",
     "ts-node": "^10.9.2",
+    "ts-node-dev": "^2.0.0",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.8.3",
-    "typescript-eslint": "^8.29.1",
-    "@mtgdle/eslint-config": "workspace:*"
+    "typescript-eslint": "^8.29.1"
   },
   "engines": {
     "npm": ">=10.0.0",
