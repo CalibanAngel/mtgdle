@@ -1,3 +1,7 @@
+### SET
+@set_code=aer
+GET {{scryfallHost}}/sets/{{set_code}}
+
 ### RANDOM
 GET {{scryfallHost}}/cards/random
 

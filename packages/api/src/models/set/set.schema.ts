@@ -34,6 +34,10 @@ export const SetEntity = new EntitySchema<CardSet>({
       type: 'text',
       name: 'scryfall_uri',
     },
+    iconSVGuri: {
+      type: 'text',
+      name: 'svg_uri',
+    },
     createdAt: {
       type: 'timestamp',
       createDate: true,

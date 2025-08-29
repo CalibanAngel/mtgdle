@@ -9,20 +9,14 @@ import {
   Divider,
 } from '@heroui/react';
 
-import { http } from '../config/http';
-
 import DefaultLayout from '@/layouts/default.tsx';
 import { title } from '@/components/primitives.ts';
-
-type UpDown = 'up' | 'down';
-type Overall = 'ok' | 'error';
-
-type HealthResponse = {
-  status: Overall;
-  info?: Record<string, { status: UpDown }>;
-  error?: Record<string, unknown>;
-  details?: Record<string, { status: UpDown }>;
-};
+import {
+  getHealth,
+  HealthResponse,
+  Overall,
+  UpDown,
+} from '@/pages/health/health.api.ts';
 
 type HealthState = 'idle' | 'loading' | 'healthy' | 'unhealthy';
 
@@ -47,7 +41,7 @@ const StatusChip = ({
   );
 };
 
-export function Health() {
+export function HealthPage() {
   const [state, setState] = useState<HealthState>('idle');
   const [latencyMs, setLatencyMs] = useState<number | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -60,14 +54,14 @@ export function Health() {
     const start = performance.now();
 
     try {
-      const res = await http.get<HealthResponse>('/health');
+      const health = await getHealth();
       const end = performance.now();
 
       setLatencyMs(Math.round(end - start));
-      setData(res.data);
+      setData(health.data);
 
       // overall state from "status"
-      if (res.data.status === 'ok') {
+      if (health.data.status === 'ok') {
         setState('healthy');
       } else {
         setState('unhealthy');

@@ -23,4 +23,8 @@ export class SetService {
 
     return upsertedResult;
   }
+
+  async getAll(): Promise<CardSet[]> {
+    return this.cardSetRepository.find();
+  }
 }

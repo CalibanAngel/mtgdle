@@ -1,6 +1,6 @@
 import { ScryfallSet } from '@scryfall/api-types';
 import { CardSet } from '../../../../models/set/set';
-import { SetType } from '../../../../models/set/set.enum';
+import { SetType } from '@mtgdle/shared-types';
 
 export function scryfallSetToSetMapper(scryfallSet: ScryfallSet): CardSet {
   const set = new CardSet();
