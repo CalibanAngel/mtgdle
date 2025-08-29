@@ -1,5 +1,5 @@
-import { Controller, Post } from '@nestjs/common';
-import { ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
+import { Controller, Get, Post } from '@nestjs/common';
+import { ApiCreatedResponse, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Observable } from 'rxjs';
 import { SetApiService } from './set.api-service';
 import { CardSet } from '../../models/set/set';
@@ -17,5 +17,14 @@ export class SetController {
   })
   insertAllFromScryfall(): Observable<UpsertResult<CardSet>> {
     return this.setApiService.importScryfallSetToDatabase();
+  }
+
+  @Get()
+  @ApiResponse({
+    type: CardSet,
+    isArray: true,
+  })
+  getAll(): Promise<CardSet[]> {
+    return this.setApiService.getAll()
   }
 }

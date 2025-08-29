@@ -1,6 +1,6 @@
 import { EntitySchema } from 'typeorm';
 import { CardSet } from './set';
-import { SetType } from './set.enum';
+import { SetType } from '@mtgdle/shared-types';
 
 export const SetEntity = new EntitySchema<CardSet>({
   name: 'Set',
@@ -33,6 +33,10 @@ export const SetEntity = new EntitySchema<CardSet>({
     scryfallUri: {
       type: 'text',
       name: 'scryfall_uri',
+    },
+    iconSVGuri: {
+      type: 'text',
+      name: 'svg_uri',
     },
     createdAt: {
       type: 'timestamp',

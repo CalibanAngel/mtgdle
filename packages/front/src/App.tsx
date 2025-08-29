@@ -1,21 +1,15 @@
 import { Route, Routes } from 'react-router-dom';
 
 import IndexPage from '@/pages/index';
-import DocsPage from '@/pages/docs';
-import PricingPage from '@/pages/pricing';
-import BlogPage from '@/pages/blog';
-import AboutPage from '@/pages/about';
-import { Health } from '@/pages/health.tsx';
+import { HealthPage } from '@/pages/health/health.tsx';
+import SetsPage from '@/pages/sets/sets.tsx';
 
 function App() {
   return (
     <Routes>
       <Route element={<IndexPage />} path="/" />
-      <Route element={<DocsPage />} path="/docs" />
-      <Route element={<PricingPage />} path="/pricing" />
-      <Route element={<BlogPage />} path="/blog" />
-      <Route element={<AboutPage />} path="/about" />
-      <Route element={<Health />} path="/health" />
+      <Route element={<HealthPage />} path="/health" />
+      <Route element={<SetsPage />} path="/sets" />
     </Routes>
   );
 }

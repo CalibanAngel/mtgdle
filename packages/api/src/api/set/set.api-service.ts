@@ -26,4 +26,8 @@ export class SetApiService {
       switchMap((data) => from(this.setService.bulkInsert(data))),
     );
   }
+
+  getAll(): Promise<CardSet[]> {
+    return this.setService.getAll();
+  }
 }

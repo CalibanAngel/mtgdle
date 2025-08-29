@@ -1,9 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
-import { SetType } from './set.enum';
 import { Card } from '../card/card';
+import { ICardSet, SetType } from '@mtgdle/shared-types';
 
-export class CardSet {
+export class CardSet implements ICardSet {
   @ApiProperty({
     description: 'The name of the set.',
     type: 'string',
