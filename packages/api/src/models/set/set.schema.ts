@@ -1,6 +1,6 @@
 import { EntitySchema } from 'typeorm';
 import { CardSet } from './set';
-import { SetType } from './set.enum';
+import { SetType } from '@mtgdle/shared-types';
 
 export const SetEntity = new EntitySchema<CardSet>({
   name: 'Set',

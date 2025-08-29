@@ -7,13 +7,16 @@
   "workspaces": [
     "packages/api",
     "packages/eslint-config",
-    "packages/front"
+    "packages/front",
+    "packages/shared-types"
   ],
   "scripts": {
-    "build:front": "(cd packages/front && bun run build)",
     "build:api": "(cd packages/api && bun run build)",
+    "build:front": "(cd packages/front && bun run build)",
+    "build:shared-types": "(cd packages/shared-types && bun run build)",
+    "start:api": "(cd packages/api && bun run dev)",
     "start:front": "(cd packages/front && bun run dev)",
-    "start:api": "(cd packages/api && bun run dev)"
+    "start:shared-types": "(cd packages/shared-types && bun run dev)"
   },
   "engines": {
     "npm": ">=10.0.0",

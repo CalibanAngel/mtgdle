@@ -8,6 +8,10 @@ export const siteConfig = {
       label: 'Health',
       href: '/health',
     },
+    {
+      label: 'Sets',
+      href: '/sets',
+    },
   ],
   navMenuItems: [],
   links: {
