@@ -7,12 +7,18 @@ import {
 } from '@heroui/navbar';
 import { link as linkStyles } from '@heroui/theme';
 import clsx from 'clsx';
+import { get } from 'lodash';
 
 import { siteConfig } from '@/config/site';
 import { ThemeSwitch } from '@/components/theme-switch';
 import { GithubIcon, ScryfallIcon } from '@/components/icons';
+import { paths } from '@/config/paths.ts';
 
 export const Navbar = () => {
+  const navItems = Object.keys(paths.app)
+    .filter((key) => get(paths.app, key)?.label)
+    .map((key) => get(paths.app, key));
+
   return (
     <HeroUINavbar maxWidth="xl" position="sticky">
       <NavbarContent className="basis-1/5 sm:basis-full" justify="start">
@@ -27,15 +33,15 @@ export const Navbar = () => {
           </Link>
         </NavbarBrand>
         <div className="hidden lg:flex gap-4 justify-start ml-2">
-          {siteConfig.navItems.map((item) => (
-            <NavbarItem key={item.href}>
+          {navItems.map((item) => (
+            <NavbarItem key={item.getHref()}>
               <Link
                 className={clsx(
                   linkStyles({ color: 'foreground' }),
                   'data-[active=true]:text-primary data-[active=true]:font-medium',
                 )}
                 color="foreground"
-                href={item.href}
+                href={item.getHref()}
               >
                 {item.label}
               </Link>
