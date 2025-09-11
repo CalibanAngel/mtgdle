@@ -1,8 +1,17 @@
-import { Controller, Get, Param, ParseUUIDPipe, Post } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  ParseBoolPipe,
+  ParseUUIDPipe,
+  Post,
+  Query,
+} from '@nestjs/common';
 import {
   ApiCreatedResponse,
   ApiOkResponse,
   ApiParam,
+  ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
 import { CardApiService } from './card.api-service';
@@ -43,5 +52,22 @@ export class CardController {
   @ApiCreatedResponse({ type: Card })
   createFromId(@Param('id', ParseUUIDPipe) id: string) {
     return this.cardApiService.createFromScryfallId(id);
+  }
+
+  @Post('/import-all-from-scryfall')
+  @ApiQuery({
+    name: 'local',
+    type: Boolean,
+    default: true,
+    description: 'insert from local file',
+  })
+  @ApiCreatedResponse({
+    type: Card,
+    isArray: true,
+  })
+  importAllFromScryfall(
+    @Query('local', new ParseBoolPipe()) local: boolean,
+  ) {
+    return this.cardApiService.importAllFromScryfall(local)
   }
 }

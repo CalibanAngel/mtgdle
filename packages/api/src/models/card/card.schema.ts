@@ -61,6 +61,11 @@ export const CardEntity = new EntitySchema<Card>({
       updateDate: true,
       name: 'updated_at',
     },
+    setId: {
+      type: 'uuid',
+      name: 'set_id',
+      nullable: false,
+    }
   },
   relations: {
     // Existing one-to-one relation with ManaCost.
@@ -87,6 +92,6 @@ export const CardEntity = new EntitySchema<Card>({
       },
       onDelete: 'CASCADE',
       inverseSide: 'cards',
-    },
-  },
+    }
+  }
 });

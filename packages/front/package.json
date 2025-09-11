@@ -29,6 +29,7 @@
     "@tailwindcss/vite": "4.1.11",
     "@tanstack/react-query": "^5.32.0",
     "@tanstack/react-query-devtools": "^5.32.0",
+    "@types/stream-json": "^1.7.8",
     "clsx": "2.1.1",
     "framer-motion": "11.18.2",
     "mana-font": "^1.18.0",
@@ -37,6 +38,7 @@
     "react-error-boundary": "^6.0.0",
     "react-helmet-async": "^2.0.5",
     "react-router-dom": "6.23.0",
+    "stream-json": "^1.9.1",
     "tailwind-variants": "2.0.1",
     "tailwindcss": "4.1.11"
   },

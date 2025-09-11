@@ -1,5 +1,15 @@
-### SET
-@set_code=aer
+### BULK DATA
+GET {{scryfallHost}}/bulk-data
+
+### BULK DATA DEFAULT CARDS
+GET {{scryfallHost}}/bulk-data/default-cards
+
+
+### SET ALL
+GET {{scryfallHost}}/sets
+
+### SET CODE
+@set_code=prm
 GET {{scryfallHost}}/sets/{{set_code}}
 
 ### RANDOM

@@ -11,4 +11,8 @@ export class CardApiService {
 
     return this.cardService.createCard(card);
   }
+
+  async importAllFromScryfall(local: boolean) {
+    return this.cardService.importAllFromScryfall(local);
+  }
 }

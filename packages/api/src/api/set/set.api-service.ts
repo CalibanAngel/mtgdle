@@ -1,8 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { from, Observable, switchMap } from 'rxjs';
+import { from, map, Observable, switchMap } from 'rxjs';
 import { ScryfallSetService } from '../../infrastructure/external/scryfall/set/scryfall-set.service';
 import { SetService } from '../../models/set/set.service';
 import { CardSet } from '../../models/set/set';
+import { SetType } from '@mtgdle/shared-types';
 
 @Injectable()
 export class SetApiService {
@@ -19,10 +20,15 @@ export class SetApiService {
     return this.scryfallSetService.getAllSets();
   }
 
-  importScryfallSetToDatabase() {
-    this.logger.debug('Start importing Sryfall set');
+  importScryfallSetToDatabase(onlyExpansion: boolean) {
+    this.logger.debug(`Start importing Scryfall set (onlyExpansion: ${onlyExpansion}) to database`);
 
     return this.getAllSetFromScryfall().pipe(
+      map((sets) =>
+        onlyExpansion
+          ? sets.filter((set) => [SetType.Expansion, SetType.Core, SetType.Commander, SetType.Masters].includes(set.setType))
+          : sets,
+      ),
       switchMap((data) => from(this.setService.bulkInsert(data))),
     );
   }

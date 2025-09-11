@@ -4,6 +4,11 @@ import { CardFace } from './card-face';
 export const CardFaceEntity = new EntitySchema<CardFace>({
   name: 'CardFace',
   tableName: 'card_face',
+  indices: [{
+    name: 'card_face_unique_name_card_id',
+    columns: ['name', 'cardId'],
+    unique: true,
+  }],
   columns: {
     id: {
       type: 'uuid',
@@ -38,6 +43,11 @@ export const CardFaceEntity = new EntitySchema<CardFace>({
       nullable: true,
       name: 'flavor_text',
     },
+    cardId: {
+      type: 'uuid',
+      nullable: false,
+      name: 'card_id',
+    },
     createdAt: {
       type: 'timestamp',
       createDate: true,
@@ -66,5 +76,5 @@ export const CardFaceEntity = new EntitySchema<CardFace>({
       onDelete: 'CASCADE',
       inverseSide: 'cardFace', // This property must be defined in the CardImageUris entity.
     },
-  },
+  }
 });
