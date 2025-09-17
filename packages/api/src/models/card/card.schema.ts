@@ -1,5 +1,6 @@
 import { EntitySchema } from 'typeorm';
 import { Card } from './card';
+import { Layout } from './card.enum';
 
 export const CardEntity = new EntitySchema<Card>({
   name: 'Card',
@@ -16,6 +17,12 @@ export const CardEntity = new EntitySchema<Card>({
     releasedDate: {
       type: 'date',
       name: 'released_date',
+    },
+    layout: {
+      type: 'enum',
+      enum: Layout,
+      enumName: 'card_layout_enum',
+      name: 'layout'
     },
     scryfallUri: {
       type: 'text',

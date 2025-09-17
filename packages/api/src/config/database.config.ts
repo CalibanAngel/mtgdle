@@ -10,6 +10,7 @@ export const databaseConfig = registerAs('database', () => ({
   synchronize: process.env.DATABASE_SYNCHRONIZE === 'true',
   dropSchema: process.env.DATABASE_DROP_SCHEMA === 'true',
   autoLoadEntities: process.env.DATABASE_AUTO_LOAD_ENTITIES === 'true',
+  batchSize: Number(process.env.DATABASE_BATCH_SIZE) || 500,
 }));
 
 export type DatabaseConfig = ReturnType<typeof databaseConfig>;

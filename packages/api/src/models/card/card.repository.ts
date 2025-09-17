@@ -7,7 +7,7 @@ import { CustomRepositoryBase } from '../../repository/custom-repository.absctra
 @Injectable()
 @CustomRepository(CardEntity)
 export class CardRepository extends CustomRepositoryBase<Card> {
-  createCard(card: Card): Promise<Card> {
-    return this.save(card);
+  createCards(cards: Card[]): Promise<Card[]> {
+    return this.save(cards);
   }
 }

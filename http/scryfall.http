@@ -8,12 +8,21 @@ GET {{scryfallHost}}/bulk-data/default-cards
 ### SET ALL
 GET {{scryfallHost}}/sets
 
+### SET ID
+GET {{scryfallHost}}/sets/f7aa47c6-c1e2-4de5-9a68-4406d84bd6bb
+
 ### SET CODE
 @set_code=prm
 GET {{scryfallHost}}/sets/{{set_code}}
 
 ### RANDOM
 GET {{scryfallHost}}/cards/random
+
+
+### TEST ID
+@card_id=0000a54c-a511-4925-92dc-01b937f9afad
+GET {{scryfallHost}}/cards/{{card_id}}
+
 
 ### ID SPLIT
 @card_id_split=4bb07091-86d6-4735-82b6-6e71e26710f4

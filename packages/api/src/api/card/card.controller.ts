@@ -17,6 +17,7 @@ import {
 import { CardApiService } from './card.api-service';
 import { CardService } from '../../models/card/card.service';
 import { Card } from '../../models/card/card';
+import { ImportStats } from '../common/import-stats';
 
 @ApiTags('card')
 @Controller('card')
@@ -49,7 +50,7 @@ export class CardController {
     type: String,
     description: 'UUID from Scryfall API',
   })
-  @ApiCreatedResponse({ type: Card })
+  @ApiCreatedResponse({ type: Card, isArray: true })
   createFromId(@Param('id', ParseUUIDPipe) id: string) {
     return this.cardApiService.createFromScryfallId(id);
   }
@@ -62,12 +63,10 @@ export class CardController {
     description: 'insert from local file',
   })
   @ApiCreatedResponse({
-    type: Card,
-    isArray: true,
+    description: 'Summary of the import job',
+    type: ImportStats,
   })
-  importAllFromScryfall(
-    @Query('local', new ParseBoolPipe()) local: boolean,
-  ) {
-    return this.cardApiService.importAllFromScryfall(local)
+  importAllFromScryfall(@Query('local', new ParseBoolPipe()) local: boolean) {
+    return this.cardApiService.importAllFromScryfall(local);
   }
 }

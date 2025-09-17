@@ -10,7 +10,7 @@ import { Readable } from 'node:stream';
 import { ScryfallCard } from '@scryfall/api-types';
 import { join, resolve } from 'node:path';
 import { createReadStream } from 'node:fs';
-import { SetType } from '@mtgdle/shared-types';
+import { IImportStats } from '@mtgdle/shared-types';
 
 @Injectable()
 export class ScryfallBulkDataDao {
@@ -48,7 +48,7 @@ export class ScryfallBulkDataDao {
       this.getDefaultCardFileInfo().pipe(map((res) => res.data)),
     );
 
-    this.logger.debug(
+    this.logger.log(
       `Scryfall file at uri ${bulkInfo.download_uri} while be stream`,
     );
 
@@ -63,47 +63,61 @@ export class ScryfallBulkDataDao {
     return response.data;
   }
 
-  /**
-   * Example: Incrementally parse the Scryfall JSON array and handle items one-by-one.
-   * Requires installing a streaming JSON parser:
-   *   npm install stream-json
-   *
-   * onItem will be called for each card object.
-   */
-  async processDefaultCardsIncrementally(
+  async processInBatches(
     stream: Readable,
-    onItem: (card: ScryfallCard.Any) => Promise<void> | void,
-  ): Promise<void> {
-    this.logger.debug(`Start streaming file`);
-    return new Promise<void>((resolve, reject) => {
-      stream
-        .pipe(parser())
-        .pipe(streamArray())
-        .on('data', async ({ value }: { value: ScryfallCard.Any }) => {
-          try {
-            if (
-              value.layout === 'normal' &&
-              [SetType.Core, SetType.Commander, SetType.Expansion, SetType.Masters].includes(value.set_type as SetType)
-            ) {
-              await onItem(value);
-            }
-          } catch (err) {
-            this.logger.error(
-              `An error occured when processing data for card ${value.id} for set ${value.set} with setId ${value.set_id}: `,
-              err,
-            );
-            reject(err);
-          }
-        })
-        .on('end', () => {
-          this.logger.debug(`Finished streaming file`);
-          resolve();
-        })
-        .on('error', (err: unknown) => {
-          this.logger.error(`An error occured when processing stream: `, err);
-          reject(err);
-        });
-    });
+    batchSize: number,
+    onBatch: (card: ScryfallCard.Any[]) => Promise<void> | null,
+  ): Promise<IImportStats> {
+    this.logger.log(`Start streaming file`);
+    const jsonStream = stream.pipe(parser()).pipe(streamArray());
+    let batch: ScryfallCard.Any[] = [];
+
+    const totalStartMs = Date.now();
+    const startedAt = new Date(totalStartMs).toISOString();
+
+    let totalItems = 0;
+    let batchCount = 0;
+    let durationMs = 0;
+
+    const handleBatch = async (cards: ScryfallCard.Any[]) => {
+      const batchStartMs = Date.now();
+      await onBatch(cards);
+      const batchDurationMs = Date.now() - batchStartMs;
+      totalItems += cards.length;
+      batchCount += 1;
+      this.logger.debug(`Processed batch #${batchCount} with ${cards.length} items in ${batchDurationMs} ms`);
+    };
+
+    try {
+      for await (const { value } of jsonStream) {
+        batch.push(value);
+        if (batch.length >= batchSize) {
+          await handleBatch(batch);
+          batch = [];
+        }
+      }
+      if (batch.length) {
+        await handleBatch(batch);
+      }
+    } catch (streamError) {
+      this.logger.error(`Error while reading/processing stream`, streamError);
+      throw streamError;
+    } finally {
+      durationMs = Date.now() - totalStartMs;
+      this.logger.log(
+        `Finished streaming file: ${totalItems} items across ${batchCount} batches in ${durationMs} ms`,
+      );
+      stream.destroy();
+    }
+    const finishedAt = new Date().toISOString();
+
+    return {
+      totalItems,
+      batchCount,
+      durationMs,
+      startedAt,
+      finishedAt
+    };
   }
 
   /**
