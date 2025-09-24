@@ -20,7 +20,8 @@ export const databaseConfiguration = (
       infer: true,
     }),
     entities: Entities,
-    autoLoadEntities: false,
+    dropSchema: configService.getOrThrow('database.dropSchema', {infer: true}),
+    // autoLoadEntities: configService.getOrThrow('database.autoLoadEntities', {infer: true}),
     migrations: [],
   };
 };

@@ -1,8 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { from, Observable, switchMap } from 'rxjs';
+import { from, map, Observable, switchMap } from 'rxjs';
 import { ScryfallSetService } from '../../infrastructure/external/scryfall/set/scryfall-set.service';
 import { SetService } from '../../models/set/set.service';
 import { CardSet } from '../../models/set/set';
+import { SETS_TYPE_HANDLED } from '../../models/set/set.constant';
 
 @Injectable()
 export class SetApiService {
@@ -14,15 +15,22 @@ export class SetApiService {
   ) {}
 
   private getAllSetFromScryfall(): Observable<CardSet[]> {
-    this.logger.debug('Getting all sets from Scryfall API');
+    this.logger.log('Getting all sets from Scryfall API');
 
     return this.scryfallSetService.getAllSets();
   }
 
-  importScryfallSetToDatabase() {
-    this.logger.debug('Start importing Sryfall set');
+  importScryfallSetToDatabase(onlyExpansion: boolean) {
+    this.logger.log(
+      `Start importing Scryfall set (onlyExpansion: ${onlyExpansion}) to database`,
+    );
 
     return this.getAllSetFromScryfall().pipe(
+      map((sets) =>
+        onlyExpansion
+          ? sets.filter((set) => SETS_TYPE_HANDLED.includes(set.setType))
+          : sets,
+      ),
       switchMap((data) => from(this.setService.bulkInsert(data))),
     );
   }

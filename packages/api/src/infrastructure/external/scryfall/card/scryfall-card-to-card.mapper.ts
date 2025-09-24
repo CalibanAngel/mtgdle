@@ -147,6 +147,7 @@ function scryfallAnySingleFacedCardToCardMapper(
   cardFace.flavorText = scryfallCard.flavor_text;
   cardFace.name = scryfallCard.name;
   cardFace.cardId = scryfallCard.id;
+  cardFace.imageUris = imageUris;
 
   card.cardFaces = [cardFace];
 

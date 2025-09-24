@@ -1,5 +1,6 @@
 import { EntitySchema } from 'typeorm';
 import { Card } from './card';
+import { Layout } from './card.enum';
 
 export const CardEntity = new EntitySchema<Card>({
   name: 'Card',
@@ -16,6 +17,12 @@ export const CardEntity = new EntitySchema<Card>({
     releasedDate: {
       type: 'date',
       name: 'released_date',
+    },
+    layout: {
+      type: 'enum',
+      enum: Layout,
+      enumName: 'card_layout_enum',
+      name: 'layout'
     },
     scryfallUri: {
       type: 'text',
@@ -61,6 +68,11 @@ export const CardEntity = new EntitySchema<Card>({
       updateDate: true,
       name: 'updated_at',
     },
+    setId: {
+      type: 'uuid',
+      name: 'set_id',
+      nullable: false,
+    }
   },
   relations: {
     // Existing one-to-one relation with ManaCost.
@@ -87,6 +99,6 @@ export const CardEntity = new EntitySchema<Card>({
       },
       onDelete: 'CASCADE',
       inverseSide: 'cards',
-    },
-  },
+    }
+  }
 });

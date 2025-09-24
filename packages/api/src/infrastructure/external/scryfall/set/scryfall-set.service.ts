@@ -11,8 +11,6 @@ export class ScryfallSetService {
   constructor(private readonly scryfallCardDao: ScrayfallSetDao) {}
 
   getAllSets(): Observable<CardSet[]> {
-    this.logger.debug('Getting all set from scryfall API');
-
     return this.scryfallCardDao.getAllSets().pipe(
       map(({ data }) => {
         return data.data.map((scryfallSet) =>

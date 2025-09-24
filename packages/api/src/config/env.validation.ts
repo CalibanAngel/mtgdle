@@ -22,6 +22,7 @@ type EnvironmentVariables = {
   DATABASE_USER: string;
   DATABASE_PASSWORD: string;
   DATABASE_NAME: string;
+  DATABASE_BATCH_SIZE: number;
 };
 
 export const envValidationSchema = Joi.object<EnvironmentVariables>({
@@ -40,5 +41,6 @@ export const envValidationSchema = Joi.object<EnvironmentVariables>({
   DATABASE_USER: Joi.string().required(),
   DATABASE_PASSWORD: Joi.string().required(),
   DATABASE_NAME: Joi.string().required(),
+  DATABASE_BATCH_SIZE: Joi.number().default(500),
   SCRYFALL_API_HOST: Joi.string().uri().required(),
 });
