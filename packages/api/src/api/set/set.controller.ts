@@ -15,7 +15,7 @@ import { UpsertResult } from '../../infrastructure/database/database.interface';
 export class SetController {
   constructor(private readonly setApiService: SetApiService) {}
 
-  @Post('insert-all-from-scryfall')
+  @Post('scryfall/import')
   @ApiQuery({
     name: 'onlyExpansion',
     type: Boolean,

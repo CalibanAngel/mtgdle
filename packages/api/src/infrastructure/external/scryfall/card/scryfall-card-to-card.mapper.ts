@@ -83,6 +83,7 @@ function scryfallRootCardToCard(
   card.colorIdentity = scryfallCard.color_identity as Color[];
   card.colors = (scryfallCard.colors as Color[]) ?? [];
   card.layout = scryfallCard.layout as Layout;
+  card.edhrcRank = scryfallCard.edhrec_rank ?? null
 
   return card;
 }
@@ -100,9 +101,9 @@ function scryfallAnySingleSidedSplitCardToCard(
 
     imageUris.borderCrop = scryfallCard.image_uris?.border_crop ?? NOT_DEFINED;
     imageUris.large = scryfallCard.image_uris?.large ?? NOT_DEFINED;
-    imageUris.normal = scryfallCard.image_uris?.normal ?? NOT_DEFINED;;
-    imageUris.png = scryfallCard.image_uris?.png ?? NOT_DEFINED;;
-    imageUris.small = scryfallCard.image_uris?.small ?? NOT_DEFINED;;
+    imageUris.normal = scryfallCard.image_uris?.normal ?? NOT_DEFINED;
+    imageUris.png = scryfallCard.image_uris?.png ?? NOT_DEFINED;
+    imageUris.small = scryfallCard.image_uris?.small ?? NOT_DEFINED;
 
     cardFace.imageUris = imageUris;
     cardFace.cardId = scryfallCard.id;

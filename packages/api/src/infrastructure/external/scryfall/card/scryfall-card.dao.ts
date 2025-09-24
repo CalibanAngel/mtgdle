@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { HttpService } from '@nestjs/axios';
 import { Observable } from 'rxjs';
@@ -8,7 +8,6 @@ import { Configuration } from '../../../../config/config';
 
 @Injectable()
 export class ScryfallCardDao {
-  private readonly logger = new Logger(ScryfallCardDao.name);
   private host: string;
 
   constructor(

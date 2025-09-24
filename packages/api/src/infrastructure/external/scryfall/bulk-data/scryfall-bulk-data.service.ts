@@ -3,7 +3,7 @@ import { ScryfallBulkDataDao } from './scryfall-bulk-data.dao';
 import { ScryfallCard } from '@scryfall/api-types';
 import { ConfigService } from '@nestjs/config';
 import { Configuration } from '../../../../config/config';
-import { ImportStats } from '@mtgdle/shared-types';
+import { IImportStats } from '@mtgdle/shared-types';
 
 @Injectable()
 export class ScryfallBulkDataService {
@@ -27,10 +27,6 @@ export class ScryfallBulkDataService {
       ? this.scryfallBulkDataDao.getLocalStream()
       : await this.scryfallBulkDataDao.streamDefaultCards();
 
-    return this.scryfallBulkDataDao.processInBatches(
-      stream,
-      batchSize,
-      onItem,
-    );
+    return this.scryfallBulkDataDao.processInBatches(stream, batchSize, onItem);
   }
 }

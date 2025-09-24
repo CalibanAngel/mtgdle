@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Card } from './card';
 import { Observable } from 'rxjs';
 import { ScryfallCardService } from '../../infrastructure/external/scryfall/card/scryfall-card.service';
@@ -8,16 +8,17 @@ import { scryfallAnyCardToCard } from '../../infrastructure/external/scryfall/ca
 import { ScryfallCard } from '@scryfall/api-types';
 import { SETS_TYPE_HANDLED } from '../set/set.constant';
 import { IImportStats, SetType } from '@mtgdle/shared-types';
+import { WithLogger } from '../../infrastructure/logging/with-logger.abstract';
 
 @Injectable()
-export class CardService {
-  private readonly logger = new Logger(CardService.name);
-
+export class CardService extends WithLogger {
   constructor(
     private readonly scryfallCardService: ScryfallCardService,
     private readonly scryfallBulkDataService: ScryfallBulkDataService,
     private readonly cardRepository: CardRepository,
-  ) {}
+  ) {
+    super();
+  }
 
   getRandomCardFromScryfallApi(): Observable<Card> {
     return this.scryfallCardService.getRandomCard();

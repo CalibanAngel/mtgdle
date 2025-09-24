@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Configuration } from '../../../../config/config';
 import { HttpService } from '@nestjs/axios';
@@ -11,16 +11,17 @@ import { ScryfallCard } from '@scryfall/api-types';
 import { join, resolve } from 'node:path';
 import { createReadStream } from 'node:fs';
 import { IImportStats } from '@mtgdle/shared-types';
+import { WithLogger } from '../../../logging/with-logger.abstract';
 
 @Injectable()
-export class ScryfallBulkDataDao {
-  private readonly logger = new Logger(ScryfallBulkDataDao.name);
-  private host: string;
+export class ScryfallBulkDataDao extends WithLogger {
+  private readonly host: string;
 
   constructor(
     private configService: ConfigService<Configuration>,
     private httpService: HttpService,
   ) {
+    super();
     this.host = this.configService.getOrThrow('scryfall.host', { infer: true });
   }
 
@@ -32,7 +33,7 @@ export class ScryfallBulkDataDao {
 
   readLocalFile(file: string): Readable {
     const abs = resolve(file);
-    this.logger.debug(`Start reading local file at ${abs}`);
+    this.logger.log(`Start reading local file at ${abs}`);
     const stream = createReadStream(abs, { encoding: 'utf8' });
     return stream;
   }
@@ -85,7 +86,9 @@ export class ScryfallBulkDataDao {
       const batchDurationMs = Date.now() - batchStartMs;
       totalItems += cards.length;
       batchCount += 1;
-      this.logger.debug(`Processed batch #${batchCount} with ${cards.length} items in ${batchDurationMs} ms`);
+      this.logger.debug(
+        `Processed batch #${batchCount} with ${cards.length} items in ${batchDurationMs} ms`,
+      );
     };
 
     try {
@@ -116,7 +119,7 @@ export class ScryfallBulkDataDao {
       batchCount,
       durationMs,
       startedAt,
-      finishedAt
+      finishedAt,
     };
   }
 
