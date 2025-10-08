@@ -7,6 +7,6 @@ import { ModelsModule } from '../../models/models.module';
   imports: [ModelsModule],
   controllers: [CardController],
   providers: [CardApiService],
-  exports: [],
+  exports: [CardApiService],
 })
 export class CardApiModule {}

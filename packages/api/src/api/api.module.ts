@@ -6,9 +6,11 @@ import { ModelsModule } from '../models/models.module';
 import { InfrastructureModule } from '../infrastructure/infrastructure.module';
 import { ConfigurationModule } from '../config/config.module';
 import { PlayableCardApiModule } from './playable-card/playable-card.api-module';
+import { BulkApiModule } from './bulk/bulk.api-module';
 
 @Module({
   imports: [
+    BulkApiModule,
     CardApiModule,
     ConfigurationModule,
     HealthApiModule,

@@ -5,6 +5,7 @@ import { ModelsModule } from '../../models/models.module';
 
 @Module({
   imports: [ModelsModule],
+  exports: [PlayableCardApiService],
   controllers: [PlayableCardController],
   providers: [PlayableCardApiService],
 })

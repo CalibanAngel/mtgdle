@@ -8,5 +8,6 @@ import { ScryfallSetModule } from '../../infrastructure/external/scryfall/set/sc
   imports: [ModelsModule, ScryfallSetModule],
   providers: [SetApiService],
   controllers: [SetController],
+  exports: [SetApiService],
 })
 export class SetApiModule {}

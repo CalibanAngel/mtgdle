@@ -5,6 +5,7 @@ import { SetService } from '../../models/set/set.service';
 import { CardSet } from '../../models/set/set';
 import { SETS_TYPE_HANDLED } from '../../models/set/set.constant';
 import { WithLogger } from '../../infrastructure/logging/with-logger.abstract';
+import { UpsertResult } from '../../infrastructure/database/database.interface';
 
 @Injectable()
 export class SetApiService extends WithLogger {
@@ -19,7 +20,7 @@ export class SetApiService extends WithLogger {
     return this.scryfallSetService.getAllSets();
   }
 
-  importScryfallSetToDatabase(onlyExpansion: boolean) {
+  importScryfallSetToDatabase(onlyExpansion: boolean): Observable<UpsertResult<CardSet>> {
     this.logger.log(
       `Start importing Scryfall set (onlyExpansion: ${onlyExpansion}) to database`,
     );

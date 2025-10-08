@@ -23,8 +23,7 @@ export class SetController {
     description: 'Only insert expansion sets',
   })
   @ApiCreatedResponse({
-    type: CardSet,
-    isArray: true,
+    type: UpsertResult<CardSet> // todo: type is not pretty in swagger
   })
   insertAllFromScryfall(
     @Query('onlyExpansion', new ParseBoolPipe()) onlyExpansion: boolean,
