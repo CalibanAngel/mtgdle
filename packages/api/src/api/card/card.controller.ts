@@ -27,13 +27,13 @@ export class CardController {
     private readonly cardApiService: CardApiService,
   ) {}
 
-  @Get('/get-random-card-from-scryfall-api')
+  @Get('/scryfall/random')
   @ApiOkResponse({ type: Card })
   getRandomCardFromScryfallApi() {
     return this.cardService.getRandomCardFromScryfallApi();
   }
 
-  @Get('/get-by-scryfall-id/:id')
+  @Get('/scryfall/get/:id')
   @ApiParam({
     name: 'id',
     type: String,
@@ -44,7 +44,7 @@ export class CardController {
     return this.cardService.getFromScryfallId(id);
   }
 
-  @Post('/create-by-scryfall-id/:id')
+  @Post('/scryfall/create/:id')
   @ApiParam({
     name: 'id',
     type: String,
@@ -55,7 +55,7 @@ export class CardController {
     return this.cardApiService.createFromScryfallId(id);
   }
 
-  @Post('/import-all-from-scryfall')
+  @Post('/scryfall/import')
   @ApiQuery({
     name: 'local',
     type: Boolean,

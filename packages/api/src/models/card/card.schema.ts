@@ -58,6 +58,11 @@ export const CardEntity = new EntitySchema<Card>({
     games: {
       type: 'simple-array',
     },
+    edhrcRank: {
+      type: 'smallint',
+      name: 'edhrc_rank',
+      nullable: true,
+    },
     createdAt: {
       type: 'timestamp',
       createDate: true,
@@ -99,6 +104,13 @@ export const CardEntity = new EntitySchema<Card>({
       },
       onDelete: 'CASCADE',
       inverseSide: 'cards',
+    },
+    playableCard: {
+      type: 'one-to-one',
+      target: 'PlayableCard',
+      inverseSide: 'card',
+      nullable: true,
     }
+
   }
 });

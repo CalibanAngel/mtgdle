@@ -5,6 +5,7 @@ import { BorderColor, Color, GameName, Layout, Rarity } from './card.enum';
 import { Legalities } from './card.interface';
 import { Exclude } from 'class-transformer';
 import { CardFace } from './card-face/card-face';
+import { PlayableCard } from '../playable-card/playable-card';
 
 export class Card {
   @ApiProperty({
@@ -116,6 +117,13 @@ export class Card {
   layout: Layout;
 
   @ApiProperty({
+    description: 'Rank of the card on EDHrc',
+    type: 'number',
+    nullable: true,
+  })
+  edhrcRank: number | null
+
+  @ApiProperty({
     description:
       'A list of games that this card print is available in, paper, arena, and/or mtgo.',
     isArray: true,
@@ -130,6 +138,17 @@ export class Card {
     isArray: true,
   })
   cardFaces: CardFace[];
+
+  @Exclude()
+  playableCard?: PlayableCard
+
+  @ApiProperty({
+    description: 'Is the card playable',
+    type: 'boolean',
+  })
+  get isPlayable(): boolean {
+    return !!this.playableCard;
+  }
 
   @Exclude()
   createdAt: string;

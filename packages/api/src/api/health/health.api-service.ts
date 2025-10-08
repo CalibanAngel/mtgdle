@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import {
   HealthCheckService,
   HealthIndicatorResult,
@@ -8,30 +8,34 @@ import {
 import { ConfigService } from '@nestjs/config';
 import type { HealthCheckResult } from '@nestjs/terminus/dist/health-check/health-check-result.interface';
 import { Configuration } from '../../config/config';
+import { WithLogger } from '../../infrastructure/logging/with-logger.abstract';
 
 @Injectable()
-export class HealthApiService {
-  private readonly logger = new Logger(HealthApiService.name);
-
+export class HealthApiService extends WithLogger {
   constructor(
     private readonly health: HealthCheckService,
     private readonly http: HttpHealthIndicator,
     private readonly db: TypeOrmHealthIndicator,
     private readonly configService: ConfigService<Configuration>,
-  ) {}
+  ) {
+    super();
+  }
 
   async isScryfallAlive(): Promise<HealthIndicatorResult<'scryfall'>> {
     const scryfallApiHost = this.configService.getOrThrow('scryfall.host', {
       infer: true,
     });
 
-    const ping = await this.http.pingCheck('scryfall', `${scryfallApiHost}/symbology`);
+    const ping = await this.http.pingCheck(
+      'scryfall',
+      `${scryfallApiHost}/symbology`,
+    );
 
     if (ping.scryfall.status === 'down') {
       this.logger.error('Scryfall API is down');
     }
 
-    return ping
+    return ping;
   }
 
   async isDatabaseAlive(): Promise<HealthIndicatorResult<'database'>> {
@@ -41,7 +45,7 @@ export class HealthApiService {
       this.logger.error('Database is down');
     }
 
-    return ping
+    return ping;
   }
 
   areAllServicesAlive(): Promise<HealthCheckResult> {
