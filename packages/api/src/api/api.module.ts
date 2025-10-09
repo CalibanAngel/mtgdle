@@ -7,12 +7,14 @@ import { InfrastructureModule } from '../infrastructure/infrastructure.module';
 import { ConfigurationModule } from '../config/config.module';
 import { PlayableCardApiModule } from './playable-card/playable-card.api-module';
 import { BulkApiModule } from './bulk/bulk.api-module';
+import { GameApiModule } from './game/game.api-module';
 
 @Module({
   imports: [
     BulkApiModule,
     CardApiModule,
     ConfigurationModule,
+    GameApiModule,
     HealthApiModule,
     ModelsModule,
     InfrastructureModule,

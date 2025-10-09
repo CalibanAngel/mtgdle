@@ -1,11 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { ManaCost } from './mana-cost/mana-cost';
 import { CardSet } from '../set/set';
-import { BorderColor, Color, GameName, Layout, Rarity } from './card.enum';
+import { BorderColor, Color, PlateformName, Layout, Rarity } from './card.enum';
 import { Legalities } from './card.interface';
 import { Exclude } from 'class-transformer';
 import { CardFace } from './card-face/card-face';
 import { PlayableCard } from '../playable-card/playable-card';
+import { Game } from '../game/game';
 
 export class Card {
   @ApiProperty({
@@ -128,9 +129,9 @@ export class Card {
       'A list of games that this card print is available in, paper, arena, and/or mtgo.',
     isArray: true,
     enumName: 'GameName',
-    enum: GameName,
+    enum: PlateformName,
   })
-  games: GameName[];
+  plateform: PlateformName[];
 
   @ApiProperty({
     description: 'Gameplay info of the card.',
@@ -140,7 +141,10 @@ export class Card {
   cardFaces: CardFace[];
 
   @Exclude()
-  playableCard?: PlayableCard
+  playableCard?: PlayableCard;
+
+  @Exclude()
+  games: Game[]
 
   @ApiProperty({
     description: 'Is the card playable',

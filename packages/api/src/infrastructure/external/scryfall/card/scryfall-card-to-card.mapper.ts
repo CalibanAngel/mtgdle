@@ -3,7 +3,7 @@ import { Card } from '../../../../models/card/card';
 import {
   BorderColor,
   Color,
-  GameName,
+  PlateformName,
   Layout,
   Rarity,
 } from '../../../../models/card/card.enum';
@@ -78,7 +78,7 @@ function scryfallRootCardToCard(
   card.setId = scryfallCard.set_id;
   card.reprint = scryfallCard.reprint;
   card.borderColor = scryfallCard.border_color as BorderColor;
-  card.games = scryfallCard.games as GameName[];
+  card.plateform = scryfallCard.games as PlateformName[];
   card.convertedManaCost = scryfallCard.cmc;
   card.colorIdentity = scryfallCard.color_identity as Color[];
   card.colors = (scryfallCard.colors as Color[]) ?? [];

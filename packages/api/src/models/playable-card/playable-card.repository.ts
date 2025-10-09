@@ -19,6 +19,13 @@ export type InsertFromNamesRow = {
 export class PlayableCardRepository extends CustomRepositoryBase<PlayableCard> {
   private readonly tableName = PlayableCardEntity.options.tableName;
 
+  getRandom(): Promise<PlayableCard> {
+    return this.createQueryBuilder('query')
+      .orderBy('RANDOM()')
+      .limit(1)
+      .getOneOrFail();
+  }
+
   async insertFromCardNames(cardNames: string[]): Promise<InsertedResult> {
     const sql = `
       WITH input(name) AS (
