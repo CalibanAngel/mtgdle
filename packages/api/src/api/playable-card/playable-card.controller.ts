@@ -1,4 +1,9 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+} from '@nestjs/common';
 import {
   ApiBody,
   ApiCreatedResponse,
@@ -10,8 +15,8 @@ import { InsertManualCardsDto } from './playable-card.dto';
 import { PlayableCard } from '../../models/playable-card/playable-card';
 import { InsertedResult } from '../../infrastructure/database/database.interface';
 
-@ApiTags('playable-card')
-@Controller('playable-card')
+@ApiTags('playable-cards')
+@Controller('playable-cards')
 export class PlayableCardController {
   constructor(
     private readonly playableCardApiService: PlayableCardApiService,
@@ -22,7 +27,9 @@ export class PlayableCardController {
     type: PlayableCard,
     isArray: true,
   })
-  getAll() {}
+  getAll() {
+    return this.playableCardApiService.getAll();
+  }
 
   @Post('manual')
   @ApiBody({

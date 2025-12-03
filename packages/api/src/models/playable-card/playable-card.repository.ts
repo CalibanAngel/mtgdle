@@ -8,6 +8,7 @@ import {
   InsertedResult,
   InsertedStatus,
 } from '../../infrastructure/database/database.interface';
+import { plainToInstance } from 'class-transformer';
 
 export type InsertFromNamesRow = {
   name: string;
@@ -18,6 +19,22 @@ export type InsertFromNamesRow = {
 @CustomRepository(PlayableCardEntity)
 export class PlayableCardRepository extends CustomRepositoryBase<PlayableCard> {
   private readonly tableName = PlayableCardEntity.options.tableName;
+
+  async findAll(): Promise<PlayableCard[]> {
+    const playableCards = await this.createQueryBuilder('playableCard')
+      .leftJoin('playableCard.card', 'card')
+      .leftJoin('card.cardFaces', 'cardFaces')
+      .leftJoinAndSelect('cardFaces.imageUris', 'imageUris')
+      .addSelect(['cardFaces.id', 'card.id'])
+      .getMany();
+
+    return plainToInstance(PlayableCard, playableCards.map(pc => {
+      if (pc.card?.cardFaces?.[0]?.imageUris) {
+        pc.imageUris = pc.card.cardFaces[0].imageUris;
+      }
+      return pc;
+    }));
+  }
 
   getRandom(): Promise<PlayableCard> {
     return this.createQueryBuilder('query')

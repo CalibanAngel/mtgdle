@@ -13,6 +13,10 @@ export class PlayableCardService {
     return this.playableCardRepository.getRandom();
   }
 
+  getAll(): Promise<PlayableCard[]> {
+    return this.playableCardRepository.findAll()
+  }
+
   insertManualCards(cardNames: string[]): Promise<InsertedResult> {
     if (!cardNames.length) {
       return Promise.resolve<InsertedResult>({
