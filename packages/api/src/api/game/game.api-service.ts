@@ -10,4 +10,10 @@ export class GameApiService {
   createTodayGame(): Promise<Game> {
     return this.gameService.createNewTodayGame()
   }
+
+  guessCard(id: string): Promise<unknown> {
+    console.log(id);
+
+    return this.gameService.cardGuessed()
+  }
 }

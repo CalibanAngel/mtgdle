@@ -1,5 +1,5 @@
-import { Controller, Post } from '@nestjs/common';
-import { ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
+import { Controller, Param, ParseUUIDPipe, Post } from '@nestjs/common';
+import { ApiCreatedResponse, ApiParam, ApiTags } from '@nestjs/swagger';
 import { GameApiService } from './game.api-service';
 import { ErrorContext } from '../../error/error-context.decorator';
 import { PostgresErrorCode } from '../../error/error.mapping';
@@ -15,11 +15,23 @@ export class GameController {
   })
   @ErrorContext({
     context: 'CREATE_GAME',
-    codeToKey: { [PostgresErrorCode.UNIQUE_VIOLATION]: ErrorKey.GAME_ALREADY_EXISTS },
-    fallback: { key: ErrorKey.INTERNAL_ERROR }
+    codeToKey: {
+      [PostgresErrorCode.UNIQUE_VIOLATION]: ErrorKey.GAME_ALREADY_EXISTS,
+    },
+    fallback: { key: ErrorKey.INTERNAL_ERROR },
   })
   @Post('today')
   async newTodayGame() {
     await this.gameApiService.createTodayGame();
+  }
+
+  @Post('guess-card/:id')
+  @ApiParam({
+    name: 'id',
+    type: String,
+    description: 'UUID from Scryfall API',
+  })
+  async guessCard(@Param('id', ParseUUIDPipe) id: string): Promise<unknown> {
+    return this.gameApiService.guessCard(id);
   }
 }
