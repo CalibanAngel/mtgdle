@@ -1,10 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { SetApiService } from '../../../../src/api/set/set.api-service';
-import { SetService } from '../../../../src/models/set/set.service';
-import { ScryfallSetService } from '../../../../src/infrastructure/external/scryfall/set/scryfall-set.service';
-import { CardSet } from '../../../../src/models/set/set';
-import { UpsertResult } from '../../../../src/infrastructure/database/database.interface';
-import { SetType } from '../../../../src/models/set/set.enum';
+import { SetApiService } from '../../../../packages/api/src/api/set/set.api-service';
+import { SetService } from '../../../../packages/api/src/models/set/set.service';
+import { ScryfallSetService } from '../../../../packages/api/src/infrastructure/external/scryfall/set/scryfall-set.service';
+import { CardSet } from '../../../../packages/api/src/models/set/set';
+import { UpsertResult } from '../../../../packages/api/src/infrastructure/database/database.interface';
+import { SetType } from '@mtgdle/shared-types';
 import { firstValueFrom, of, throwError } from 'rxjs';
 
 describe('SetApiService', () => {
@@ -46,6 +46,7 @@ describe('SetApiService', () => {
           iconSVGuri: 'http://example.com/set/test-id/icon.svg',
           createdAt: '',
           updatedAt: '',
+          cards: [],
         },
       ];
 
@@ -62,7 +63,7 @@ describe('SetApiService', () => {
       );
 
       const result = await firstValueFrom(
-        service.importScryfallSetToDatabase(),
+        service.importScryfallSetToDatabase(true),
       );
 
       expect(scryfallSetServiceMock.getAllSets).toHaveBeenCalled();
@@ -78,7 +79,7 @@ describe('SetApiService', () => {
       );
 
       await expect(
-        firstValueFrom(service.importScryfallSetToDatabase()),
+        firstValueFrom(service.importScryfallSetToDatabase(true)),
       ).rejects.toThrow(errorMessage);
       expect(setServiceMock.bulkInsert).not.toHaveBeenCalled();
     });

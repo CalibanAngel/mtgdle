@@ -1,9 +1,12 @@
 {
-  "moduleFileExtensions": ["js", "json", "ts"],
-  "rootDir": ".",
+  "moduleFileExtensions": ["ts", "js", "json"],
+  "rootDir": "..",
+  "moduleNameMapper": {
+    "^@mtgdle/shared-types$": "<rootDir>/packages/shared-types/src/index.ts"
+  },
   "testEnvironment": "node",
   "testRegex": "\\.e2e-spec\\.ts$",
   "transform": {
-    "^.+\\.(t|j)s$": "ts-jest"
+    "^.+\\.ts$": ["ts-jest", { "tsconfig": "<rootDir>/test/tsconfig.json" }]
   }
 }

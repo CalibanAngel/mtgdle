@@ -1,16 +1,16 @@
 // scryfall-set.service.spec.ts
 import { Test, TestingModule } from '@nestjs/testing';
 import { of } from 'rxjs';
-import { ScryfallSetService } from '../../../../../../src/infrastructure/external/scryfall/set/scryfall-set.service';
-import { ScrayfallSetDao } from '../../../../../../src/infrastructure/external/scryfall/set/scrayfall-set.dao';
-import { CardSet } from '../../../../../../src/models/set/set';
-import { scryfallSetToSetMapper } from '../../../../../../src/infrastructure/external/scryfall/set/scryfall-set-to-set.mapper';
+import { ScryfallSetService } from '../../../../../../packages/api/src/infrastructure/external/scryfall/set/scryfall-set.service';
+import { ScrayfallSetDao } from '../../../../../../packages/api/src/infrastructure/external/scryfall/set/scrayfall-set.dao';
+import { CardSet } from '../../../../../../packages/api/src/models/set/set';
+import { scryfallSetToSetMapper } from '../../../../../../packages/api/src/infrastructure/external/scryfall/set/scryfall-set-to-set.mapper';
 import { ScryfallSet } from '@scryfall/api-types';
-import { SetType } from '../../../../../../src/models/set/set.enum';
+import { SetType } from '@mtgdle/shared-types';
 
 // Mock the mapper to have predictable behavior
 jest.mock(
-  '../../../../../../src/infrastructure/external/scryfall/set/scryfall-set-to-set.mapper',
+  '../../../../../../packages/api/src/infrastructure/external/scryfall/set/scryfall-set-to-set.mapper',
   () => ({
     scryfallSetToSetMapper: jest.fn(
       (scryfallSet: ScryfallSet): CardSet => ({
@@ -24,6 +24,7 @@ jest.mock(
         iconSVGuri: scryfallSet.icon_svg_uri,
         createdAt: '',
         updatedAt: '',
+        cards: [],
       }),
     ),
   }),
@@ -71,6 +72,7 @@ describe('ScryfallSetService', () => {
       iconSVGuri: fakeScryfallSet.icon_svg_uri,
       createdAt: '',
       updatedAt: '',
+      cards: [],
     };
 
     const fakeResponse = { data: { data: [fakeScryfallSet] } };

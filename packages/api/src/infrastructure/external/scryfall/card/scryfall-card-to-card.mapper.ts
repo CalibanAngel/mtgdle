@@ -14,7 +14,7 @@ import { ScryfallCardFace } from '@scryfall/api-types/src/objects/Card/CardFace'
 import { CardImageUris } from '../../../../models/card/card-image-uris/card-image-uris';
 import { has } from 'lodash';
 
-const NOT_DEFINED = 'NOT DEFINED'
+const NOT_DEFINED = 'NOT DEFINED';
 
 function scryfallDoubleSidedOrReversibleCardFaceToCardFace(
   scryfallCardFace: ScryfallCardFace.DoubleSided | ScryfallCardFace.Reversible,
@@ -83,7 +83,7 @@ function scryfallRootCardToCard(
   card.colorIdentity = scryfallCard.color_identity as Color[];
   card.colors = (scryfallCard.colors as Color[]) ?? [];
   card.layout = scryfallCard.layout as Layout;
-  card.edhrcRank = scryfallCard.edhrec_rank ?? null
+  card.edhrcRank = scryfallCard.edhrec_rank ?? null;
 
   return card;
 }
@@ -91,10 +91,8 @@ function scryfallRootCardToCard(
 function scryfallAnySingleSidedSplitCardToCard(
   scryfallCard: ScryfallCard.AnySingleSidedSplit,
 ): Card {
-  const card = {
-    ...scryfallRootCardToCard(scryfallCard),
-    cardFaces: scryfallCardFaceToCardFace(scryfallCard),
-  };
+  const card = scryfallRootCardToCard(scryfallCard);
+  card.cardFaces = scryfallCardFaceToCardFace(scryfallCard);
 
   card.cardFaces.forEach((cardFace) => {
     const imageUris = new CardImageUris();

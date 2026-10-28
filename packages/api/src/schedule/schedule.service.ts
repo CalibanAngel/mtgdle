@@ -6,13 +6,15 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 @Injectable()
 export class ScheduleService extends WithLogger {
   constructor(private readonly gameService: GameService) {
-    super()
+    super();
   }
 
-  @Cron(CronExpression.EVERY_DAY_AT_1AM)
+  @Cron(CronExpression.EVERY_DAY_AT_1AM, {
+    disabled: process.env.SCHEDULE_ENABLED === 'false',
+  })
   async createTodayScheduledGame(): Promise<void> {
     this.logger.log('Creating today scheduled game');
 
-    await this.gameService.createNewTodayGame()
+    await this.gameService.createNewTodayGame();
   }
 }

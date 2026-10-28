@@ -2,7 +2,10 @@ import type { Config } from 'jest';
 
 const config: Config = {
   // Define file extensions Jest will process.
-  moduleFileExtensions: ['js', 'json', 'ts'],
+  moduleFileExtensions: ['ts', 'js', 'json'],
+  moduleNameMapper: {
+    '^@mtgdle/shared-types$': '<rootDir>/packages/shared-types/src/index.ts',
+  },
 
   // The root directory of your project
   rootDir: '.',
@@ -14,7 +17,7 @@ const config: Config = {
 
   // Transform TypeScript files using ts-jest
   transform: {
-    '^.+\\.(t|j)s$': 'ts-jest',
+    '^.+\\.ts$': ['ts-jest', { tsconfig: '<rootDir>/test/tsconfig.json' }],
   },
 
   // Paths to exclude from coverage collection.

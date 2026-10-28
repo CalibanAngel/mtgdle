@@ -1,5 +1,5 @@
-import { CardSet } from '../../../../../../src/models/set/set';
-import { scryfallSetToSetMapper } from '../../../../../../src/infrastructure/external/scryfall/set/scryfall-set-to-set.mapper';
+import { CardSet } from '../../../../../../packages/api/src/models/set/set';
+import { scryfallSetToSetMapper } from '../../../../../../packages/api/src/infrastructure/external/scryfall/set/scryfall-set-to-set.mapper';
 import { ScryfallSet } from '@scryfall/api-types';
 
 describe('scryfallSetToSetMapper', () => {

@@ -11,7 +11,10 @@
     "packages/shared-types"
   ],
   "scripts": {
-    "build:api": "(cd packages/api && bun run build)",
+    "build:api": "node node_modules/typescript/bin/tsc -p packages/api/tsconfig.json",
+    "test": "jest --config jest.config.ts --runInBand",
+    "test:cov": "jest --config jest.config.ts --runInBand --coverage",
+    "test:http": "jest --config jest.config.ts --runInBand --testMatch **/*.e2e-spec.ts",
     "build:front": "(cd packages/front && bun run build)",
     "build:shared-types": "(cd packages/shared-types && bun run build)",
     "start:api": "(cd packages/api && bun run dev)",

@@ -4,7 +4,11 @@ export abstract class WithLogger {
   protected readonly logger: Logger;
 
   protected constructor(context?: string) {
-    const resolved = context ?? ((new.target as any)?.name ?? (this.constructor as any)?.name ?? 'UnknownContext');
+    const resolved =
+      context ??
+      (new.target as any)?.name ??
+      (this.constructor as any)?.name ??
+      'UnknownContext';
     this.logger = new Logger(resolved);
   }
 }
@@ -17,8 +21,12 @@ export function WithLoggerMixin<TBase extends Ctor>(Base: TBase) {
 
     constructor(...args: any[]) {
       super(...args);
-      const resolved = ((new.target as any)?.name ?? (this.constructor as any)?.name ?? 'UnknownContext');
+      const resolved =
+        (new.target as any)?.name ??
+        (this.constructor as any)?.name ??
+        'UnknownContext';
       this.logger = new Logger(resolved);
     }
-  };
+  }
+  return WithLoggerClass;
 }
