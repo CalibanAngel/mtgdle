@@ -205,6 +205,7 @@ export class ClassicStore {
       mana,
       types,
       edition,
+      rarity,
       released,
       keywords,
       activated,
@@ -218,6 +219,7 @@ export class ClassicStore {
       mana,
       types,
       edition,
+      rarity,
       released,
       keywords,
       activated,
@@ -294,14 +296,23 @@ export class ClassicStore {
       day: daily.day,
       expiresAt: nextMidnight(daily.day),
       status: progress.status,
-      guesses: progress.guesses.map((g) => ({
-        ...g,
-        card: this.publicCard({
+      guesses: progress.guesses.map((g) => {
+        const reference = daily.cards.find((c) => c.id === g.card.id);
+        const card = this.publicCard({
           ...g.card,
-          previewImage: daily.cards.find((c) => c.id === g.card.id)
-            ?.previewImage,
-        }),
-      })),
+          previewImage: reference?.previewImage,
+          rarity: reference?.rarity ?? g.card.rarity,
+        });
+        const target = daily.cards.find((c) => c.id === daily.answer_id)!;
+        return {
+          ...g,
+          card,
+          matches: {
+            ...g.matches,
+            rarity: card.rarity === target.rarity ? 'exact' : 'different',
+          },
+        };
+      }),
       choices:
         progress.status === 'playing'
           ? daily.cards

@@ -843,3 +843,58 @@
 .classic-hint:disabled small {
   color: #bbbfae;
 }
+
+/* ImageGen frame derived from the supplied Omnath reference. No artwork or text. */
+.classic-game {
+  position: relative;
+  isolation: isolate;
+  background-image:
+    linear-gradient(105deg, #9b7a2933, #edd48c18 28%, #73560d22 60%, #f2e4b32b),
+    url('/assets/omnath-paper.png');
+  background-size:
+    auto,
+    380px 380px;
+  background-repeat: no-repeat, repeat;
+}
+.classic-game::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 18px solid transparent;
+  border-image-source: url('/assets/omnath-frame.png');
+  border-image-slice: 125 100 100 100;
+  border-image-repeat: stretch;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.9;
+}
+.classic-game > :not(dialog) {
+  position: relative;
+  z-index: 1;
+}
+.classic-game > .classic-play {
+  z-index: 2;
+}
+.classic-topbar,
+.classic-history .classic-section-heading,
+.classic-power {
+  background-image:
+    linear-gradient(100deg, #f9edc5bb, #b5933c55 48%, #f0dfadc0),
+    url('/assets/omnath-paper.png');
+  background-size:
+    auto,
+    320px 320px;
+  background-repeat: no-repeat, repeat;
+}
+.dark .classic-topbar,
+.dark .classic-history .classic-section-heading,
+.dark .classic-power {
+  background-image:
+    linear-gradient(100deg, #dec78d88, #8b692c66 48%, #d5b97e99),
+    url('/assets/omnath-paper.png');
+}
+@media (max-width: 640px) {
+  .classic-game::before {
+    border-width: 10px;
+  }
+}

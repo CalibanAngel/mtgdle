@@ -16,11 +16,23 @@ const card: ClassicCard = {
   mana: 2,
   types: ['Artifact'],
   edition: 'Alpha',
+  rarity: 'rare',
   released: '2001-01-01',
   keywords: [],
   activated: false,
 };
 describe('Classic comparisons', () => {
+  it('compares rarity exactly without ranking rarities', () => {
+    expect(compareCard(card, card, 'request').matches.rarity).toBe('exact');
+    expect(
+      compareCard(card, { ...card, rarity: 'common' }, 'request').matches
+        .rarity,
+    ).toBe('different');
+    expect(
+      compareCard(card, { ...card, rarity: 'mythic' }, 'request').matches
+        .rarity,
+    ).toBe('different');
+  });
   it('compares identities as sets, including the empty identity', () => {
     expect(matchSet([], [])).toBe('exact');
     expect(matchSet(['W', 'U'], ['U', 'W'])).toBe('exact');

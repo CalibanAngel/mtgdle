@@ -34,6 +34,7 @@ export function compareCard(
       mana: compareNumber(card.mana, target.mana),
       types: matchSet(card.types, target.types),
       edition: card.edition === target.edition ? 'exact' : 'different',
+      rarity: card.rarity === target.rarity ? 'exact' : 'different',
       period: compareNumber(
         Math.floor(Number(card.released.slice(0, 4)) / 2),
         Math.floor(Number(target.released.slice(0, 4)) / 2),

@@ -48,7 +48,7 @@ Le déblocage est automatique, son utilisation volontaire et gratuite en essais.
 
 Le texte d’ambiance (lore) reste une variante éventuelle, distincte du troisième indice.
 
-### Sept critères de comparaison du mode classique
+### Huit critères de comparaison du mode classique
 
 | Critère                      | Règle                                                                                                                                                                                                                                                                                                                           |
 | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -59,6 +59,9 @@ Le texte d’ambiance (lore) reste une variante éventuelle, distincte du troisi
 | Période de première parution | Tranches fixes de deux ans sans chevauchement : 2000–2001, 2002–2003, etc. Même tranche : vert ; cible plus ancienne : ↓ ; plus récente : ↑.                                                                                                                                                                                    |
 | Mots-clés                    | Vert si ensembles identiques, orange si au moins un mot-clé commun, rouge sinon. Afficher ceux de la proposition et distinguer ceux partagés avec la cible, sans révéler les mots-clés manquants. Deux ensembles vides correspondent.                                                                                           |
 | Capacité activée             | Oui/non, avec correspondance exacte. Déterminer cette propriété séparément des mots-clés.                                                                                                                                                                                                                                       |
+| Rareté                       | Correspondance exacte avec la rareté de la première impression de référence ; aucune flèche de classement.                                                                                                                                                                                                                      |
+
+La rareté constitue le huitième critère : correspondance exacte avec celle de la première impression de référence (commune, peu commune, rare, mythique, spéciale ou bonus), sans flèche de classement. Les réimpressions peuvent changer de rareté ; elles ne changent pas la valeur retenue pour le défi.
 
 Les tranches sont ancrées sur les années paires : une année appartient à la tranche commençant à `2 × floor(année / 2)`. Leur largeur est configurable et figée dans la version des règles du défi ; deux ans constituent le choix initial validé. La date exacte de la cible ne doit pas être révélée par cet indice.
 
@@ -66,7 +69,7 @@ Exemple : pour une proposition d’identité blanche de valeur de mana 2 et une 
 
 Pour les mots-clés, comparer des identifiants normalisés, indépendants de la langue affichée (vol, célérité, etc.). Pour les capacités activées, analyser le texte de règles en traitant les textes de rappel, les capacités accordées et les cas particuliers ; ne pas assimiler simplement présence d’un mot-clé ou d’un caractère « : » à un résultat fiable. Prévoir des fixtures et corrections explicites pour les cas ambigus.
 
-La rareté ne fait pas partie des sept critères retenus. Force, endurance, loyauté et couleurs propres de la carte restent des extensions possibles. Le MVP conserve une seule colonne d’identité couleur pour éviter la redondance. Les couleurs propres (`colors`) ne se déduisent pas non plus uniquement du coût de mana. Les états doivent être compréhensibles par texte ou icônes, sans dépendre uniquement de la couleur.
+Force, endurance, loyauté et couleurs propres de la carte restent des extensions possibles. Le MVP conserve une seule colonne d’identité couleur pour éviter la redondance. Les couleurs propres (`colors`) ne se déduisent pas non plus uniquement du coût de mana. Les états doivent être compréhensibles par texte ou icônes, sans dépendre uniquement de la couleur.
 
 ### Illustration et première impression
 
@@ -81,7 +84,7 @@ Si plusieurs impressions standard ou illustrations standard existent à la même
 - **Illustration zoomée** : cadrage initial fixe puis dézoom progressif après chaque proposition incorrecte acceptée, jusqu’à l’illustration entière.
 - **Illustration floutée** : diminution progressive du flou après chaque proposition incorrecte acceptée, jusqu’à une illustration nette.
 
-Utiliser uniquement l’illustration, sans nom ni autres zones de la carte donnant directement la réponse. Dans ces modes, la recherche ne montre aucune vignette. L’artwork de référence reste le premier artwork standard ; un remplacement nécessaire doit être défini explicitement. Les essais restent illimités une fois l’image entièrement révélée. Les paliers de dézoom et de flou restent à régler par des essais de jeu ; les sept critères ne sont affichés que dans le mode classique.
+Utiliser uniquement l’illustration, sans nom ni autres zones de la carte donnant directement la réponse. Dans ces modes, la recherche ne montre aucune vignette. L’artwork de référence reste le premier artwork standard ; un remplacement nécessaire doit être défini explicitement. Les essais restent illimités une fois l’image entièrement révélée. Les paliers de dézoom et de flou restent à régler par des essais de jeu ; les huit critères ne sont affichés que dans le mode classique.
 
 Chaque mode possède son défi et sa progression indépendants. La règle de non-répétition des cartes et la reprise après rechargement sont communes. L’indice supplémentaire à dix erreurs est prévu pour le mode classique ; son utilité dans les modes visuels reste à décider. Les modes visuels ne doivent pas livrer la réponse dans les noms de fichiers ou métadonnées : prévoir des images transformées servies par des identifiants opaques plutôt qu’un simple filtre CSS sur l’image source complète.
 
@@ -223,3 +226,5 @@ La page de jeu utilise un cadre inspiré d’une carte Magic : barre de nom, com
 L’interface dispose de dictionnaires français et anglais typés, avec bouton EN/FR et préférence locale mémorisée. Les boutons, erreurs, règles, résultats partagés, aperçus et pages annexes sont traduits. Les noms des cartes, textes Oracle, types et mots-clés provenant de Scryfall restent ceux du catalogue anglais. Changer de langue ou de thème ne réinitialise pas la session de jeu. Les erreurs de l’API utilisent des codes stables pour être traduites côté client.
 
 Le cadre visuel s’inspire désormais d’Omnath : structure dorée multicolore, barres de nom et de type dorées, encart de règles ivoire et touches rouge/verte/bleue dans la fenêtre de jeu. La bordure extérieure est blanche en mode clair et noire en mode sombre ; le choix de thème reste indépendant de la langue et de la progression.
+
+Le jaune utilise une texture de papier imprimé et un calque de pourtour transparent inspiré du cadre d’Omnath, redimensionné en neuf zones pour conserver les coins. Les barres dorées partagent la texture ; les bordures blanche/noire restent liées au thème. Voir [les assets et leurs prompts](ASSETS_OMNATH.md).

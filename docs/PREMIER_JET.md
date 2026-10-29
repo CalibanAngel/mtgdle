@@ -4,7 +4,7 @@
 
 - Un défi commun par jour, renouvelé à minuit Europe/Paris, créé à la première ouverture et conservé après redémarrage.
 - Recherche parmi 472 cartes logiques, sélection puis confirmation explicite.
-- Sept comparaisons : identité couleur, valeur de mana, types principaux, première édition, tranche de deux ans, mots-clés, présence d’une capacité activée.
+- Huit comparaisons : identité couleur, valeur de mana, types principaux, première édition, tranche de deux ans, mots-clés, présence d’une capacité activée et rareté de première impression.
 - Essais illimités, sans réutilisation d’une carte. Historique conservé en base et retrouvé via un cookie de session HttpOnly.
 - Trois indices facultatifs et persistants : à 10 erreurs, réduction de moitié des choix en conservant la réponse ; à 15, illustration seule ; à 20, texte de règles avec le nom masqué. Les paliers sont indépendants.
 - Victoire, abandon confirmé, révélation et copie d’un résultat partageable sans le nom de la réponse.
@@ -84,7 +84,7 @@ Une vérification réelle dans le navigateur a également confirmé le chargemen
 
 L’interface suit désormais une présentation compacte : nom, compteur, trois indices, recherche puis explorations. Les cartes apparaissent dans l’historique et sont agrandissables au survol ou dans une fenêtre accessible au clic/toucher/clavier.
 
-Le catalogue et les instantanés quotidiens sont enrichis avec une image de carte plus grande, un art crop et le texte Oracle. La migration ajoute `art_used` et `text_used` à la progression, en préservant `hint_used`, les essais et la réponse. L’enrichissement d’un instantané ne modifie que ces médias et le texte, sans changer les sept critères existants. Relancer `npm run prepare:classic` avant le démarrage d’une ancienne installation.
+Le catalogue et les instantanés quotidiens sont enrichis avec une image de carte plus grande, un art crop et le texte Oracle. La migration ajoute `art_used` et `text_used` à la progression, en préservant `hint_used`, les essais et la réponse. L’enrichissement d’un instantané actualise les médias, le texte et ajoute la rareté de première impression, sans changer les sept critères précédents, la réponse ni les essais. Relancer `npm run prepare:classic` avant le démarrage d’une ancienne installation.
 
 `GET /classic/:day/art` sert l’illustration après vérification de la session et de l’activation du deuxième indice. Il renvoie uniquement des pixels depuis le domaine Scryfall autorisé, sans redirection ni URL source. Les erreurs réseau n’imposent pas un nouvel indice. Le texte du troisième palier est renvoyé seulement après son activation.
 
@@ -101,3 +101,11 @@ Validation de la version bilingue : 27 TU et 16 TI réussis ; les 28 scénarios 
 Le cadre visuel s’inspire désormais d’Omnath : structure dorée multicolore, barres de nom et de type dorées, encart de règles ivoire et touches rouge/verte/bleue dans la fenêtre de jeu. La bordure extérieure est blanche en mode clair et noire en mode sombre ; le choix de thème reste indépendant de la langue et de la progression.
 
 Les deux scénarios Omnath supplémentaires vérifient les couleurs de bordure en clair et sombre, sur ordinateur et mobile : 30 scénarios navigateur sont désormais validés. Le cadre doré et l’encart ivoire restent reconnaissables dans les deux variantes.
+
+## Texture du cadre et rareté — 29 octobre 2026
+
+Le cadre doré et ses barres emploient une texture de papier ; un pourtour PNG transparent inspiré d’Omnath est appliqué en neuf zones CSS. Les coins restent proportionnés et le centre ne masque pas l’interface. Les bordures extérieure blanche et noire sont conservées. [Assets, provenance et prompts](ASSETS_OMNATH.md).
+
+La rareté est le huitième critère, traduit FR/EN. Elle vient de la première impression anglaise papier de référence du catalogue, indépendamment d’un éventuel artwork standard plus récent. Une comparaison est exacte ou différente, sans classement. Les anciens essais sont enrichis à la lecture avec la rareté de l’instantané quotidien ; les sept autres résultats et la progression sont conservés. Exécuter `npm run prepare:classic` avant de démarrer l’API d’une installation précédente.
+
+Validation : 28 tests unitaires, 17 tests d’intégration sur base dédiée et 30 scénarios Playwright ordinateur/mobile. Les contrôles navigateur couvrent aussi le chargement des deux PNG, la transparence centrale du calque et les bordures clair/sombre. Les builds et le lint des fichiers modifiés sont vérifiés.

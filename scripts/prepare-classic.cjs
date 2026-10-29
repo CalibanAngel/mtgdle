@@ -122,6 +122,7 @@ async function main() {
               !['Basic', 'Legendary', 'Snow', 'World', 'Ongoing'].includes(t),
           ),
         edition: first.set_name,
+        rarity: first.rarity,
         released: first.released_at,
         keywords: first.keywords || [],
         activated: hasActivated(first),
@@ -141,10 +142,10 @@ async function main() {
         'INSERT INTO classic_catalogue(id,data) VALUES($1,$2) ON CONFLICT(id) DO UPDATE SET data=EXCLUDED.data',
         [card.id, card],
       );
-    // Enrich media only; never change existing answers, rules or attempts.
+    // Enrich media and the added rarity criterion only; preserve answers and all original criteria.
     await client.query(`UPDATE classic_daily d SET cards = (
       SELECT jsonb_agg(item || jsonb_build_object(
-        'previewImage', c.data->'previewImage', 'artCrop', c.data->'artCrop', 'oracleText', c.data->'oracleText'
+        'previewImage', c.data->'previewImage', 'artCrop', c.data->'artCrop', 'oracleText', c.data->'oracleText', 'rarity', c.data->'rarity'
       ) ORDER BY position)
       FROM jsonb_array_elements(d.cards) WITH ORDINALITY AS items(item, position)
       LEFT JOIN classic_catalogue c ON c.id::text = item->>'id'

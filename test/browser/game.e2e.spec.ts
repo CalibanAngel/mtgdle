@@ -13,6 +13,7 @@ const cards: ClassicCard[] = Array.from({ length: 64 }, (_, i) => ({
   mana: 1,
   types: ['Instant'],
   edition: 'Test',
+  rarity: 'rare',
   released: '2000-01-01',
   keywords: [],
   activated: false,
@@ -25,6 +26,7 @@ const exact = {
   period: 'exact',
   keywords: 'exact',
   activated: 'exact',
+  rarity: 'exact',
 } as const;
 interface Server {
   state: ClassicState;
@@ -394,6 +396,9 @@ test('English translation persists without resetting the game', async ({
   await expect(
     page.getByRole('columnheader', { name: 'Color identity', exact: true }),
   ).toBeVisible();
+  await expect(
+    page.getByRole('columnheader', { name: 'Rarity', exact: true }),
+  ).toHaveCount(1);
   await page.reload();
   await expect(
     page.getByRole('heading', { name: 'Game — Guess' }),
@@ -406,6 +411,9 @@ test('English translation persists without resetting the game', async ({
   await expect(
     page.getByRole('heading', { name: 'Jeu — Devinette' }),
   ).toBeVisible();
+  await expect(
+    page.getByRole('columnheader', { name: 'Rareté', exact: true }),
+  ).toHaveCount(1);
 });
 
 test('card frame contains controls and partner links without an outer header', async ({
@@ -465,6 +473,39 @@ test('Omnath frame uses a white border in light mode and a black border in dark 
   page,
 }, testInfo) => {
   await page.goto('/');
+  await expect(page.locator('.classic-game')).toBeVisible();
+  const texture = await page.evaluate(async () => {
+    const image = new Image();
+    image.src = '/assets/omnath-frame.png';
+    await image.decode();
+    const canvas = document.createElement('canvas');
+    canvas.width = image.naturalWidth;
+    canvas.height = image.naturalHeight;
+    const ctx = canvas.getContext('2d')!;
+    ctx.drawImage(image, 0, 0);
+    const center = ctx.getImageData(
+      Math.floor(canvas.width / 2),
+      Math.floor(canvas.height / 2),
+      1,
+      1,
+    ).data[3];
+    const paper = new Image();
+    paper.src = '/assets/omnath-paper.png';
+    await paper.decode();
+    return {
+      center,
+      width: image.naturalWidth,
+      paperWidth: paper.naturalWidth,
+      frame: getComputedStyle(
+        document.querySelector('.classic-game')!,
+        '::before',
+      ).borderImageSource,
+    };
+  });
+  expect(texture.center).toBe(0);
+  expect(texture.width).toBeGreaterThan(500);
+  expect(texture.paperWidth).toBeGreaterThan(500);
+  expect(texture.frame).toContain('/assets/omnath-frame.png');
   const theme = page.getByRole('switch');
   if (!(await theme.isChecked())) await theme.press('Space');
   await expect(page.locator('.classic-game')).toHaveCSS(

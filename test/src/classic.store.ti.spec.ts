@@ -25,6 +25,7 @@ integration('Classic persistence (dedicated PostgreSQL)', () => {
       mana: i,
       types: ['Creature'],
       edition: 'Test',
+      rarity: 'rare',
       released: '2000-01-01',
       keywords: [],
       activated: false,
@@ -79,6 +80,39 @@ integration('Classic persistence (dedicated PostgreSQL)', () => {
     expect(states[0].day).toBe(states[1].day);
     expect(states[0]).not.toHaveProperty('answer');
     expect(await db.query('SELECT day FROM classic_daily')).toHaveLength(1);
+  });
+  it('enriches saved legacy guesses with rarity without changing progress or earlier comparisons', async () => {
+    const state = await store.state(session);
+    const target = await answer();
+    const wrong = cards.find((c) => c.id !== target)!;
+    const guessed = await store.act(
+      state.day,
+      session,
+      'guess',
+      wrong.id,
+      randomUUID(),
+    );
+    const previousMatches = { ...guessed.guesses[0].matches };
+    // Simulate the pre-rarity JSON shape stored by earlier versions.
+    await db.query(
+      `UPDATE classic_progress SET guesses = jsonb_set(guesses, '{0}', (guesses->0) || jsonb_build_object('card', (guesses->0->'card') - 'rarity', 'matches', (guesses->0->'matches') - 'rarity')) WHERE day=$1 AND session_id=$2`,
+      [state.day, session],
+    );
+    await db.query(
+      `UPDATE classic_daily SET cards = (SELECT jsonb_agg(CASE WHEN item->>'id' = $1 THEN item || '{"rarity":"common"}'::jsonb ELSE item END ORDER BY position) FROM jsonb_array_elements(cards) WITH ORDINALITY AS items(item, position)) WHERE day=$2`,
+      [wrong.id, state.day],
+    );
+    const reloaded = await store.state(session);
+    expect(reloaded.guesses).toHaveLength(1);
+    expect(reloaded.guesses[0].card.rarity).toBe('common');
+    expect(reloaded.guesses[0].matches).toEqual({
+      ...previousMatches,
+      rarity: 'different',
+    });
+    expect(reloaded.choices).toHaveLength(63);
+    expect(reloaded.status).toBe('playing');
+    expect(await answer()).toBe(target);
+    expect(reloaded).not.toHaveProperty('answer');
   });
   it('serializes duplicate guesses and preserves retry idempotence', async () => {
     const state = await store.state(session);

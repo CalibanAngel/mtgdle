@@ -6,7 +6,8 @@ export type Criterion =
   | 'edition'
   | 'period'
   | 'keywords'
-  | 'activated';
+  | 'activated'
+  | 'rarity';
 export interface ClassicCard {
   id: string;
   name: string;
@@ -16,6 +17,7 @@ export interface ClassicCard {
   mana: number;
   types: string[];
   edition: string;
+  rarity: string;
   released: string;
   keywords: string[];
   activated: boolean;

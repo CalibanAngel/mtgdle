@@ -57,6 +57,7 @@ const criteria: Criterion[] = [
   'period',
   'keywords',
   'activated',
+  'rarity',
 ];
 const symbols: Record<Match, string> = {
   exact: '✓',
@@ -87,6 +88,18 @@ function value(
     const year = 2 * Math.floor(Number(card.released.slice(0, 4)) / 2);
 
     return `${year}–${year + 1}`;
+  }
+  if (key === 'rarity') {
+    const rarityNames: Record<string, string> = {
+      common: t('rarityCommon'),
+      uncommon: t('rarityUncommon'),
+      rare: t('rarityRare'),
+      mythic: t('rarityMythic'),
+      special: t('raritySpecial'),
+      bonus: t('rarityBonus'),
+    };
+
+    return rarityNames[card.rarity] || t('rarityUnknown');
   }
   if (key === 'activated') return card.activated ? t('yes') : t('no');
   if (key === 'types' || key === 'keywords')
