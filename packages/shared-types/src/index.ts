@@ -3,3 +3,4 @@ export * from './set.enum';
 export * from './import-stats.interface';
 export * from './playable-card.interface';
 export * from './card-image-uris.interface';
+export * from './classic.interface';
