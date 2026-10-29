@@ -61,12 +61,13 @@ const test = base.extend<{ server: Server }>({
     await context.route('**/*', async (route) => {
       const request = route.request();
       const url = new URL(request.url());
+      const apiPath = url.pathname.replace(/^\/api(?=\/)/, '');
       if (url.pathname.endsWith('.svg') || url.pathname.endsWith('/art'))
         return route.fulfill({
           contentType: 'image/svg+xml',
           body: '<svg xmlns="http://www.w3.org/2000/svg" width="240" height="336"><rect width="240" height="336" fill="tan"/></svg>',
         });
-      if (url.pathname.startsWith('/classic/')) {
+      if (apiPath.startsWith('/classic/')) {
         if (request.method() === 'POST') {
           if (server.fail) {
             server.fail = false;

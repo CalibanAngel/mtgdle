@@ -27,7 +27,9 @@
     "test:browser": "playwright test",
     "test:browser:ui": "playwright test --ui",
     "prepare:classic": "node scripts/prepare-classic.cjs",
-    "dev:classic": "node scripts/dev-classic.cjs"
+    "dev:classic": "node scripts/dev-classic.cjs",
+    "start:local": "node scripts/dev-classic.cjs",
+    "start:distant": "node scripts/dev-classic.cjs --distant"
   },
   "engines": {
     "npm": ">=10.0.0",

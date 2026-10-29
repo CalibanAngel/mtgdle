@@ -31,6 +31,8 @@ bun.lockb
 # coverage reports
 /playwright-report/
 /test-results/
+/.tools/
+/**/dist-shared/
 /coverage/
 /**/coverage/
 

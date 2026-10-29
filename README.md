@@ -1,4 +1,9 @@
-> MTGdle : voir le [guide du premier jet jouable](docs/PREMIER_JET.md), le [cahier des charges](docs/CAHIER_DES_CHARGES.md) et les [conventions de tests](test/README.md). Le contenu ci-dessous est le README historique du starter Nest.
+> MTGdle : voir le [démarrage local et le partage à un ami](docs/DEMARRAGE_ET_PARTAGE.md), le [guide du premier jet jouable](docs/PREMIER_JET.md), le [cahier des charges](docs/CAHIER_DES_CHARGES.md) et les [conventions de tests](test/README.md). Le contenu ci-dessous est le README historique du starter Nest.
+
+```sh
+npm run start:local    # Jouer/développer sur son PC
+npm run start:distant  # Compiler et afficher un lien HTTPS temporaire à partager
+```
 
 <p align="center">
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>

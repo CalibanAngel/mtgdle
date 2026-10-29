@@ -34,7 +34,7 @@ export function AppProvider({ children }: AppProviderProps) {
         <ErrorBoundary FallbackComponent={MainErrorFallback}>
           <HelmetProvider>
             <QueryClientProvider client={queryClient}>
-              <ReactQueryDevtools />
+              {import.meta.env.DEV && <ReactQueryDevtools />}
               {children}
             </QueryClientProvider>
           </HelmetProvider>

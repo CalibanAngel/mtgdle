@@ -22,7 +22,11 @@ export default defineConfig({
     command:
       'node ../../node_modules/vite/bin/vite.js --host 127.0.0.1 --port 4173 --strictPort --mode test',
     cwd: './packages/front',
-    env: { BACK_API_HOST: '127.0.0.1', BACK_API_PORT: '4799' },
+    env: {
+      BACK_API_HOST: '127.0.0.1',
+      BACK_API_PORT: '4799',
+      VITE_API_URL: '/api',
+    },
     url: 'http://127.0.0.1:4173',
     reuseExistingServer: false,
     timeout: 60000,

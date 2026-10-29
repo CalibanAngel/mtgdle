@@ -1,4 +1,5 @@
 import { NestFactory, Reflector } from '@nestjs/core';
+import type { NestExpressApplication } from '@nestjs/platform-express';
 import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
 import 'reflect-metadata';
@@ -14,9 +15,12 @@ import { DomainExceptionFilter } from './error/domain-exception.filter';
 import { TypeormToDomainInterceptor } from './error/typeorm-to-domain.interceptor';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, {
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     logger: new ConsoleLogger(),
   });
+  if (process.env.TRUST_LOCAL_PROXY === 'true') {
+    app.set('trust proxy', 'loopback');
+  }
 
   const swaggerConfig = new DocumentBuilder()
     .setTitle('Mtgdle')
@@ -42,16 +46,16 @@ async function bootstrap() {
     .getOrThrow('http', { infer: true });
 
   app.enableCors({
-    origin: [
-      `http://${configHttp.front_host}:${configHttp.front_port}`,
-    ],
+    origin: [`http://${configHttp.front_host}:${configHttp.front_port}`],
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true, // only if you send cookies/auth headers cross-origin
   });
 
-
-  await app.listen(configHttp.api_port ?? 3000);
+  await app.listen(
+    configHttp.api_port ?? 3000,
+    process.env.API_BIND_HOST || '0.0.0.0',
+  );
 
   const logger = new Logger('bootstrap');
 
@@ -59,4 +63,4 @@ async function bootstrap() {
     `Swagger can be found at http://${configHttp.api_host}:${configHttp.api_port}/api`,
   );
 }
-bootstrap();
+void bootstrap();

@@ -29,6 +29,14 @@ function mergedClientEnv(mode: string) {
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
+  server: {
+    proxy: {
+      '/api': {
+        target: `http://127.0.0.1:${process.env.BACK_API_PORT || loadEnv(mode, path.resolve(__dirname, '../../'), 'BACK_').BACK_API_PORT || 3000}`,
+        rewrite: (url) => url.replace(/^\/api(?=\/|$)/, ''),
+      },
+    },
+  },
   plugins: [react(), tsconfigPaths(), tailwindcss()],
   define: {
     ...mergedClientEnv(mode),
