@@ -5,16 +5,16 @@ import {
   TypeOrmHealthIndicator,
 } from '@nestjs/terminus';
 import { ConfigService } from '@nestjs/config';
-import * as nock from 'nock';
+import nock from 'nock';
 import { HttpModule } from '@nestjs/axios';
-import { HealthApiService } from '../../../../src/api/health/health.api-service';
+import { HealthApiService } from '../../../../packages/api/src/api/health/health.api-service';
 import { scryfallHost } from '../constant';
 
 describe('HealthApiService', () => {
   let service: HealthApiService;
 
   const mockConfigService = {
-    get: (key: string) => {
+    getOrThrow: (key: string) => {
       if (key === 'scryfall.host') {
         return scryfallHost;
       }

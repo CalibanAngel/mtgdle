@@ -43,6 +43,6 @@ export const PlayableCardEntity = new EntitySchema<PlayableCard>({
       },
       onDelete: 'CASCADE',
       inverseSide: 'playableCard',
-    }
+    },
   }
 });

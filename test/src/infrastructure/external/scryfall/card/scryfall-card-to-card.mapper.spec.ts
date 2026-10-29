@@ -1,6 +1,6 @@
 import { ScryfallCard } from '@scryfall/api-types';
-import { Card } from '../../../../../../src/models/card/card';
-import { scryfallAnyCardToCard } from '../../../../../../src/infrastructure/external/scryfall/card/scryfall-card-to-card.mapper';
+import { Card } from '../../../../../../packages/api/src/models/card/card';
+import { scryfallAnyCardToCard } from '../../../../../../packages/api/src/infrastructure/external/scryfall/card/scryfall-card-to-card.mapper';
 import { scryfallSplitCard } from './multi-face-card.fake-data';
 import { scryfallNormalCard } from './single-face-card.fake-data';
 
@@ -49,7 +49,7 @@ const splitCard = {
   colors: ['R', 'U', 'W'],
   colorIdentity: ['R', 'U', 'W'],
   layout: 'split',
-  games: ['paper', 'mtgo'],
+  plateform: ['paper', 'mtgo'],
   cardFaces: [
     {
       id: undefined,
@@ -142,7 +142,7 @@ const normaleCard = {
   colors: [],
   colorIdentity: [],
   layout: 'normal',
-  games: ['mtgo'],
+  plateform: ['mtgo'],
   cardFaces: [
     {
       id: undefined,

@@ -29,6 +29,8 @@ bun.lockb
 /**/build/
 
 # coverage reports
+/playwright-report/
+/test-results/
 /coverage/
 /**/coverage/
 

@@ -1,10 +1,17 @@
-import { NestFactory } from '@nestjs/core';
+import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
 import 'reflect-metadata';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { ConsoleLogger, Logger, ValidationPipe } from '@nestjs/common';
+import {
+  ClassSerializerInterceptor,
+  ConsoleLogger,
+  Logger,
+  ValidationPipe,
+} from '@nestjs/common';
 import { Configuration } from './config/config';
+import { DomainExceptionFilter } from './error/domain-exception.filter';
+import { TypeormToDomainInterceptor } from './error/typeorm-to-domain.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -21,7 +28,14 @@ async function bootstrap() {
 
   SwaggerModule.setup('api', app, swaggerFactory);
 
+  const reflector = app.get(Reflector);
+
   app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalInterceptors(
+    new TypeormToDomainInterceptor(reflector),
+    new ClassSerializerInterceptor(reflector),
+  );
+  app.useGlobalFilters(new DomainExceptionFilter());
 
   const configHttp = app
     .get<ConfigService<Configuration>>(ConfigService)

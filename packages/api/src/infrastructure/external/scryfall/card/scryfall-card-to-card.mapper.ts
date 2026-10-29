@@ -3,7 +3,7 @@ import { Card } from '../../../../models/card/card';
 import {
   BorderColor,
   Color,
-  GameName,
+  PlateformName,
   Layout,
   Rarity,
 } from '../../../../models/card/card.enum';
@@ -14,7 +14,7 @@ import { ScryfallCardFace } from '@scryfall/api-types/src/objects/Card/CardFace'
 import { CardImageUris } from '../../../../models/card/card-image-uris/card-image-uris';
 import { has } from 'lodash';
 
-const NOT_DEFINED = 'NOT DEFINED'
+const NOT_DEFINED = 'NOT DEFINED';
 
 function scryfallDoubleSidedOrReversibleCardFaceToCardFace(
   scryfallCardFace: ScryfallCardFace.DoubleSided | ScryfallCardFace.Reversible,
@@ -78,12 +78,12 @@ function scryfallRootCardToCard(
   card.setId = scryfallCard.set_id;
   card.reprint = scryfallCard.reprint;
   card.borderColor = scryfallCard.border_color as BorderColor;
-  card.games = scryfallCard.games as GameName[];
+  card.plateform = scryfallCard.games as PlateformName[];
   card.convertedManaCost = scryfallCard.cmc;
   card.colorIdentity = scryfallCard.color_identity as Color[];
   card.colors = (scryfallCard.colors as Color[]) ?? [];
   card.layout = scryfallCard.layout as Layout;
-  card.edhrcRank = scryfallCard.edhrec_rank ?? null
+  card.edhrcRank = scryfallCard.edhrec_rank ?? null;
 
   return card;
 }
@@ -91,10 +91,8 @@ function scryfallRootCardToCard(
 function scryfallAnySingleSidedSplitCardToCard(
   scryfallCard: ScryfallCard.AnySingleSidedSplit,
 ): Card {
-  const card = {
-    ...scryfallRootCardToCard(scryfallCard),
-    cardFaces: scryfallCardFaceToCardFace(scryfallCard),
-  };
+  const card = scryfallRootCardToCard(scryfallCard);
+  card.cardFaces = scryfallCardFaceToCardFace(scryfallCard);
 
   card.cardFaces.forEach((cardFace) => {
     const imageUris = new CardImageUris();

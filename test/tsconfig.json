@@ -1,0 +1,15 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "module": "CommonJS",
+    "strictPropertyInitialization": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "types": ["node", "jest"]
+  },
+  "include": [
+    "./**/*.ts",
+    "../packages/api/src/**/*.ts",
+    "../packages/shared-types/src/**/*.ts"
+  ]
+}

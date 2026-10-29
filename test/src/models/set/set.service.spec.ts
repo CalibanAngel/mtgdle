@@ -1,10 +1,10 @@
 // set.service.spec.ts
 import { Test, TestingModule } from '@nestjs/testing';
-import { SetService } from '../../../../src/models/set/set.service';
-import { SetRepository } from '../../../../src/models/set/set.repository';
-import { CardSet } from '../../../../src/models/set/set';
-import { UpsertResult } from '../../../../src/infrastructure/database/database.interface';
-import { SetType } from '../../../../src/models/set/set.enum';
+import { SetService } from '../../../../packages/api/src/models/set/set.service';
+import { SetRepository } from '../../../../packages/api/src/models/set/set.repository';
+import { CardSet } from '../../../../packages/api/src/models/set/set';
+import { UpsertResult } from '../../../../packages/api/src/infrastructure/database/database.interface';
+import { SetType } from '@mtgdle/shared-types';
 
 describe('SetService', () => {
   let service: SetService;
@@ -39,6 +39,7 @@ describe('SetService', () => {
           iconSVGuri: 'http://example.com/test-id/icon.svg',
           createdAt: '',
           updatedAt: '',
+          cards: [],
         },
       ];
       const expectedResult: UpsertResult<CardSet> = {
@@ -69,6 +70,7 @@ describe('SetService', () => {
           iconSVGuri: 'http://example.com/test-id/icon.svg',
           createdAt: '',
           updatedAt: '',
+          cards: [],
         },
       ];
 

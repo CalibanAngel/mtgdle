@@ -1,6 +1,6 @@
 import { EntitySchema } from 'typeorm';
 import { Card } from './card';
-import { Layout } from './card.enum';
+import { PlateformName, Layout } from './card.enum';
 
 export const CardEntity = new EntitySchema<Card>({
   name: 'Card',
@@ -55,8 +55,10 @@ export const CardEntity = new EntitySchema<Card>({
       type: 'simple-array',
       name: 'color_identity',
     },
-    games: {
-      type: 'simple-array',
+    plateform: {
+      type: 'enum',
+      enum: PlateformName,
+      array: true
     },
     edhrcRank: {
       type: 'smallint',
@@ -86,6 +88,7 @@ export const CardEntity = new EntitySchema<Card>({
       target: 'ManaCost',
       joinColumn: {
         name: 'mana_cost_id',
+        foreignKeyConstraintName: 'FK_card_mana_cost_id',
       },
       cascade: true,
       inverseSide: 'card',
@@ -96,10 +99,17 @@ export const CardEntity = new EntitySchema<Card>({
       inverseSide: 'card',
       cascade: true,
     },
+    games: {
+      type: 'one-to-many',
+      target: 'Game',
+      inverseSide: 'card',
+      cascade: true,
+    },
     set: {
       type: 'many-to-one',
       target: 'Set',
       joinColumn: {
+        foreignKeyConstraintName: 'FK_card_set',
         name: 'set_id',
       },
       onDelete: 'CASCADE',

@@ -1,3 +1,4 @@
+import { useI18n, type TranslationKey } from '@/i18n';
 import {
   Table,
   TableBody,
@@ -12,30 +13,33 @@ import { Spinner } from '@heroui/spinner';
 
 import { useSets } from '@/feature/sets/api/get-sets.ts';
 
-const columns: { key: keyof ICardSet; label: string }[] = [
-  { key: 'name', label: 'Name' },
-  { key: 'code', label: 'Code' },
-  { key: 'setType', label: 'Type' },
-  { key: 'releasedAt', label: 'Release date' },
-  { key: 'iconSVGuri', label: 'Icon' },
-  { key: 'cardCount', label: 'Cards' },
+const columns: { key: keyof ICardSet; label: TranslationKey }[] = [
+  { key: 'name', label: 'name' },
+  { key: 'code', label: 'code' },
+  { key: 'setType', label: 'setType' },
+  { key: 'releasedAt', label: 'releaseDate' },
+  { key: 'iconSVGuri', label: 'icon' },
+  { key: 'cardCount', label: 'cards' },
 ];
 
 export const SetsList = () => {
+  const { t } = useI18n();
   const setsQuery = useSets();
 
   const sets = setsQuery.data?.data;
 
   return (
-    <Table aria-label="Sets">
+    <Table aria-label={t('sets')}>
       <TableHeader columns={columns}>
-        {(column) => <TableColumn key={column.key}>{column.label}</TableColumn>}
+        {(column) => (
+          <TableColumn key={column.key}>{t(column.label)}</TableColumn>
+        )}
       </TableHeader>
       <TableBody
-        emptyContent={setsQuery.isLoading ? 'No rows to display.' : ''}
+        emptyContent={t('noRows')}
         isLoading={setsQuery.isLoading}
         items={sets ?? []}
-        loadingContent={<Spinner label="Loading..." />}
+        loadingContent={<Spinner label={t('loading')} />}
       >
         {(item) => (
           <TableRow key={item.id}>

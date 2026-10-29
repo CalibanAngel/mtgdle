@@ -74,6 +74,7 @@ export const CardFaceEntity = new EntitySchema<CardFace>({
         name: 'card_image_uris_id',
       },
       onDelete: 'CASCADE',
+      cascade: true,
       inverseSide: 'cardFace', // This property must be defined in the CardImageUris entity.
     },
   }

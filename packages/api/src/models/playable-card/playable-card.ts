@@ -1,9 +1,11 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, PickType } from '@nestjs/swagger';
 import { Card } from '../card/card';
 import { Exclude } from 'class-transformer';
 import { InsertType } from './playable-card.enum';
+import { CardFace } from '../card/card-face/card-face';
+import { IPlayableCard } from '@mtgdle/shared-types';
 
-export class PlayableCard {
+export class PlayableCard extends PickType(CardFace, ['imageUris'] as const) implements IPlayableCard {
   @ApiProperty({
     description: 'Id of the referenced card',
   })
@@ -19,6 +21,7 @@ export class PlayableCard {
     enum: InsertType,
     enumName: 'InsertType',
   })
+  @Exclude()
   insertType: InsertType;
 
   @Exclude()

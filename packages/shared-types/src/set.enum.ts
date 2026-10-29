@@ -67,4 +67,8 @@ export enum SetType {
 
   /** A set that contains minigame card inserts from booster packs */
   Minigame = 'minigame',
+
+  Portal = 'portal',
+
+  Eternal = 'eternal',
 }

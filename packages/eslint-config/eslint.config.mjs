@@ -3,15 +3,21 @@ import eslint from '@eslint/js';
 import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
+import { fileURLToPath } from 'node:url';
 
 export default tseslint.config(
   {
     ignores: [
+      '**/*.js',
+      '**/*.d.ts',
+      '**/*.json',
+      '**/dist/**',
+      '**/node_modules/**',
       'node_modules/**',
       'dist/**',
       'build/**',
       'coverage/**',
-      '__tests__/**'
+      '__tests__/**',
     ],
   },
   eslint.configs.recommended,
@@ -27,7 +33,7 @@ export default tseslint.config(
       sourceType: 'module',
       parserOptions: {
         projectService: true,
-        tsconfigRootDir: new URL('.', import.meta.url).pathname,
+        tsconfigRootDir: fileURLToPath(new URL('../../', import.meta.url)),
       },
     },
   },
@@ -44,10 +50,10 @@ export default tseslint.config(
           ignoreStrings: true,
           ignoreTemplateLiterals: true,
           ignoreRegExpLiterals: true,
-          ignoreComments: true
-        }
+          ignoreComments: true,
+        },
       ],
       'linebreak-style': ['error', 'unix'],
     },
-  }
+  },
 );

@@ -1,3 +1,4 @@
+import { useI18n, LanguageSwitch } from '@/i18n';
 import { Link } from '@heroui/link';
 import {
   Navbar as HeroUINavbar,
@@ -11,10 +12,11 @@ import { get } from 'lodash';
 
 import { siteConfig } from '@/config/site';
 import { ThemeSwitch } from '@/components/theme-switch';
-import { GithubIcon, ScryfallIcon } from '@/components/icons';
+import { GithubIcon } from '@/components/icons';
 import { paths } from '@/config/paths.ts';
 
 export const Navbar = () => {
+  const { t } = useI18n();
   const navItems = Object.keys(paths.app)
     .filter((key) => get(paths.app, key)?.label)
     .map((key) => get(paths.app, key));
@@ -43,7 +45,11 @@ export const Navbar = () => {
                 color="foreground"
                 href={item.getHref()}
               >
-                {item.label}
+                {item.label === 'Sets'
+                  ? t('sets')
+                  : item.label === 'Health'
+                    ? t('health')
+                    : item.label}
               </Link>
             </NavbarItem>
           ))}
@@ -61,12 +67,7 @@ export const Navbar = () => {
         </NavbarItem>
 
         <NavbarItem className="hidden sm:flex gap-2">
-          <Link isExternal href={siteConfig.links.scyrfall} title="Scryfall">
-            <ScryfallIcon className="text-default-500" size={24} />
-          </Link>
-        </NavbarItem>
-
-        <NavbarItem className="hidden sm:flex gap-2">
+          <LanguageSwitch />
           <ThemeSwitch />
         </NavbarItem>
       </NavbarContent>

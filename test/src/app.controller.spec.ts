@@ -1,21 +1,12 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { AppController } from '../../src/app.controller';
-import { AppService } from '../../src/app.service';
+import { GameController } from '../../packages/api/src/api/game/game.controller';
+import { GameApiService } from '../../packages/api/src/api/game/game.api-service';
 
-describe('AppController', () => {
-  let app: TestingModule;
-
-  beforeAll(async () => {
-    app = await Test.createTestingModule({
-      controllers: [AppController],
-      providers: [AppService],
-    }).compile();
-  });
-
-  describe('getHello', () => {
-    it('should return "Hello World!"', () => {
-      const appController = app.get(AppController);
-      expect(appController.getHello()).toBe('Hello World!');
-    });
+describe('GameController', () => {
+  it('propagates creation failures', async () => {
+    const service = {
+      createTodayGame: jest.fn().mockRejectedValue(new Error('duplicate day')),
+    };
+    const controller = new GameController(service as unknown as GameApiService);
+    await expect(controller.newTodayGame()).rejects.toThrow('duplicate day');
   });
 });

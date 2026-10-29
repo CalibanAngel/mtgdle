@@ -1,13 +1,14 @@
 import { CardSet } from './set';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { SetRepository } from './set.repository';
 import { UpsertResult } from '../../infrastructure/database/database.interface';
+import { WithLogger } from '../../infrastructure/logging/with-logger.abstract';
 
 @Injectable()
-export class SetService {
-  private readonly logger = new Logger(SetService.name);
-
-  constructor(private readonly cardSetRepository: SetRepository) {}
+export class SetService extends WithLogger {
+  constructor(private readonly cardSetRepository: SetRepository) {
+    super();
+  }
 
   async bulkInsert(sets: CardSet[]): Promise<UpsertResult<CardSet>> {
     this.logger.debug(`Inserting ${sets.length} sets into database`);

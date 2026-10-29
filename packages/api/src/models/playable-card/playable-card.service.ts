@@ -1,12 +1,21 @@
 import { PlayableCardRepository } from './playable-card.repository';
 import { InsertedResult } from '../../infrastructure/database/database.interface';
 import { Injectable } from '@nestjs/common';
+import { PlayableCard } from './playable-card';
 
 @Injectable()
 export class PlayableCardService {
   constructor(
     private readonly playableCardRepository: PlayableCardRepository,
   ) {}
+
+  getRandom(): Promise<PlayableCard> {
+    return this.playableCardRepository.getRandom();
+  }
+
+  getAll(): Promise<PlayableCard[]> {
+    return this.playableCardRepository.findAll()
+  }
 
   insertManualCards(cardNames: string[]): Promise<InsertedResult> {
     if (!cardNames.length) {

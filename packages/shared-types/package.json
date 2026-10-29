@@ -2,10 +2,12 @@
   "name": "@mtgdle/shared-types",
   "version": "0.1.0",
   "private": true,
-  "type": "module",
+  "type": "commonjs",
   "types": "dist/index.d.ts",
   "main": "dist/index.js",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "dev": "tsc -p tsconfig.json -w --preserveWatchOutput"

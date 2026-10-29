@@ -15,7 +15,7 @@ export enum BorderColor {
   GOLD = 'gold',
 }
 
-export enum GameName {
+export enum PlateformName {
   PAPER = 'paper',
   ARENA = 'arena',
   MTGO = 'mtgo',

@@ -1,8 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
 import { CardFace } from '../card-face/card-face';
+import { ICardImageUris } from '@mtgdle/shared-types';
 
-export class CardImageUris {
+export class CardImageUris implements ICardImageUris {
   @Exclude()
   id: string;
 

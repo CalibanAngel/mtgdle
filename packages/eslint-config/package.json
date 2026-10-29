@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": false,
   "type": "module",
-  "main": "eslint.config.js",
+  "main": "eslint.config.mjs",
   "peerDependencies": {
     "eslint": "*",
     "@eslint/js": "*",
