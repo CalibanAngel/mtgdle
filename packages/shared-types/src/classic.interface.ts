@@ -11,6 +11,7 @@ export interface ClassicCard {
   id: string;
   name: string;
   image: string | null;
+  previewImage?: string | null;
   identity: string[];
   mana: number;
   types: string[];
@@ -18,6 +19,15 @@ export interface ClassicCard {
   released: string;
   keywords: string[];
   activated: boolean;
+}
+export type HintKind = 'reduce' | 'art' | 'text';
+export interface ClassicHint {
+  kind: HintKind;
+  threshold: number;
+  available: boolean;
+  used: boolean;
+  hasImage?: boolean;
+  text?: string;
 }
 export interface ClassicGuess {
   requestId: string;
@@ -30,7 +40,8 @@ export interface ClassicState {
   expiresAt: string;
   status: 'playing' | 'won' | 'abandoned';
   guesses: ClassicGuess[];
-  choices: Pick<ClassicCard, 'id' | 'name' | 'image'>[];
+  choices: Pick<ClassicCard, 'id' | 'name' | 'image' | 'previewImage'>[];
   hint: { available: boolean; used: boolean; removed: number };
+  hints: ClassicHint[];
   answer?: ClassicCard;
 }

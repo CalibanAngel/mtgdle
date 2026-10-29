@@ -6,7 +6,7 @@
 - Recherche parmi 472 cartes logiques, sélection puis confirmation explicite.
 - Sept comparaisons : identité couleur, valeur de mana, types principaux, première édition, tranche de deux ans, mots-clés, présence d’une capacité activée.
 - Essais illimités, sans réutilisation d’une carte. Historique conservé en base et retrouvé via un cookie de session HttpOnly.
-- Indice volontaire après dix erreurs : suppression aléatoire de la moitié des choix encore disponibles, en conservant toujours la réponse. L’indice est stable après rechargement.
+- Trois indices facultatifs et persistants : à 10 erreurs, réduction de moitié des choix en conservant la réponse ; à 20, illustration seule ; à 30, texte de règles avec le nom masqué. Les paliers sont indépendants.
 - Victoire, abandon confirmé, révélation et copie d’un résultat partageable sans le nom de la réponse.
 - Interface adaptée au mobile avec tableau défilant horizontalement et navigation de recherche au clavier.
 
@@ -70,7 +70,7 @@ Les dates et images viennent des premières impressions anglaises papier présen
 
 La détection des capacités activées repose sur le texte sans rappels ni capacités accordées entre guillemets, complété par une liste de mots-clés activés. Les cas particuliers nécessiteront des corrections manuelles. Les types et mots-clés sont affichés en anglais ; la comparaison des mots-clés donne pour l’instant un résultat global, sans surligner chaque mot commun.
 
-Le premier jet ne comprend pas encore les statistiques personnelles agrégées, les séries, l’indice lore, l’évitement des réponses récentes, les modes zoom/flou, la gestion éditoriale du catalogue ni la protection des anciennes routes d’administration. Il reste destiné au développement local. Les snapshots utilisent la version 1 des règles ; une évolution des règles doit prévoir leur versionnement.
+Le premier jet ne comprend pas encore les statistiques personnelles agrégées, les séries, l’indice lore (distinct du texte de règles), l’évitement des réponses récentes, les modes zoom/flou, la gestion éditoriale du catalogue ni la protection des anciennes routes d’administration. Il reste destiné au développement local. Les snapshots utilisent la version 1 des règles ; une évolution des règles doit prévoir leur versionnement.
 
 La base de développement contient seulement les nouvelles tables et une session d’essai utilisée pour la vérification dans le navigateur ; les cartes, éditions et anciennes parties sont préservées. Les tests d’écriture utilisent la base dédiée.
 
@@ -79,3 +79,13 @@ La base de développement contient seulement les nouvelles tables et une session
 La commande `test:all` a été exécutée avec `CLASSIC_TEST_DATABASE=mtgdle_classic_test` : 25 TU et 12 TI réussis, puis 17 scénarios Playwright réussis et un scénario de thème ignoré sur mobile (contrôle absent de la navigation mobile existante). Les contrôles TypeScript et les builds API/front réussissent. Le build front conserve un avertissement sur un chunk de plus de 500 kB. Le nouveau code serveur et le composant de jeu passent leur lint ; cela ne résout pas la dette de lint préexistante du reste du dépôt.
 
 Une vérification réelle dans le navigateur a également confirmé le chargement des 472 cartes, la comparaison de Path to Exile, son retrait des choix et la récupération de cet essai après rechargement.
+
+## Améliorations de l’interface et des indices
+
+L’interface suit désormais une présentation compacte : nom, compteur, trois indices, recherche puis explorations. Les cartes apparaissent dans l’historique et sont agrandissables au survol ou dans une fenêtre accessible au clic/toucher/clavier.
+
+Le catalogue et les instantanés quotidiens sont enrichis avec une image de carte plus grande, un art crop et le texte Oracle. La migration ajoute `art_used` et `text_used` à la progression, en préservant `hint_used`, les essais et la réponse. L’enrichissement d’un instantané ne modifie que ces médias et le texte, sans changer les sept critères existants. Relancer `npm run prepare:classic` avant le démarrage d’une ancienne installation.
+
+`GET /classic/:day/art` sert l’illustration après vérification de la session et de l’activation du deuxième indice. Il renvoie uniquement des pixels depuis le domaine Scryfall autorisé, sans redirection ni URL source. Les erreurs réseau n’imposent pas un nouvel indice. Le texte du troisième palier est renvoyé seulement après son activation.
+
+Validation de cette évolution : 27 TU et 16 TI réussis (dont la base PostgreSQL dédiée et le proxy d’image simulé), 21 tests Playwright réussis et un contrôle de thème mobile ignoré. Contrôles TypeScript et builds réussis. Vérification visuelle réelle : les six essais existants sont préservés, les miniatures sont visibles et une carte de l’historique s’ouvre en grand.

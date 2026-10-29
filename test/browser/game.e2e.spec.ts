@@ -4,10 +4,11 @@ import type {
   ClassicState,
 } from '../../packages/shared-types/src/classic.interface';
 
-const cards: ClassicCard[] = Array.from({ length: 24 }, (_, i) => ({
+const cards: ClassicCard[] = Array.from({ length: 64 }, (_, i) => ({
   id: `00000000-0000-4000-8000-${String(i).padStart(12, '0')}`,
   name: i === 0 ? 'Path to Exile' : `Test Card ${i}`,
-  image: null,
+  image: '/test-card.svg',
+  previewImage: '/test-card-large.svg',
   identity: ['W'],
   mana: 1,
   types: ['Instant'],
@@ -38,8 +39,19 @@ const test = base.extend<{ server: Server }>({
         expiresAt: '2099-01-01T00:00:00Z',
         status: 'playing',
         guesses: [],
-        choices: cards.map(({ id, name, image }) => ({ id, name, image })),
+        choices: cards.map(({ id, name, image, previewImage }) => ({
+          id,
+          name,
+          image,
+          previewImage,
+        })),
         hint: { available: false, used: false, removed: 0 },
+        hints: ['reduce', 'art', 'text'].map((kind, index) => ({
+          kind: kind as 'reduce' | 'art' | 'text',
+          threshold: (index + 1) * 10,
+          used: false,
+          available: false,
+        })),
       },
       fail: false,
       requests: [],
@@ -47,6 +59,11 @@ const test = base.extend<{ server: Server }>({
     await context.route('**/*', async (route) => {
       const request = route.request();
       const url = new URL(request.url());
+      if (url.pathname.endsWith('.svg') || url.pathname.endsWith('/art'))
+        return route.fulfill({
+          contentType: 'image/svg+xml',
+          body: '<svg xmlns="http://www.w3.org/2000/svg" width="240" height="336"><rect width="240" height="336" fill="tan"/></svg>',
+        });
       if (url.pathname.startsWith('/classic/')) {
         if (request.method() === 'POST') {
           if (server.fail) {
@@ -71,18 +88,29 @@ const test = base.extend<{ server: Server }>({
             );
             server.state.hint.available =
               server.state.guesses.length >= 10 && !server.state.hint.used;
+            server.state.hints.forEach((h) => {
+              h.available =
+                server.state.guesses.length >= h.threshold && !h.used;
+            });
             if (card.id === cards[23].id) {
               server.state.status = 'won';
               server.state.answer = card;
             }
           } else if (url.pathname.endsWith('/hint')) {
-            const remove = Math.floor(server.state.choices.length / 2);
-            server.state.choices = server.state.choices.slice(remove);
-            server.state.hint = {
-              available: false,
-              used: true,
-              removed: remove,
-            };
+            const kind = (request.postDataJSON() as { kind: string }).kind;
+            const hint = server.state.hints.find((h) => h.kind === kind)!;
+            hint.used = true;
+            hint.available = false;
+            if (kind === 'reduce') {
+              const remove = Math.floor(server.state.choices.length / 2);
+              server.state.choices = server.state.choices.slice(remove);
+              server.state.hint = {
+                available: false,
+                used: true,
+                removed: remove,
+              };
+            } else if (kind === 'art') hint.hasImage = true;
+            else hint.text = '[cette carte] deals 2 damage to any target.';
           } else if (url.pathname.endsWith('/abandon')) {
             server.state.status = 'abandoned';
             server.state.answer = cards[23];
@@ -121,11 +149,11 @@ test('selection requires confirmation and removes a submitted card after reload'
   expect(server.requests).toHaveLength(0);
   await page.getByRole('button', { name: 'Proposer' }).click();
   await expect(
-    page.getByRole('rowheader', { name: 'Path to Exile' }),
+    page.getByRole('rowheader').filter({ hasText: 'Path to Exile' }),
   ).toBeVisible();
   await page.reload();
   await expect(
-    page.getByRole('rowheader', { name: 'Path to Exile' }),
+    page.getByRole('rowheader').filter({ hasText: 'Path to Exile' }),
   ).toBeVisible();
   await page.getByRole('combobox').fill('Path');
   await expect(page.getByRole('option', { name: 'Path to Exile' })).toHaveCount(
@@ -147,7 +175,7 @@ test('keyboard chooses a card, then confirmation submits it', async ({
   expect(server.requests).toHaveLength(0);
   await page.getByRole('button', { name: 'Proposer' }).click();
   await expect(
-    page.getByRole('rowheader', { name: 'Path to Exile' }),
+    page.getByRole('rowheader').filter({ hasText: 'Path to Exile' }),
   ).toBeVisible();
 });
 
@@ -163,7 +191,7 @@ test('network failure allows retry without removing the choice', async ({
   await expect(page.getByRole('button', { name: 'Proposer' })).toBeEnabled();
   await page.getByRole('button', { name: 'Proposer' }).click();
   await expect(
-    page.getByRole('rowheader', { name: 'Path to Exile' }),
+    page.getByRole('rowheader').filter({ hasText: 'Path to Exile' }),
   ).toBeVisible();
   expect(server.requests).toHaveLength(1);
 });
@@ -171,23 +199,21 @@ test('network failure allows retry without removing the choice', async ({
 test('hint unlocks after ten errors and survives reload', async ({ page }) => {
   await page.goto('/');
   await expect(
-    page.getByRole('button', { name: 'Utiliser l’indice' }),
+    page.getByRole('button', { name: 'Indice 1 : Réduire les choix' }),
   ).toBeDisabled();
   for (let i = 0; i < 10; i++) {
     await select(page, cards[i].name);
     await page.getByRole('button', { name: 'Proposer' }).click();
     await expect(
-      page.getByRole('rowheader', { name: cards[i].name, exact: true }),
+      page.getByRole('rowheader').filter({ hasText: cards[i].name }),
     ).toBeVisible();
   }
-  await page.getByRole('button', { name: 'Utiliser l’indice' }).click();
-  await expect(
-    page.getByText('Indice utilisé : 7 cartes retirées.'),
-  ).toBeVisible();
+  await page
+    .getByRole('button', { name: 'Indice 1 : Réduire les choix' })
+    .click();
+  await expect(page.getByText('27 cartes retirées')).toBeVisible();
   await page.reload();
-  await expect(
-    page.getByText('Indice utilisé : 7 cartes retirées.'),
-  ).toBeVisible();
+  await expect(page.getByText('27 cartes retirées')).toBeVisible();
 });
 
 test('victory reveals the answer and stops proposals', async ({ page }) => {
@@ -246,4 +272,106 @@ test('desktop theme remains keyboard accessible', async ({
   const wasChecked = await toggle.isChecked();
   await toggle.press('Space');
   await expect(toggle).toBeChecked({ checked: !wasChecked });
+});
+
+test('compact layout offers large previews in search and history', async ({
+  page,
+  isMobile,
+}, testInfo) => {
+  await page.goto('/');
+  await expect(
+    page.getByRole('heading', { name: 'Une carte. À toi de la trouver.' }),
+  ).toHaveCount(0);
+  await page.getByRole('combobox').fill('Path');
+  const option = page.getByRole('option', {
+    name: 'Path to Exile',
+    exact: true,
+  });
+  await expect(option.locator('img')).toHaveCSS('height', '84px');
+  if (!isMobile) {
+    await option.hover();
+    await expect(page.locator('.classic-hover-preview')).toBeVisible();
+  }
+  await option.click();
+  await page
+    .getByRole('button', { name: 'Agrandir Path to Exile', exact: true })
+    .click();
+  await expect(page.getByRole('dialog')).toBeVisible();
+  await expect(page.getByRole('dialog').getByRole('img')).toHaveAttribute(
+    'src',
+    '/test-card-large.svg',
+  );
+  await page.getByRole('button', { name: 'Fermer l’aperçu' }).click();
+  await page.getByRole('button', { name: 'Proposer' }).click();
+  const history = page.getByRole('region', { name: 'Historique des essais' });
+  await expect(history.locator('img')).toBeVisible();
+  await history.getByRole('button', { name: 'Agrandir Path to Exile' }).click();
+  await expect(page.getByRole('dialog')).toBeVisible();
+  await page.getByRole('button', { name: 'Fermer l’aperçu' }).click();
+  await page.screenshot({
+    path: testInfo.outputPath('compact-game.png'),
+    fullPage: true,
+  });
+});
+
+test('illustration and masked rules text remain revealed after reload', async ({
+  page,
+  server,
+}) => {
+  server.state.guesses = cards
+    .filter((c) => c.id !== cards[23].id)
+    .slice(0, 20)
+    .map((card, i) => ({
+      card,
+      requestId: `seed-${i}`,
+      matches: exact,
+      won: false,
+    }));
+  server.state.choices = cards.filter(
+    (c) => !server.state.guesses.some((g) => g.card.id === c.id),
+  );
+  server.state.hints.forEach((h) => {
+    h.available = h.threshold <= 20;
+  });
+  await page.goto('/');
+  const art = page.getByRole('button', {
+    name: 'Indice 2 : Illustration',
+    exact: true,
+  });
+  const text = page.getByRole('button', {
+    name: 'Indice 3 : Texte de règles',
+    exact: true,
+  });
+  await expect(text).toBeDisabled();
+  await art.click();
+  await expect(
+    page.getByAltText('Illustration de la carte du jour'),
+  ).toBeVisible();
+  await page.reload();
+  await expect(
+    page.getByAltText('Illustration de la carte du jour'),
+  ).toBeVisible();
+  server.state.guesses = cards
+    .filter((c) => c.id !== cards[23].id)
+    .slice(0, 30)
+    .map((card, i) => ({
+      card,
+      requestId: `seed-${i}`,
+      matches: exact,
+      won: false,
+    }));
+  server.state.hints.find((h) => h.kind === 'text')!.available = true;
+  await page.reload();
+  await text.click();
+  await expect(
+    page.getByText('[cette carte] deals 2 damage to any target.', {
+      exact: true,
+    }),
+  ).toBeVisible();
+  await page.reload();
+  await expect(
+    page.getByText('[cette carte] deals 2 damage to any target.', {
+      exact: true,
+    }),
+  ).toBeVisible();
 });

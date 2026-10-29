@@ -109,6 +109,9 @@ async function main() {
         id,
         name: first.name,
         image: art.image_uris?.small || null,
+        previewImage: art.image_uris?.normal || null,
+        artCrop: art.image_uris?.art_crop || null,
+        oracleText: first.oracle_text || '',
         identity: first.color_identity,
         mana: first.cmc,
         types: first.type_line
@@ -138,6 +141,14 @@ async function main() {
         'INSERT INTO classic_catalogue(id,data) VALUES($1,$2) ON CONFLICT(id) DO UPDATE SET data=EXCLUDED.data',
         [card.id, card],
       );
+    // Enrich media only; never change existing answers, rules or attempts.
+    await client.query(`UPDATE classic_daily d SET cards = (
+      SELECT jsonb_agg(item || jsonb_build_object(
+        'previewImage', c.data->'previewImage', 'artCrop', c.data->'artCrop', 'oracleText', c.data->'oracleText'
+      ) ORDER BY position)
+      FROM jsonb_array_elements(d.cards) WITH ORDINALITY AS items(item, position)
+      LEFT JOIN classic_catalogue c ON c.id::text = item->>'id'
+    )`);
     await client.query('COMMIT');
     console.log(
       'Additive schema and catalogue ready. Existing daily snapshots and all original tables preserved.',

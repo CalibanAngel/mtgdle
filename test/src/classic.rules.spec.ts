@@ -1,3 +1,4 @@
+import { maskCardName } from '../../packages/api/src/api/game/classic.store';
 import {
   compareCard,
   matchSet,
@@ -70,5 +71,23 @@ describe('Classic comparisons', () => {
     expect(nextMidnight('2026-03-28')).toBe('2026-03-28T23:00:00.000Z');
     expect(nextMidnight('2026-03-29')).toBe('2026-03-29T22:00:00.000Z');
     expect(nextMidnight('2026-10-25')).toBe('2026-10-25T23:00:00.000Z');
+  });
+});
+
+describe('Rules-text hint redaction', () => {
+  it('masks the full card name and its shortened legendary reference', () => {
+    expect(
+      maskCardName(
+        'Atraxa, Praetors’ Voice has flying. Whenever Atraxa attacks, draw a card.',
+        'Atraxa, Praetors’ Voice',
+      ),
+    ).toBe(
+      '[cette carte] has flying. Whenever [cette carte] attacks, draw a card.',
+    );
+  });
+  it('handles regex characters in names literally', () => {
+    expect(maskCardName('A+B deals damage. AAB stays.', 'A+B')).toBe(
+      '[cette carte] deals damage. AAB stays.',
+    );
   });
 });

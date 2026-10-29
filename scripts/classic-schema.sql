@@ -18,3 +18,6 @@ CREATE TABLE IF NOT EXISTS classic_progress (
   hint_used boolean NOT NULL DEFAULT false,
   PRIMARY KEY (day, session_id)
 );
+
+ALTER TABLE classic_progress ADD COLUMN IF NOT EXISTS art_used boolean NOT NULL DEFAULT false;
+ALTER TABLE classic_progress ADD COLUMN IF NOT EXISTS text_used boolean NOT NULL DEFAULT false;

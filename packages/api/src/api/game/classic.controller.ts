@@ -1,9 +1,25 @@
-import { Body, Controller, Get, Param, Post, Req, Res } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Req,
+  Res,
+  ServiceUnavailableException,
+} from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { IsUUID } from 'class-validator';
+import { IsUUID, IsIn, IsOptional } from 'class-validator';
 import { randomUUID } from 'node:crypto';
 import type { Request, Response } from 'express';
 import { ClassicStore } from './classic.store';
+import type { HintKind } from '@mtgdle/shared-types';
+
+export class ClassicHintDto {
+  @IsOptional()
+  @IsIn(['reduce', 'art', 'text'])
+  kind?: HintKind;
+}
 
 export class ClassicGuessDto {
   @IsUUID() cardId: string;
@@ -65,10 +81,61 @@ export class ClassicController {
   @Post(':day/hint')
   hint(
     @Param('day') day: string,
+    @Body() body: ClassicHintDto,
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ) {
-    return this.store.act(day, this.session(req, res), 'hint');
+    res.setHeader('Cache-Control', 'no-store');
+    return this.store.act(
+      day,
+      this.session(req, res),
+      'hint',
+      undefined,
+      undefined,
+      body?.kind ?? 'reduce',
+    );
+  }
+
+  @Get(':day/art')
+  async art(
+    @Param('day') day: string,
+    @Req() req: Request,
+    @Res() res: Response,
+  ) {
+    const source = await this.store.artSource(day, this.session(req, res));
+    const url = new URL(source);
+    if (
+      url.protocol !== 'https:' ||
+      url.hostname !== 'cards.scryfall.io' ||
+      !url.pathname.startsWith('/art_crop/')
+    )
+      throw new ServiceUnavailableException('Illustration indisponible.');
+    try {
+      const image = await fetch(url, {
+        redirect: 'error',
+        signal: AbortSignal.timeout(10000),
+        headers: {
+          'User-Agent': 'MTGdle/0.1 (local game)',
+          Accept: 'image/jpeg,image/png',
+        },
+      });
+      const type = image.headers.get('content-type')?.split(';')[0];
+      if (
+        !image.ok ||
+        !type ||
+        !['image/jpeg', 'image/png'].includes(type) ||
+        Number(image.headers.get('content-length')) > 10000000
+      )
+        throw new Error('Invalid image');
+      const data = Buffer.from(await image.arrayBuffer());
+      if (data.length > 10000000) throw new Error('Image too large');
+      res.setHeader('Cache-Control', 'no-store');
+      res.type(type).send(data);
+    } catch {
+      throw new ServiceUnavailableException(
+        'Impossible de charger l’illustration. Réessaie dans un instant.',
+      );
+    }
   }
 
   @Post(':day/abandon')

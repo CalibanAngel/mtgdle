@@ -10,6 +10,7 @@ import type {
   ClassicCard,
   ClassicGuess,
   ClassicState,
+  HintKind,
 } from '@mtgdle/shared-types';
 import {
   compareCard,
@@ -18,16 +19,22 @@ import {
   parisDay,
 } from './classic.rules';
 
+interface StoredCard extends ClassicCard {
+  artCrop?: string | null;
+  oracleText?: string;
+}
 interface Daily {
   day: string;
   answer_id: string;
-  cards: ClassicCard[];
+  cards: StoredCard[];
 }
 interface Progress {
   status: ClassicState['status'];
   guesses: ClassicGuess[];
   removed: string[];
   hint_used: boolean;
+  art_used: boolean;
+  text_used: boolean;
 }
 
 @Injectable()
@@ -48,6 +55,7 @@ export class ClassicStore {
     action: 'guess' | 'hint' | 'abandon',
     cardId?: string,
     requestId?: string,
+    hintKind: HintKind = 'reduce',
   ): Promise<ClassicState> {
     if (day !== parisDay())
       throw new ConflictException(
@@ -71,8 +79,13 @@ export class ClassicStore {
           );
         return this.present(daily, progress);
       }
-      if (action === 'hint' && progress.hint_used)
-        return this.present(daily, progress);
+      const hintUsed =
+        hintKind === 'reduce'
+          ? progress.hint_used
+          : hintKind === 'art'
+            ? progress.art_used
+            : progress.text_used;
+      if (action === 'hint' && hintUsed) return this.present(daily, progress);
       if (action === 'abandon' && progress.status === 'abandoned')
         return this.present(daily, progress);
       if (progress.status !== 'playing')
@@ -93,26 +106,42 @@ export class ClassicStore {
         progress.guesses.push(guess);
         if (guess.won) progress.status = 'won';
       } else if (action === 'hint') {
-        if (progress.guesses.length < HINT_THRESHOLD)
-          throw new ConflictException('L’indice se débloque après 10 erreurs.');
-        const remaining = daily.cards.filter(
-          (c) => !progress.guesses.some((g) => g.card.id === c.id),
-        );
-        const removable = remaining.filter((c) => c.id !== target.id);
-        const count = Math.floor(remaining.length / 2);
-        if (!count)
+        const threshold =
+          hintKind === 'reduce' ? 10 : hintKind === 'art' ? 20 : 30;
+        if (progress.guesses.length < threshold)
           throw new ConflictException(
-            'Il ne reste pas assez de cartes à retirer.',
+            `Cet indice se débloque après ${threshold} erreurs.`,
           );
-        for (let i = removable.length - 1; i > 0; i--) {
-          const j = randomInt(i + 1);
-          [removable[i], removable[j]] = [removable[j], removable[i]];
+        if (hintKind === 'art') {
+          if (!target.artCrop)
+            throw new ConflictException(
+              'Illustration indisponible pour cette carte.',
+            );
+          progress.art_used = true;
+        } else if (hintKind === 'text') {
+          if (target.oracleText === undefined || target.oracleText === null)
+            throw new ConflictException('Texte de règles indisponible.');
+          progress.text_used = true;
+        } else {
+          const remaining = daily.cards.filter(
+            (c) => !progress.guesses.some((g) => g.card.id === c.id),
+          );
+          const removable = remaining.filter((c) => c.id !== target.id);
+          const count = Math.floor(remaining.length / 2);
+          if (!count)
+            throw new ConflictException(
+              'Il ne reste pas assez de cartes à retirer.',
+            );
+          for (let i = removable.length - 1; i > 0; i--) {
+            const j = randomInt(i + 1);
+            [removable[i], removable[j]] = [removable[j], removable[i]];
+          }
+          progress.removed = removable.slice(0, count).map((c) => c.id);
+          progress.hint_used = true;
         }
-        progress.removed = removable.slice(0, count).map((c) => c.id);
-        progress.hint_used = true;
       } else progress.status = 'abandoned';
       await manager.query(
-        'UPDATE classic_progress SET status=$3, guesses=$4::jsonb, removed=$5::jsonb, hint_used=$6 WHERE day=$1 AND session_id=$2',
+        'UPDATE classic_progress SET status=$3, guesses=$4::jsonb, removed=$5::jsonb, hint_used=$6, art_used=$7, text_used=$8 WHERE day=$1 AND session_id=$2',
         [
           day,
           session,
@@ -120,10 +149,54 @@ export class ClassicStore {
           JSON.stringify(progress.guesses),
           JSON.stringify(progress.removed),
           progress.hint_used,
+          progress.art_used,
+          progress.text_used,
         ],
       );
       return this.present(daily, progress);
     });
+  }
+
+  // Authorize the crop separately so its source URL/printing ID is never in public state.
+  async artSource(day: string, session: string): Promise<string> {
+    return this.db.transaction(async (manager) => {
+      const daily = await this.daily(manager, day);
+      const progress = await this.progress(manager, day, session);
+      if (!progress.art_used)
+        throw new ConflictException('Débloque d’abord l’indice illustration.');
+      const source = daily.cards.find((c) => c.id === daily.answer_id)?.artCrop;
+      if (!source) throw new NotFoundException('Illustration indisponible.');
+      return source;
+    });
+  }
+
+  private publicCard(card: StoredCard): ClassicCard {
+    const {
+      id,
+      name,
+      image,
+      previewImage,
+      identity,
+      mana,
+      types,
+      edition,
+      released,
+      keywords,
+      activated,
+    } = card;
+    return {
+      id,
+      name,
+      image,
+      previewImage,
+      identity,
+      mana,
+      types,
+      edition,
+      released,
+      keywords,
+      activated,
+    };
   }
 
   private async ensureDay(manager: EntityManager, day: string): Promise<void> {
@@ -169,7 +242,7 @@ export class ClassicStore {
       [day, session],
     );
     const rows: Progress[] = await manager.query(
-      'SELECT status, guesses, removed, hint_used FROM classic_progress WHERE day=$1 AND session_id=$2 FOR UPDATE',
+      'SELECT status, guesses, removed, hint_used, art_used, text_used FROM classic_progress WHERE day=$1 AND session_id=$2 FOR UPDATE',
       [day, session],
     );
     return rows[0];
@@ -191,7 +264,14 @@ export class ClassicStore {
       day: daily.day,
       expiresAt: nextMidnight(daily.day),
       status: progress.status,
-      guesses: progress.guesses,
+      guesses: progress.guesses.map((g) => ({
+        ...g,
+        card: this.publicCard({
+          ...g.card,
+          previewImage: daily.cards.find((c) => c.id === g.card.id)
+            ?.previewImage,
+        }),
+      })),
       choices:
         progress.status === 'playing'
           ? daily.cards
@@ -200,8 +280,47 @@ export class ClassicStore {
                   !progress.removed.includes(c.id) &&
                   !progress.guesses.some((g) => g.card.id === c.id),
               )
-              .map(({ id, name, image }) => ({ id, name, image }))
+              .map(({ id, name, image, previewImage }) => ({
+                id,
+                name,
+                image,
+                previewImage,
+              }))
           : [],
+      hints: (['reduce', 'art', 'text'] as const).map((kind, i) => {
+        const used =
+          kind === 'reduce'
+            ? progress.hint_used
+            : kind === 'art'
+              ? progress.art_used
+              : progress.text_used;
+        const target = daily.cards.find((c) => c.id === daily.answer_id)!;
+        const supported =
+          kind === 'reduce'
+            ? true
+            : kind === 'art'
+              ? !!target.artCrop
+              : target.oracleText != null;
+        return {
+          kind,
+          threshold: (i + 1) * 10,
+          used,
+          available:
+            supported &&
+            progress.status === 'playing' &&
+            progress.guesses.length >= (i + 1) * 10 &&
+            !used,
+          ...(kind === 'art' && used ? { hasImage: true } : {}),
+          ...(kind === 'text' && used
+            ? {
+                text: maskCardName(
+                  target.oracleText || 'Aucun texte de règles.',
+                  target.name,
+                ),
+              }
+            : {}),
+        };
+      }),
       hint: {
         available:
           progress.status === 'playing' &&
@@ -212,7 +331,24 @@ export class ClassicStore {
       },
       ...(progress.status === 'playing'
         ? {}
-        : { answer: daily.cards.find((c) => c.id === daily.answer_id)! }),
+        : {
+            answer: this.publicCard(
+              daily.cards.find((c) => c.id === daily.answer_id)!,
+            ),
+          }),
     };
   }
+}
+
+export function maskCardName(text: string, name: string): string {
+  const names = [
+    name,
+    ...(name.includes(',') ? [name.split(',')[0]] : []),
+  ].sort((a, b) => b.length - a.length);
+  for (const value of names)
+    text = text.replace(
+      new RegExp(value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi'),
+      '[cette carte]',
+    );
+  return text;
 }
