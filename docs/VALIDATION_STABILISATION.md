@@ -1,5 +1,13 @@
 # Validation de la branche de stabilisation
 
+## Complément du 29 octobre 2026 : Playwright
+
+La commande `npm run test:browser` lance un serveur Vite dédié puis Chromium sur ordinateur et avec une émulation mobile Pixel 7. Résultat : **9 tests réussis, 1 ignoré**. Le test de thème est réservé à l’ordinateur, car la navigation mobile actuelle masque ce contrôle. La recherche, la sélection par clic et clavier, le catalogue vide et le parcours 404 sont testés sur les deux formats.
+
+Les appels réseau métier sont interceptés et les accès externes bloqués ; aucun serveur Nest ni accès PostgreSQL n’est nécessaire. Le port API de test est explicitement distinct du serveur de développement. Chromium s’installe avec `npx playwright install chromium` ; le rapport HTML est généré dans `playwright-report/`, et les traces/captures d’échec dans `test-results/`. Ces sorties sont ignorées par Git. Le lockfile Bun racine est désormais versionné avec la dépendance Playwright pour conserver sa résolution.
+
+Le cahier des charges précise également l’utilisation de l’identité couleur seule dans le MVP et du premier artwork standard, avec une distinction entre sa référence visuelle et la première parution historique. Ces règles sont documentées ; leur implémentation métier reste à réaliser.
+
 Le 28 octobre 2026, sur `codex/stabilisation-tests-dependances`.
 
 ## Corrections effectuées

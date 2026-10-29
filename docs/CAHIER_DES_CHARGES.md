@@ -4,7 +4,7 @@ Version de cadrage du 28 octobre 2026, établie à partir du dépôt.
 
 Complément technique : [plan de mise à jour de Node.js, Bun et des dépendances](PLAN_MISE_A_JOUR.md).
 
-Ce document décrit la cible d’une première version jouable (MVP). Les règles proposées ci-dessous sont des choix de cadrage à valider, pas des fonctionnalités déjà réalisées. L’état réel du code figure dans [l’état des lieux](ETAT_DES_LIEUX.md).
+Ce document décrit la cible d’une première version jouable (MVP). Les règles de gameplay ci-dessous intègrent les décisions validées ensemble. Les choix encore ouverts sont explicitement signalés ; ce document décrit une cible, pas des fonctionnalités déjà réalisées. L’état réel du code figure dans [l’état des lieux](ETAT_DES_LIEUX.md).
 
 ## 1. Objectif et périmètre
 
@@ -12,15 +12,15 @@ Créer un jeu web quotidien inspiré de Wordle et de Pokédle : retrouver une ca
 
 Le MVP comprend : une carte commune à tous chaque jour, une recherche avec autocomplétion, un tableau de comparaison, une fin de partie, une reprise après rechargement, des statistiques personnelles et un partage sans révéler la réponse.
 
-Les comptes utilisateurs, classements, modes illimités, archives jouables et modes « illustration » ou « texte de carte » sont des évolutions possibles, hors MVP.
+Les comptes utilisateurs, classements, archives jouables et mode « texte de carte » sont des évolutions possibles, hors MVP.
 
-## 2. Gameplay proposé
+## 2. Gameplay validé
 
 ### Catalogue et défi quotidien
 
 - Conserver au départ le périmètre actuel : cartes de layout `normal`, issues des éditions `expansion`, `core`, `commander` et `masters`.
 - Constituer le catalogue jouable à partir des cartes importées : sélection automatique de rang EDHREC inférieur ou égal à 500, complétée par une sélection manuelle. Le rang mesure ici une popularité orientée Commander ; ce choix pourra évoluer selon le public.
-- Une carte logique ne doit apparaître qu’une fois dans la recherche. Retenir une impression de référence pour ses caractéristiques d’édition et son illustration ; documenter la règle de sélection.
+- Une carte logique ne doit apparaître qu’une fois dans la recherche, toutes impressions confondues. La miniature du mode classique représente son premier artwork standard. La première édition et la période de parution décrivent sa première sortie historique, même si une variante spéciale l’a précédé.
 - Tirer une réponse commune par jour. Proposition : renouvellement à minuit dans le fuseau `Europe/Paris`, avec date et heure du prochain défi renvoyées par le serveur.
 - Ne pas retirer une carte du catalogue au milieu d’un défi. Éviter les répétitions récentes ; la fenêtre d’exclusion reste à définir selon la taille du catalogue.
 
@@ -30,30 +30,63 @@ Les comptes utilisateurs, classements, modes illimités, archives jouables et mo
 2. Il recherche une carte par son nom et confirme sa proposition. La sélection seule ne consomme pas d’essai.
 3. Le serveur valide la carte et renvoie les comparaisons avec la réponse du jour.
 4. Le tableau conserve les essais dans leur ordre de soumission et explique les indices.
-5. La bonne carte déclenche la victoire. Proposition MVP : dix essais maximum, puis révélation de la réponse en cas de défaite ; un abandon explicite est possible.
-6. Le résultat indique le nombre d’essais, permet le partage et annonce le prochain défi.
+5. La bonne carte déclenche la victoire. Les essais sont illimités : aucune défaite automatique après un nombre d’essais donné. Un abandon explicite reste possible.
+6. Après dix propositions incorrectes distinctes acceptées par le serveur, un bouton permet de demander un indice facultatif.
+7. Le résultat indique le nombre d’essais et l’utilisation éventuelle d’un indice, permet le partage et annonce le prochain défi.
 
-Le nombre d’essais et le fuseau sont des paramètres proposés. Une carte déjà jouée, une requête invalide ou une erreur réseau ne consomme pas d’essai. Après victoire, défaite ou abandon, les nouvelles propositions sont refusées. Un défi expiré ne reçoit plus d’essai ; une partie inachevée expire sans être comptée comme une partie terminée.
+Une carte acceptée comme proposition ne peut plus être choisie dans cette partie : elle disparaît des suggestions et le serveur refuse toute nouvelle soumission de la même identité logique, même sous une autre impression. Cette exclusion persiste après rechargement et s’applique aussi aux modes visuels. Une requête invalide, un doublon ou une erreur réseau ne consomme pas d’essai. Une requête dont la réponse réseau est perdue est rejouée avec la même clé d’idempotence pour retrouver l’essai enregistré sans le compter deux fois.
 
-### Indices de comparaison
+Après victoire ou abandon, les nouvelles propositions sont refusées. Un défi expiré ne reçoit plus d’essai ; une partie inachevée expire sans être comptée comme une partie terminée. Le fuseau de renouvellement reste à confirmer.
 
-| Critère MVP          | Règle proposée                                                                                                                                                           |
-| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Couleurs             | Vert si ensembles identiques, orange si intersection non vide, rouge sinon. Deux ensembles vides correspondent. Utiliser les couleurs, distinctes de l’identité couleur. |
-| Types principaux     | Comparer les ensembles de types (`Creature`, `Artifact`, etc.) avec la même règle ; séparer les supertypes et sous-types.                                                |
-| Valeur de mana       | Égalité ou flèche indiquant si la valeur recherchée est supérieure ou inférieure.                                                                                        |
-| Rareté               | Correspondance exacte avec l’impression de référence.                                                                                                                    |
-| Édition de référence | Correspondance exacte ; ne pas laisser entendre qu’il s’agit nécessairement de la première édition historique.                                                           |
+### Indice après dix erreurs
 
-Exemple : pour une proposition blanche de valeur de mana 2 et une cible blanche et bleue de valeur 4, les couleurs sont partielles et la flèche mana pointe vers le haut. Seule l’identité de la carte détermine la victoire, même si tous les critères affichés correspondent.
+Le déblocage est automatique, son utilisation volontaire et gratuite en essais. Le serveur conserve son état et son résultat ; recharger la page ne permet pas de tirer un nouvel indice.
 
-Force, endurance, loyauté, mots-clés et identité couleur peuvent être ajoutés ensuite. Ils nécessitent des règles explicites pour les valeurs absentes ou non numériques (`*`, `X`). Les états doivent être compréhensibles par texte ou icônes, sans dépendre uniquement de la couleur.
+- **Indice initial retenu : réduction des choix.** Lors de l’activation, retirer aléatoirement la moitié des cartes encore sélectionnables (arrondi à l’entier inférieur), sans jamais retirer la réponse. Les cartes déjà jouées ne participent pas au calcul. Le retrait est définitif pour cette partie uniquement et contrôlé côté serveur. Si une seule carte reste sélectionnable, aucune réduction n’est possible ; l’interface le signale sans enregistrer une utilisation fictive.
+- **Variante envisagée : texte d’ambiance (lore).** Afficher le texte de l’impression de référence s’il existe, en masquant le nom de la carte lorsqu’il apparaît. Prévoir la réduction des choix comme solution de remplacement. Le choix entre ces aides ou leur attribution reste à définir ; le MVP ne les cumule pas automatiquement.
+
+### Sept critères de comparaison du mode classique
+
+| Critère                      | Règle                                                                                                                                                                                                                                                                                                                           |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Identité couleur             | Vert si ensembles identiques, orange si intersection non vide, rouge sinon. Deux ensembles vides correspondent. Utiliser `color_identity`, et non `colors` ni les seules couleurs des symboles du coût de mana. L’identité inclut les couleurs pertinentes du texte de règles ; lire la valeur normalisée fournie par Scryfall. |
+| Valeur de mana (CCM)         | Égalité ou flèche vers une valeur recherchée supérieure ou inférieure.                                                                                                                                                                                                                                                          |
+| Types principaux             | Même comparaison d’ensembles pour les types (`Creature`, `Artifact`, etc.) ; exclure supertypes et sous-types de cette colonne.                                                                                                                                                                                                 |
+| Première édition             | Correspondance exacte avec la première édition historique retenue.                                                                                                                                                                                                                                                              |
+| Période de première parution | Tranches fixes de deux ans sans chevauchement : 2000–2001, 2002–2003, etc. Même tranche : vert ; cible plus ancienne : ↓ ; plus récente : ↑.                                                                                                                                                                                    |
+| Mots-clés                    | Vert si ensembles identiques, orange si au moins un mot-clé commun, rouge sinon. Afficher ceux de la proposition et distinguer ceux partagés avec la cible, sans révéler les mots-clés manquants. Deux ensembles vides correspondent.                                                                                           |
+| Capacité activée             | Oui/non, avec correspondance exacte. Déterminer cette propriété séparément des mots-clés.                                                                                                                                                                                                                                       |
+
+Les tranches sont ancrées sur les années paires : une année appartient à la tranche commençant à `2 × floor(année / 2)`. Leur largeur est configurable et figée dans la version des règles du défi ; deux ans constituent le choix initial validé. La date exacte de la cible ne doit pas être révélée par cet indice.
+
+Exemple : pour une proposition d’identité blanche de valeur de mana 2 et une cible d’identité blanche et bleue de valeur 4, l’identité correspond partiellement et la flèche mana pointe vers le haut. Seule l’identité de la carte détermine la victoire, même si tous les critères affichés correspondent.
+
+Pour les mots-clés, comparer des identifiants normalisés, indépendants de la langue affichée (vol, célérité, etc.). Pour les capacités activées, analyser le texte de règles en traitant les textes de rappel, les capacités accordées et les cas particuliers ; ne pas assimiler simplement présence d’un mot-clé ou d’un caractère « : » à un résultat fiable. Prévoir des fixtures et corrections explicites pour les cas ambigus.
+
+La rareté ne fait pas partie des sept critères retenus. Force, endurance, loyauté et couleurs propres de la carte restent des extensions possibles. Le MVP conserve une seule colonne d’identité couleur pour éviter la redondance. Les couleurs propres (`colors`) ne se déduisent pas non plus uniquement du coût de mana. Les états doivent être compréhensibles par texte ou icônes, sans dépendre uniquement de la couleur.
+
+### Illustration et première impression
+
+La miniature montre l’artwork standard (normal) de la première impression standard historique de la carte, et non celui de la plus ancienne impression actuellement importée. La recherche de cette référence doit pouvoir dépasser les quatre types d’éditions du catalogue jouable : une restriction de sélection ne doit pas fausser l’histoire de la carte.
+
+Exclure les traitements spéciaux : alternate art, showcase, borderless et extended art. Ne pas confondre le layout `normal` (structure de carte) ou le format d’image `normal` avec un artwork standard. Déterminer la variante à partir des métadonnées d’impression et prévoir une sélection manuelle pour les cas ambigus. Si la toute première parution ne comporte aucun art standard, garder sa date et son édition historiques pour les indices, mais utiliser le premier art standard disponible ultérieurement et conserver ces deux références distinctes. Ne jamais utiliser silencieusement un special art en remplacement.
+
+Si plusieurs impressions standard ou illustrations standard existent à la même première date, sélectionner une référence de façon déterministe et conserver son identifiant. Proposition technique à confirmer : préférence pour une impression anglaise avec image disponible parmi les impressions de cette date, puis départage stable par identifiant. Une absence d’image doit produire une miniature de remplacement explicite ; ne pas présenter silencieusement une réimpression comme la première. Les règles de jeu utilisent les caractéristiques normalisées actuelles, tandis que la date et l’édition proviennent de la première sortie historique et l’artwork de la première impression standard.
+
+### Modes visuels prévus après le mode classique
+
+- **Illustration zoomée** : cadrage initial fixe puis dézoom progressif après chaque proposition incorrecte acceptée, jusqu’à l’illustration entière.
+- **Illustration floutée** : diminution progressive du flou après chaque proposition incorrecte acceptée, jusqu’à une illustration nette.
+
+Utiliser uniquement l’illustration, sans nom ni autres zones de la carte donnant directement la réponse. Dans ces modes, la recherche ne montre aucune vignette. L’artwork de référence reste le premier artwork standard ; un remplacement nécessaire doit être défini explicitement. Les essais restent illimités une fois l’image entièrement révélée. Les paliers de dézoom et de flou restent à régler par des essais de jeu ; les sept critères ne sont affichés que dans le mode classique.
+
+Chaque mode possède son défi et sa progression indépendants. La règle de non-répétition des cartes et la reprise après rechargement sont communes. L’indice supplémentaire à dix erreurs est prévu pour le mode classique ; son utilité dans les modes visuels reste à décider. Les modes visuels ne doivent pas livrer la réponse dans les noms de fichiers ou métadonnées : prévoir des images transformées servies par des identifiants opaques plutôt qu’un simple filtre CSS sur l’image source complète.
 
 ### Sauvegarde et statistiques
 
 Créer une session de jeu anonyme, identifiée par un cookie opaque, et conserver côté serveur les propositions et le résultat de chaque défi. Le navigateur peut garder un cache pour améliorer la reprise ; le serveur reste l’autorité sur les essais et la victoire.
 
-Afficher : parties terminées, victoires, taux de victoire, série quotidienne actuelle et record, répartition du nombre d’essais gagnants. Une défaite ou une journée manquée interrompt la série ; une simple visite ne compte pas comme partie terminée. Un résultat ne doit être compté qu’une fois. Les statistiques restent liées au navigateur tant qu’aucun compte n’existe et peuvent être perdues si son identifiant est effacé.
+Afficher : parties terminées, victoires, taux de victoire, série quotidienne actuelle et record, répartition du nombre d’essais gagnants. Un abandon ou une journée manquée interrompt la série ; une simple visite ne compte pas comme partie terminée. Un résultat ne doit être compté qu’une fois. Les statistiques restent liées au navigateur tant qu’aucun compte n’existe et peuvent être perdues si son identifiant est effacé.
 
 ## 3. Architecture
 
@@ -82,17 +115,19 @@ Les parties doivent fonctionner avec les données déjà importées lorsque Scry
 
 Les routes de jeu ci-dessous sont des contrats proposés, à compléter dans Swagger. Les routes d’import existent déjà en partie, mais doivent devenir réservées à l’administration.
 
-| Méthode et route proposée                         | Responsabilité                                                                                                  |
-| ------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
-| `GET /game/today`                                 | Identifiant du défi, date, limite d’essais, expiration et état de la session ; aucune réponse anticipée.        |
-| `GET /playable-cards`                             | Noms et identifiants autorisés, illustrations éventuelles ; filtrage serveur à ajouter si le catalogue grandit. |
-| `POST /game/:gameId/guesses`                      | Corps `{ cardId, requestId }` ; validation et enregistrement d’un essai, retour des indices et du nouvel état.  |
-| `POST /game/:gameId/abandon`                      | Termine la partie et autorise la révélation.                                                                    |
-| `GET /stats/me`                                   | Statistiques de la session anonyme.                                                                             |
-| `GET /health`                                     | État de l’application et des dépendances ; distinguer la disponibilité du jeu de celle de l’import Scryfall.    |
-| Routes d’administration d’import et de génération | Lancer un traitement et consulter son bilan ; accès protégé.                                                    |
+| Méthode et route proposée                         | Responsabilité                                                                                                           |
+| ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `GET /game/today`                                 | Identifiant du défi, date, mode, seuil et état de l’indice, expiration et état de la session ; aucune réponse anticipée. |
+| `GET /playable-cards`                             | Noms et identifiants autorisés, illustrations éventuelles ; filtrage serveur à ajouter si le catalogue grandit.          |
+| `POST /game/:gameId/guesses`                      | Corps `{ cardId, requestId }` ; validation et enregistrement d’un essai, retour des indices et du nouvel état.           |
+| `POST /game/:gameId/abandon`                      | Termine la partie et autorise la révélation.                                                                             |
+| `GET /stats/me`                                   | Statistiques de la session anonyme.                                                                                      |
+| `GET /health`                                     | État de l’application et des dépendances ; distinguer la disponibilité du jeu de celle de l’import Scryfall.             |
+| Routes d’administration d’import et de génération | Lancer un traitement et consulter son bilan ; accès protégé.                                                             |
 
-La soumission doit vérifier l’existence du défi, son état, l’appartenance de la carte au catalogue et les doublons. Un même `requestId` rejoué renvoie le même résultat. Une transaction empêche deux soumissions concurrentes de dépasser la limite. Prévoir des erreurs stables : 400 invalide, 404 introuvable, 409 conflit ou partie terminée, 429 limitation de débit. Documenter précisément la réponse à chaque cas.
+La soumission doit vérifier l’existence du défi, son état, l’appartenance de la carte au catalogue et les doublons. Un même `requestId` rejoué renvoie le même résultat. Une transaction et une contrainte unique sur participation/carte logique empêchent deux soumissions concurrentes de compter la même carte deux fois. L’activation de l’indice est également idempotente et vérifie le seuil de dix erreurs. Prévoir des erreurs stables : 400 invalide, 404 introuvable, 409 conflit ou partie terminée, 429 limitation de débit. Documenter précisément la réponse à chaque cas.
+
+Ajouter `POST /game/:gameId/hint` pour activer l’aide et retourner son résultat persistant. Le catalogue sélectionnable exclut les propositions précédentes et les cartes retirées par l’indice. La lecture du défi accepte un mode et restitue la progression correspondante.
 
 ## 5. Base de données
 
@@ -112,7 +147,9 @@ La soumission doit vérifier l’existence du défi, son état, l’appartenance
 
 Ajouter une identité logique de carte, distincte de l’impression Scryfall, par exemple en conservant son `oracle_id` lorsque disponible. Lier le catalogue jouable à cette identité et à une impression de référence.
 
-Compléter les défis par un identifiant stable, une date unique, une échéance et une version des règles. Ajouter une session anonyme, une participation unique par couple session/défi, et les essais ordonnés associés. Les essais stockent la proposition, la date et la clé d’idempotence ; les statistiques sont calculées depuis ces données ou des agrégats reproductibles.
+Compléter les défis par un identifiant stable, une unicité par couple date/mode, une échéance et une version des règles. Ajouter une session anonyme, une participation unique par couple session/défi, et les essais ordonnés associés. Les essais stockent la proposition, la date et la clé d’idempotence ; les statistiques, distinguées par mode et avec/sans indice, sont calculées depuis ces données ou des agrégats reproductibles.
+
+Conserver la première date historique, la référence d’impression et d’illustration, les mots-clés normalisés et le statut de capacité activée. Persister le nombre d’erreurs, le déblocage et l’utilisation de l’indice, les cartes retirées et la progression visuelle. Une actualisation du catalogue ne modifie pas ces références pendant un défi.
 
 Prévoir des clés étrangères, contraintes d’unicité et index sur les recherches fréquentes. Utiliser des entiers adaptés pour les rangs et compteurs. Garantir la conservation de l’historique lors des mises à jour du catalogue. Les migrations doivent recréer le schéma depuis une base vide ; désactiver la synchronisation automatique et la suppression du schéma en production.
 
@@ -131,16 +168,18 @@ Prévoir un rattrapage si l’application était arrêtée à l’heure de gén�
 
 ## 7. Méthodologie de test et recette
 
-| Niveau                 | Cas prioritaires                                                                                                                                          |
-| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Tests unitaires        | Comparaisons exactes/partielles, incolore, types multiples, valeurs mana ; victoire, limite, abandon ; calcul des séries et statistiques.                 |
-| Intégration PostgreSQL | Migrations sur base vide, contraintes, import répété sans doublons, persistance des faces/coûts, transactions et soumissions concurrentes.                |
-| Tests HTTP             | Réponse cachée, UUID invalide, carte hors catalogue, essai répété, partie terminée, double requête identique, administration protégée.                    |
-| Tests d’import         | Petit jeu de données local déterministe, fichier invalide, panne distante, lot partiellement échoué et relance. Simuler Scryfall pour les tests courants. |
-| Tests navigateur       | Recherche au clavier et sur mobile, victoire/défaite, affichage des indices, erreur réseau, rechargement et changement de jour.                           |
-| Automatisation         | Installation reproductible, contrôles TypeScript, lint sans modification, tests et builds en intégration continue.                                        |
+| Niveau                 | Cas prioritaires                                                                                                                                                                                                                                                                  |
+| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Tests unitaires        | Comparaisons exactes/partielles, identité vide et identité différente des couleurs propres, types multiples, valeurs mana ; victoire, essais illimités, abandon, seuil de dix erreurs, tranches de deux ans, mots-clés et capacités activées ; calcul des séries et statistiques. |
+| Intégration PostgreSQL | Migrations sur base vide, contraintes, import répété sans doublons, persistance des faces/coûts, transactions et soumissions concurrentes.                                                                                                                                        |
+| Tests HTTP             | Réponse cachée, UUID invalide, carte hors catalogue, essai répété, partie terminée, double requête identique, administration protégée.                                                                                                                                            |
+| Tests d’import         | Petit jeu de données local déterministe, fichier invalide, panne distante, lot partiellement échoué et relance. Simuler Scryfall pour les tests courants.                                                                                                                         |
+| Tests navigateur       | Recherche au clavier et sur mobile, victoire/abandon, affichage des indices, erreur réseau, rechargement et changement de jour.                                                                                                                                                   |
+| Automatisation         | Installation reproductible, contrôles TypeScript, lint sans modification, tests et builds en intégration continue.                                                                                                                                                                |
 
 La recette du MVP doit démontrer qu’un joueur peut terminer une partie, la retrouver après rechargement et consulter des statistiques cohérentes. Deux joueurs doivent partager le même défi, leurs essais doivent rester distincts et aucune réponse ne doit être révélée avant la fin. Un redémarrage ou une double exécution du batch ne doit pas changer la carte du jour. Le jeu reste disponible en cas de panne Scryfall avec un catalogue déjà alimenté.
+
+Compléter la recette avec : carte proposée indisponible après rechargement ; doublon simultané compté une seule fois ; aide indisponible à neuf erreurs et disponible à dix ; réduction conservant toujours la cible et stable après rechargement ; bornes 2001/2002 ; référence historique absente du catalogue initial ; images multiples à la première date ; texte d’ambiance absent ou contenant le nom. Pour les modes visuels, vérifier des paliers monotones, la reprise exacte de la progression et l’absence de miniatures dans les suggestions.
 
 ## 8. Ordre de réalisation
 
@@ -149,5 +188,12 @@ La recette du MVP doit démontrer qu’un joueur peut terminer une partie, la re
 3. Brancher l’interface complète et la reprise de session.
 4. Ajouter les statistiques et le partage.
 5. Fiabiliser les imports, protéger l’administration et valider la recette avant publication.
+6. Ajouter les modes zoom et flou sur le socle commun de sessions et de propositions.
 
-Décisions produit à confirmer : dix essais ou un autre format, fuseau de renouvellement, noms anglais ou français, pertinence du catalogue orienté Commander et durée d’exclusion des réponses récentes. Pour limiter le travail initial, les noms anglais et les cartes simples déjà importables constituent une base cohérente.
+Décisions restant à confirmer : fuseau de renouvellement, noms anglais ou français, pertinence du catalogue orienté Commander, durée d’exclusion des réponses récentes, départage des premières impressions simultanées, variante lore et paliers des modes visuels. Pour limiter le travail initial, les noms anglais et les cartes simples déjà importables constituent une base cohérente.
+
+## 9. Tests navigateur Playwright
+
+La suite `test/browser` utilise Playwright avec Chromium desktop et mobile. Elle lance un serveur Vite dédié et simule les appels API : aucune écriture dans PostgreSQL ni appel réel à Scryfall. Commandes : `npm run test:browser` et `npm run test:browser:ui`. Installer Chromium avec `npx playwright install chromium`. Traces et captures sont conservées en cas d’échec.
+
+Les premiers scénarios couvrent recherche, soumission par clic et clavier, catalogue vide, navigation 404 et thème. Ajouter avec le moteur de jeu : doublons persistants, dixième erreur et indice, identité couleur différente des couleurs propres, premier artwork standard, reprise et modes visuels. Les mocks valident le front ; les contrats HTTP et tests SQL restent complémentaires.
