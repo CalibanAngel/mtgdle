@@ -15,6 +15,7 @@ import type {
 import {
   compareCard,
   HINT_THRESHOLD,
+  HINT_THRESHOLDS,
   nextMidnight,
   parisDay,
 } from './classic.rules';
@@ -58,14 +59,18 @@ export class ClassicStore {
     hintKind: HintKind = 'reduce',
   ): Promise<ClassicState> {
     if (day !== parisDay())
-      throw new ConflictException(
-        'Ce défi est terminé. Charge le nouveau défi.',
-      );
+      throw new ConflictException({
+        code: 'errorExpired',
+        message: 'Ce défi est terminé. Charge le nouveau défi.',
+      });
     return this.db.transaction(async (manager) => {
       const daily = await this.daily(manager, day);
       const progress = await this.progress(manager, day, session);
       if (day !== parisDay())
-        throw new ConflictException('Le défi a changé. Recharge la page.');
+        throw new ConflictException({
+          code: 'errorExpired',
+          message: 'Le défi a changé. Recharge la page.',
+        });
       if (
         action === 'guess' &&
         progress.guesses.some((g) => g.requestId === requestId)
@@ -74,9 +79,10 @@ export class ClassicStore {
           (g) => g.requestId === requestId,
         )!;
         if (original.card.id !== cardId)
-          throw new ConflictException(
-            'Cette requête correspond à une autre carte.',
-          );
+          throw new ConflictException({
+            code: 'errorRequest',
+            message: 'Cette requête correspond à une autre carte.',
+          });
         return this.present(daily, progress);
       }
       const hintUsed =
@@ -89,38 +95,49 @@ export class ClassicStore {
       if (action === 'abandon' && progress.status === 'abandoned')
         return this.present(daily, progress);
       if (progress.status !== 'playing')
-        throw new ConflictException('Cette partie est déjà terminée.');
+        throw new ConflictException({
+          code: 'errorFinished',
+          message: 'Cette partie est déjà terminée.',
+        });
       const target = daily.cards.find((card) => card.id === daily.answer_id)!;
       if (action === 'guess') {
         const card = daily.cards.find((c) => c.id === cardId);
         if (!card)
-          throw new NotFoundException(
-            'Cette carte ne fait pas partie du défi.',
-          );
+          throw new NotFoundException({
+            code: 'errorCard',
+            message: 'Cette carte ne fait pas partie du défi.',
+          });
         if (
           progress.guesses.some((g) => g.card.id === cardId) ||
           progress.removed.includes(card.id)
         )
-          throw new ConflictException('Cette carte ne peut plus être choisie.');
+          throw new ConflictException({
+            code: 'errorDuplicate',
+            message: 'Cette carte ne peut plus être choisie.',
+          });
         const guess = compareCard(card, target, requestId!);
         progress.guesses.push(guess);
         if (guess.won) progress.status = 'won';
       } else if (action === 'hint') {
-        const threshold =
-          hintKind === 'reduce' ? 10 : hintKind === 'art' ? 20 : 30;
+        const threshold = HINT_THRESHOLDS[hintKind];
         if (progress.guesses.length < threshold)
-          throw new ConflictException(
-            `Cet indice se débloque après ${threshold} erreurs.`,
-          );
+          throw new ConflictException({
+            code: 'errorHint',
+            message: `Cet indice se débloque après ${threshold} erreurs.`,
+          });
         if (hintKind === 'art') {
           if (!target.artCrop)
-            throw new ConflictException(
-              'Illustration indisponible pour cette carte.',
-            );
+            throw new ConflictException({
+              code: 'errorArt',
+              message: 'Illustration indisponible pour cette carte.',
+            });
           progress.art_used = true;
         } else if (hintKind === 'text') {
           if (target.oracleText === undefined || target.oracleText === null)
-            throw new ConflictException('Texte de règles indisponible.');
+            throw new ConflictException({
+              code: 'errorText',
+              message: 'Texte de règles indisponible.',
+            });
           progress.text_used = true;
         } else {
           const remaining = daily.cards.filter(
@@ -129,9 +146,10 @@ export class ClassicStore {
           const removable = remaining.filter((c) => c.id !== target.id);
           const count = Math.floor(remaining.length / 2);
           if (!count)
-            throw new ConflictException(
-              'Il ne reste pas assez de cartes à retirer.',
-            );
+            throw new ConflictException({
+              code: 'errorChoices',
+              message: 'Il ne reste pas assez de cartes à retirer.',
+            });
           for (let i = removable.length - 1; i > 0; i--) {
             const j = randomInt(i + 1);
             [removable[i], removable[j]] = [removable[j], removable[i]];
@@ -163,9 +181,16 @@ export class ClassicStore {
       const daily = await this.daily(manager, day);
       const progress = await this.progress(manager, day, session);
       if (!progress.art_used)
-        throw new ConflictException('Débloque d’abord l’indice illustration.');
+        throw new ConflictException({
+          code: 'errorHint',
+          message: 'Débloque d’abord l’indice illustration.',
+        });
       const source = daily.cards.find((c) => c.id === daily.answer_id)?.artCrop;
-      if (!source) throw new NotFoundException('Illustration indisponible.');
+      if (!source)
+        throw new NotFoundException({
+          code: 'errorArt',
+          message: 'Illustration indisponible.',
+        });
       return source;
     });
   }
@@ -213,9 +238,10 @@ export class ClassicStore {
       'SELECT data FROM classic_catalogue ORDER BY id',
     );
     if (!rows.length)
-      throw new ServiceUnavailableException(
-        'Le catalogue de jeu doit être préparé.',
-      );
+      throw new ServiceUnavailableException({
+        code: 'errorCatalogue',
+        message: 'Le catalogue de jeu doit être préparé.',
+      });
     const cards = rows.map((row) => row.data);
     await manager.query(
       'INSERT INTO classic_daily(day, answer_id, cards) VALUES ($1,$2,$3::jsonb) ON CONFLICT DO NOTHING',
@@ -228,7 +254,11 @@ export class ClassicStore {
       'SELECT day, answer_id, cards FROM classic_daily WHERE day=$1',
       [day],
     );
-    if (!rows[0]) throw new NotFoundException('Défi introuvable.');
+    if (!rows[0])
+      throw new NotFoundException({
+        code: 'errorChallenge',
+        message: 'Défi introuvable.',
+      });
     return rows[0];
   }
 
@@ -287,7 +317,7 @@ export class ClassicStore {
                 previewImage,
               }))
           : [],
-      hints: (['reduce', 'art', 'text'] as const).map((kind, i) => {
+      hints: (['reduce', 'art', 'text'] as const).map((kind) => {
         const used =
           kind === 'reduce'
             ? progress.hint_used
@@ -303,12 +333,12 @@ export class ClassicStore {
               : target.oracleText != null;
         return {
           kind,
-          threshold: (i + 1) * 10,
+          threshold: HINT_THRESHOLDS[kind],
           used,
           available:
             supported &&
             progress.status === 'playing' &&
-            progress.guesses.length >= (i + 1) * 10 &&
+            progress.guesses.length >= HINT_THRESHOLDS[kind] &&
             !used,
           ...(kind === 'art' && used ? { hasImage: true } : {}),
           ...(kind === 'text' && used

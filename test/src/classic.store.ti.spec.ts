@@ -151,7 +151,7 @@ integration('Classic persistence (dedicated PostgreSQL)', () => {
     expect((await store.state(session)).status).toBe('abandoned');
     await expect(store.act('2000-01-01', session, 'hint')).rejects.toThrow();
   });
-  it('gates illustration and text independently at 20 and 30 errors, without exposing private data', async () => {
+  it('gates illustration and text independently at 15 and 20 errors, without exposing private data', async () => {
     const initial = await store.state(session);
     const target = await answer();
     const wrong = cards.filter((c) => c.id !== target);
@@ -159,12 +159,12 @@ integration('Classic persistence (dedicated PostgreSQL)', () => {
     expect(JSON.stringify(initial)).not.toContain('art_crop');
     expect(JSON.stringify(initial)).not.toContain('deals 2 damage');
     await expect(store.artSource(initial.day, session)).rejects.toThrow();
-    for (const card of wrong.slice(0, 19))
+    for (const card of wrong.slice(0, 14))
       await store.act(initial.day, session, 'guess', card.id, randomUUID());
     await expect(
       store.act(initial.day, session, 'hint', undefined, undefined, 'art'),
     ).rejects.toThrow();
-    await store.act(initial.day, session, 'guess', wrong[19].id, randomUUID());
+    await store.act(initial.day, session, 'guess', wrong[14].id, randomUUID());
     const art = await store.act(
       initial.day,
       session,
@@ -189,12 +189,12 @@ integration('Classic persistence (dedicated PostgreSQL)', () => {
       ),
     ).toEqual(art);
     await expect(store.artSource(initial.day, randomUUID())).rejects.toThrow();
-    for (const card of wrong.slice(20, 29))
+    for (const card of wrong.slice(15, 19))
       await store.act(initial.day, session, 'guess', card.id, randomUUID());
     await expect(
       store.act(initial.day, session, 'hint', undefined, undefined, 'text'),
     ).rejects.toThrow();
-    await store.act(initial.day, session, 'guess', wrong[29].id, randomUUID());
+    await store.act(initial.day, session, 'guess', wrong[19].id, randomUUID());
     const revealed = await store.act(
       initial.day,
       session,

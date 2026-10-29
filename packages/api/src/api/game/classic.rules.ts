@@ -1,6 +1,7 @@
 import type { ClassicCard, ClassicGuess, Match } from '@mtgdle/shared-types';
 
 export const HINT_THRESHOLD = 10;
+export const HINT_THRESHOLDS = { reduce: 10, art: 15, text: 20 } as const;
 
 export function matchSet(proposal: string[], target: string[]): Match {
   const a = new Set(proposal);

@@ -109,7 +109,10 @@ export class ClassicController {
       url.hostname !== 'cards.scryfall.io' ||
       !url.pathname.startsWith('/art_crop/')
     )
-      throw new ServiceUnavailableException('Illustration indisponible.');
+      throw new ServiceUnavailableException({
+        code: 'errorArt',
+        message: 'Illustration indisponible.',
+      });
     try {
       const image = await fetch(url, {
         redirect: 'error',
@@ -132,9 +135,11 @@ export class ClassicController {
       res.setHeader('Cache-Control', 'no-store');
       res.type(type).send(data);
     } catch {
-      throw new ServiceUnavailableException(
-        'Impossible de charger l’illustration. Réessaie dans un instant.',
-      );
+      throw new ServiceUnavailableException({
+        code: 'errorArt',
+        message:
+          'Impossible de charger l’illustration. Réessaie dans un instant.',
+      });
     }
   }
 

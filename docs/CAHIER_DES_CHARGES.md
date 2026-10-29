@@ -31,7 +31,7 @@ Les comptes utilisateurs, classements, archives jouables et mode « texte de car
 3. Le serveur valide la carte et renvoie les comparaisons avec la réponse du jour.
 4. Le tableau conserve les essais dans leur ordre de soumission et explique les indices.
 5. La bonne carte déclenche la victoire. Les essais sont illimités : aucune défaite automatique après un nombre d’essais donné. Un abandon explicite reste possible.
-6. Trois indices facultatifs se débloquent après 10, 20 et 30 propositions incorrectes distinctes acceptées par le serveur.
+6. Trois indices facultatifs se débloquent après 10, 15 et 20 propositions incorrectes distinctes acceptées par le serveur.
 7. Le résultat indique le nombre d’essais et l’utilisation éventuelle d’un indice, permet le partage et annonce le prochain défi.
 
 Une carte acceptée comme proposition ne peut plus être choisie dans cette partie : elle disparaît des suggestions et le serveur refuse toute nouvelle soumission de la même identité logique, même sous une autre impression. Cette exclusion persiste après rechargement et s’applique aussi aux modes visuels. Une requête invalide, un doublon ou une erreur réseau ne consomme pas d’essai. Une requête dont la réponse réseau est perdue est rejouée avec la même clé d’idempotence pour retrouver l’essai enregistré sans le compter deux fois.
@@ -43,8 +43,8 @@ Après victoire ou abandon, les nouvelles propositions sont refusées. Un défi 
 Le déblocage est automatique, son utilisation volontaire et gratuite en essais. Chaque palier est indépendant : le joueur peut ignorer un indice. Le serveur conserve les indices révélés et leur résultat ; recharger la page ne permet pas de tirer un nouvel indice.
 
 - **Indice initial retenu : réduction des choix.** Lors de l’activation, retirer aléatoirement la moitié des cartes encore sélectionnables (arrondi à l’entier inférieur), sans jamais retirer la réponse. Les cartes déjà jouées ne participent pas au calcul. Le retrait est définitif pour cette partie uniquement et contrôlé côté serveur. Si une seule carte reste sélectionnable, aucune réduction n’est possible ; l’interface le signale sans enregistrer une utilisation fictive.
-- **Indice 2, après 20 erreurs : illustration seule.** Afficher l’art crop de l’artwork standard de référence, sans cadre, titre ni caractéristiques. L’API vérifie la session et le palier avant de servir les pixels, sans exposer l’URL ou l’identifiant Scryfall de la réponse. Une indisponibilité réseau permet de réessayer.
-- **Indice 3, après 30 erreurs : texte de règles.** Afficher le corps du texte Oracle, pas le texte d’ambiance. Masquer le nom de la carte et sa forme courte légendaire lorsqu’ils apparaissent. Si la carte n’a aucun texte de règles, l’indiquer. Le texte reste absent des réponses API avant activation.
+- **Indice 2, après 15 erreurs : illustration seule.** Afficher l’art crop de l’artwork standard de référence, sans cadre, titre ni caractéristiques. L’API vérifie la session et le palier avant de servir les pixels, sans exposer l’URL ou l’identifiant Scryfall de la réponse. Une indisponibilité réseau permet de réessayer.
+- **Indice 3, après 20 erreurs : texte de règles.** Afficher le corps du texte Oracle, pas le texte d’ambiance. Masquer le nom de la carte et sa forme courte légendaire lorsqu’ils apparaissent. Si la carte n’a aucun texte de règles, l’indiquer. Le texte reste absent des réponses API avant activation.
 
 Le texte d’ambiance (lore) reste une variante éventuelle, distincte du troisième indice.
 
@@ -215,3 +215,11 @@ Les sélections sont mutuellement exclusives. Voir [les conventions de tests](..
 Conserver le cadre et la typographie évoquant une carte Magic. L’en-tête se limite au nom du jeu, au mode et au compteur. Retirer le slogan, le paragraphe introductif et les badges descriptifs. Les trois indices sont regroupés au-dessus du champ de recherche ; les règles détaillées restent repliées.
 
 Les suggestions montrent des miniatures plus grandes, avec un aperçu agrandi après un court survol. La carte sélectionnée et chaque carte jouée dans l’historique sont visibles et peuvent être ouvertes en grand par clic ou toucher ; la fenêtre est accessible au clavier et se ferme avec Échap ou son bouton de fermeture.
+
+### Cadre de carte et langues
+
+La page de jeu utilise un cadre inspiré d’une carte Magic : barre de nom, commandes rondes (langue, GitHub et thème), fenêtre de jeu, barre de type « Jeu — Devinette » / « Game — Guess », encart de règles pour l’historique et compteur en bas à droite. Le header extérieur et le footer du starter sont supprimés sur cette page. Les crédits Scryfall et Wizards of the Coast renvoient vers leurs sites officiels.
+
+L’interface dispose de dictionnaires français et anglais typés, avec bouton EN/FR et préférence locale mémorisée. Les boutons, erreurs, règles, résultats partagés, aperçus et pages annexes sont traduits. Les noms des cartes, textes Oracle, types et mots-clés provenant de Scryfall restent ceux du catalogue anglais. Changer de langue ou de thème ne réinitialise pas la session de jeu. Les erreurs de l’API utilisent des codes stables pour être traduites côté client.
+
+Le cadre visuel s’inspire désormais d’Omnath : structure dorée multicolore, barres de nom et de type dorées, encart de règles ivoire et touches rouge/verte/bleue dans la fenêtre de jeu. La bordure extérieure est blanche en mode clair et noire en mode sombre ; le choix de thème reste indépendant de la langue et de la progression.

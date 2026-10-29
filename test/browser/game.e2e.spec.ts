@@ -48,7 +48,7 @@ const test = base.extend<{ server: Server }>({
         hint: { available: false, used: false, removed: 0 },
         hints: ['reduce', 'art', 'text'].map((kind, index) => ({
           kind: kind as 'reduce' | 'art' | 'text',
-          threshold: (index + 1) * 10,
+          threshold: [10, 15, 20][index],
           used: false,
           available: false,
         })),
@@ -253,20 +253,15 @@ test('unknown URLs return to the game from the not-found page', async ({
 }) => {
   await page.goto('/missing-page');
   await expect(
-    page.getByRole('heading', { name: '404 - Not Found' }),
+    page.getByRole('heading', { name: '404 - Page introuvable' }),
   ).toBeVisible();
-  await page.getByRole('link', { name: 'Go to Home' }).click();
+  await page.getByRole('link', { name: 'Retour au jeu' }).click();
   await expect(page.getByRole('combobox')).toBeVisible();
 });
 
-test('desktop theme remains keyboard accessible', async ({
+test('theme remains keyboard accessible on every viewport', async ({
   page,
-  isMobile,
 }) => {
-  test.skip(
-    isMobile,
-    'The current mobile navigation does not expose the theme switch.',
-  );
   await page.goto('/');
   const toggle = page.getByRole('switch');
   const wasChecked = await toggle.isChecked();
@@ -320,7 +315,7 @@ test('illustration and masked rules text remain revealed after reload', async ({
 }) => {
   server.state.guesses = cards
     .filter((c) => c.id !== cards[23].id)
-    .slice(0, 20)
+    .slice(0, 15)
     .map((card, i) => ({
       card,
       requestId: `seed-${i}`,
@@ -331,7 +326,7 @@ test('illustration and masked rules text remain revealed after reload', async ({
     (c) => !server.state.guesses.some((g) => g.card.id === c.id),
   );
   server.state.hints.forEach((h) => {
-    h.available = h.threshold <= 20;
+    h.available = h.threshold <= 15;
   });
   await page.goto('/');
   const art = page.getByRole('button', {
@@ -353,7 +348,7 @@ test('illustration and masked rules text remain revealed after reload', async ({
   ).toBeVisible();
   server.state.guesses = cards
     .filter((c) => c.id !== cards[23].id)
-    .slice(0, 30)
+    .slice(0, 20)
     .map((card, i) => ({
       card,
       requestId: `seed-${i}`,
@@ -374,4 +369,119 @@ test('illustration and masked rules text remain revealed after reload', async ({
       exact: true,
     }),
   ).toBeVisible();
+});
+
+test('English translation persists without resetting the game', async ({
+  page,
+}) => {
+  await page.goto('/');
+  await select(page);
+  await page.getByRole('button', { name: 'Proposer', exact: true }).click();
+  await expect(
+    page.getByRole('rowheader').filter({ hasText: 'Path to Exile' }),
+  ).toBeVisible();
+  await page.getByRole('button', { name: 'Passer en anglais' }).click();
+  await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+  await expect(
+    page.getByRole('heading', { name: 'Game — Guess' }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole('button', { name: 'Hint 2: Artwork', exact: true }),
+  ).toContainText('15 wrong guesses');
+  await expect(
+    page.getByRole('button', { name: 'Hint 3: Rules text', exact: true }),
+  ).toContainText('20 wrong guesses');
+  await expect(
+    page.getByRole('columnheader', { name: 'Color identity', exact: true }),
+  ).toBeVisible();
+  await page.reload();
+  await expect(
+    page.getByRole('heading', { name: 'Game — Guess' }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole('rowheader').filter({ hasText: 'Path to Exile' }),
+  ).toBeVisible();
+  await page.getByRole('button', { name: 'Switch to French' }).click();
+  await expect(page.locator('html')).toHaveAttribute('lang', 'fr');
+  await expect(
+    page.getByRole('heading', { name: 'Jeu — Devinette' }),
+  ).toBeVisible();
+});
+
+test('card frame contains controls and partner links without an outer header', async ({
+  page,
+}) => {
+  await page.goto('/');
+  await expect(page.getByRole('navigation')).toHaveCount(0);
+  const top = page.locator('.classic-topbar');
+  await expect(
+    top.getByRole('link', { name: 'GitHub', exact: true }),
+  ).toHaveAttribute('href', 'https://github.com/CalibanAngel/mtgdle');
+  await expect(top.getByRole('switch')).toBeVisible();
+  await expect(
+    top.getByRole('link', { name: 'Scryfall', exact: true }),
+  ).toHaveCount(0);
+  await expect(
+    page.getByRole('link', { name: 'Scryfall', exact: true }),
+  ).toHaveAttribute('href', 'https://scryfall.com');
+  await expect(
+    page.getByRole('link', { name: 'Wizards of the Coast', exact: true }),
+  ).toHaveAttribute('href', 'https://magic.wizards.com');
+  await expect(page.getByText('Powered by')).toHaveCount(0);
+});
+
+test('English errors, previews and confirmation are translated', async ({
+  page,
+}) => {
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Passer en anglais' }).click();
+  await page.route('**/classic/*/guesses', (route) =>
+    route.fulfill({
+      status: 409,
+      json: { code: 'errorExpired', message: 'Ce défi est terminé.' },
+    }),
+  );
+  await select(page);
+  await page
+    .getByRole('button', { name: 'Enlarge Path to Exile', exact: true })
+    .click();
+  await expect(
+    page.getByRole('dialog', { name: 'Preview: Path to Exile' }),
+  ).toBeVisible();
+  await page.getByRole('button', { name: 'Close preview' }).click();
+  await page.getByRole('button', { name: 'Guess', exact: true }).click();
+  await expect(page.getByRole('alert')).toContainText(
+    'This challenge has ended.',
+  );
+  await page
+    .getByRole('button', { name: 'Give up and reveal the card' })
+    .click();
+  await expect(
+    page.getByRole('button', { name: 'Confirm giving up' }),
+  ).toBeVisible();
+});
+
+test('Omnath frame uses a white border in light mode and a black border in dark mode', async ({
+  page,
+}, testInfo) => {
+  await page.goto('/');
+  const theme = page.getByRole('switch');
+  if (!(await theme.isChecked())) await theme.press('Space');
+  await expect(page.locator('.classic-game')).toHaveCSS(
+    'border-top-color',
+    'rgb(255, 255, 255)',
+  );
+  await page.screenshot({
+    path: testInfo.outputPath('omnath-light.png'),
+    fullPage: true,
+  });
+  await theme.press('Space');
+  await expect(page.locator('.classic-game')).toHaveCSS(
+    'border-top-color',
+    'rgb(8, 8, 8)',
+  );
+  await page.screenshot({
+    path: testInfo.outputPath('omnath-dark.png'),
+    fullPage: true,
+  });
 });

@@ -6,7 +6,7 @@
 - Recherche parmi 472 cartes logiques, sélection puis confirmation explicite.
 - Sept comparaisons : identité couleur, valeur de mana, types principaux, première édition, tranche de deux ans, mots-clés, présence d’une capacité activée.
 - Essais illimités, sans réutilisation d’une carte. Historique conservé en base et retrouvé via un cookie de session HttpOnly.
-- Trois indices facultatifs et persistants : à 10 erreurs, réduction de moitié des choix en conservant la réponse ; à 20, illustration seule ; à 30, texte de règles avec le nom masqué. Les paliers sont indépendants.
+- Trois indices facultatifs et persistants : à 10 erreurs, réduction de moitié des choix en conservant la réponse ; à 15, illustration seule ; à 20, texte de règles avec le nom masqué. Les paliers sont indépendants.
 - Victoire, abandon confirmé, révélation et copie d’un résultat partageable sans le nom de la réponse.
 - Interface adaptée au mobile avec tableau défilant horizontalement et navigation de recherche au clavier.
 
@@ -89,3 +89,15 @@ Le catalogue et les instantanés quotidiens sont enrichis avec une image de cart
 `GET /classic/:day/art` sert l’illustration après vérification de la session et de l’activation du deuxième indice. Il renvoie uniquement des pixels depuis le domaine Scryfall autorisé, sans redirection ni URL source. Les erreurs réseau n’imposent pas un nouvel indice. Le texte du troisième palier est renvoyé seulement après son activation.
 
 Validation de cette évolution : 27 TU et 16 TI réussis (dont la base PostgreSQL dédiée et le proxy d’image simulé), 21 tests Playwright réussis et un contrôle de thème mobile ignoré. Contrôles TypeScript et builds réussis. Vérification visuelle réelle : les six essais existants sont préservés, les miniatures sont visibles et une carte de l’historique s’ouvre en grand.
+
+### Cadre de carte et langues
+
+La page de jeu utilise un cadre inspiré d’une carte Magic : barre de nom, commandes rondes (langue, GitHub et thème), fenêtre de jeu, barre de type « Jeu — Devinette » / « Game — Guess », encart de règles pour l’historique et compteur en bas à droite. Le header extérieur et le footer du starter sont supprimés sur cette page. Les crédits Scryfall et Wizards of the Coast renvoient vers leurs sites officiels.
+
+L’interface dispose de dictionnaires français et anglais typés, avec bouton EN/FR et préférence locale mémorisée. Les boutons, erreurs, règles, résultats partagés, aperçus et pages annexes sont traduits. Les noms des cartes, textes Oracle, types et mots-clés provenant de Scryfall restent ceux du catalogue anglais. Changer de langue ou de thème ne réinitialise pas la session de jeu. Les erreurs de l’API utilisent des codes stables pour être traduites côté client.
+
+Validation de la version bilingue : 27 TU et 16 TI réussis ; les 28 scénarios Playwright sont validés, y compris le thème désormais accessible sur mobile, le changement de langue mémorisé, les erreurs anglaises et les crédits cliquables. Les contrôles TypeScript et les builds passent. Aucun changement de schéma ni réinitialisation des parties n’est nécessaire pour cette évolution.
+
+Le cadre visuel s’inspire désormais d’Omnath : structure dorée multicolore, barres de nom et de type dorées, encart de règles ivoire et touches rouge/verte/bleue dans la fenêtre de jeu. La bordure extérieure est blanche en mode clair et noire en mode sombre ; le choix de thème reste indépendant de la langue et de la progression.
+
+Les deux scénarios Omnath supplémentaires vérifient les couleurs de bordure en clair et sombre, sur ordinateur et mobile : 30 scénarios navigateur sont désormais validés. Le cadre doré et l’encart ivoire restent reconnaissables dans les deux variantes.

@@ -1,3 +1,4 @@
+import { useI18n } from '@/i18n';
 import { useCallback, useRef, useState } from 'react';
 import { Button } from '@heroui/button';
 import { Card, CardBody, CardHeader, CardFooter } from '@heroui/card';
@@ -20,6 +21,7 @@ const getPartStatus = (
 };
 
 export const HealthView = () => {
+  const { t } = useI18n();
   const { data, isFetching, refetch, isError, error } = useHealth();
 
   const [latencyMs, setLatencyMs] = useState<number | null>(null);
@@ -47,25 +49,29 @@ export const HealthView = () => {
   return (
     <Card className="max-w-2xl">
       <CardHeader className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold">Health API</h2>
+        <h2 className="text-xl font-semibold">{t('healthApi')}</h2>
         <Button
-          aria-label="Refresh health"
+          aria-label={t('refresh')}
           color="primary"
           isDisabled={isFetching}
           isLoading={isFetching}
           size="sm"
           onPress={onRefresh}
         >
-          Refresh
+          {t('refresh')}
         </Button>
       </CardHeader>
 
       <CardBody className="flex flex-col gap-3">
         <div className="flex flex-wrap items-center gap-3">
-          <StatusChip isLoading={isFetching} label="Overall" status={overall} />
           <StatusChip
             isLoading={isFetching}
-            label="Database"
+            label={t('overall')}
+            status={overall}
+          />
+          <StatusChip
+            isLoading={isFetching}
+            label={t('database')}
             status={dbStatus}
           />
           <StatusChip
@@ -76,14 +82,14 @@ export const HealthView = () => {
         </div>
 
         <div className="text-sm text-default-600">
-          Latency: {latencyMs != null ? `${latencyMs} ms` : '—'}
+          {t('latency')}: {latencyMs != null ? `${latencyMs} ms` : '—'}
         </div>
       </CardBody>
 
       {isError && (
         <CardFooter>
           <pre className="w-full rounded-medium bg-default-100 p-3 text-xs text-danger-600 overflow-auto">
-            {error?.message ?? 'Failed to load health'}
+            {error?.message ?? t('errorNetwork')}
           </pre>
         </CardFooter>
       )}

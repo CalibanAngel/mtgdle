@@ -1,6 +1,8 @@
 import { createPortal } from 'react-dom';
 import { useEffect, useRef, useState } from 'react';
 
+import { useI18n } from '@/i18n';
+
 export interface PreviewCard {
   name: string;
   image: string | null;
@@ -8,6 +10,7 @@ export interface PreviewCard {
 }
 
 export function useCardViewer() {
+  const { t } = useI18n();
   const [card, setCard] = useState<PreviewCard | null>(null);
   const [hover, setHover] = useState<{
     card: PreviewCard;
@@ -58,12 +61,12 @@ export function useCardViewer() {
         )}
       <dialog
         ref={dialog}
-        aria-label={card ? `Aperçu : ${card.name}` : 'Aperçu de carte'}
+        aria-label={card ? t('preview', { name: card.name }) : t('previewCard')}
         className="classic-card-dialog"
         onClose={() => setCard(null)}
       >
         <button
-          aria-label="Fermer l’aperçu"
+          aria-label={t('closePreview')}
           className="classic-dialog-close"
           onClick={() => dialog.current?.close()}
         >

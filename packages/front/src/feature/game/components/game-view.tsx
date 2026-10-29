@@ -12,6 +12,10 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCardViewer } from './card-viewer';
 
 import { env } from '@/config/env.validation';
+import { useI18n, LanguageSwitch, isTranslationKey } from '@/i18n';
+import { ThemeSwitch } from '@/components/theme-switch';
+import { GithubIcon } from '@/components/icons';
+import { siteConfig } from '@/config/site';
 
 import './classic.css';
 
@@ -30,28 +34,29 @@ async function request(path: string, body?: object): Promise<ClassicState> {
 
   if (!response.ok) {
     const error = (await response.json().catch(() => ({}))) as {
-      message?: string | string[];
+      code?: string;
     };
 
     throw new Error(
-      Array.isArray(error.message)
-        ? error.message.join(', ')
-        : error.message ||
-          'Le serveur est indisponible. Réessaie dans un instant.',
+      error.code && isTranslationKey(error.code)
+        ? error.code
+        : response.status === 400
+          ? 'errorRequest'
+          : 'errorNetwork',
     );
   }
 
   return response.json() as Promise<ClassicState>;
 }
 
-const labels: [Criterion, string][] = [
-  ['identity', 'Identité'],
-  ['mana', 'Mana'],
-  ['types', 'Types'],
-  ['edition', 'Première édition'],
-  ['period', 'Période'],
-  ['keywords', 'Mots-clés'],
-  ['activated', 'Capacité activée'],
+const criteria: Criterion[] = [
+  'identity',
+  'mana',
+  'types',
+  'edition',
+  'period',
+  'keywords',
+  'activated',
 ];
 const symbols: Record<Match, string> = {
   exact: '✓',
@@ -60,39 +65,39 @@ const symbols: Record<Match, string> = {
   higher: '↑',
   lower: '↓',
 };
-const meanings: Record<Match, string> = {
-  exact: 'Correspondance exacte',
-  partial: 'Correspondance partielle',
-  different: 'Différent',
-  higher: 'La cible a une valeur supérieure',
-  lower: 'La cible a une valeur inférieure',
-};
-const colorNames: Record<string, string> = {
-  W: 'Blanc',
-  U: 'Bleu',
-  B: 'Noir',
-  R: 'Rouge',
-  G: 'Vert',
-};
 
-function value(card: ClassicCard, key: Criterion): string {
+function value(
+  card: ClassicCard,
+  key: Criterion,
+  t: ReturnType<typeof useI18n>['t'],
+): string {
+  const colorNames: Record<string, string> = {
+    W: t('white'),
+    U: t('blue'),
+    B: t('black'),
+    R: t('red'),
+    G: t('green'),
+  };
+
   if (key === 'identity')
     return (
-      card.identity.map((c) => colorNames[c] || c).join(' · ') || 'Incolore'
+      card.identity.map((c) => colorNames[c] || c).join(' · ') || t('colorless')
     );
   if (key === 'period') {
     const year = 2 * Math.floor(Number(card.released.slice(0, 4)) / 2);
 
     return `${year}–${year + 1}`;
   }
-  if (key === 'activated') return card.activated ? 'Oui' : 'Non';
+  if (key === 'activated') return card.activated ? t('yes') : t('no');
   if (key === 'types' || key === 'keywords')
-    return card[key].join(' · ') || 'Aucun';
+    return card[key].join(' · ') || t('none');
 
   return String(card[key]);
 }
 
 export const GameView = () => {
+  const { t } = useI18n();
+  const labels = criteria.map((key) => [key, t(key)] as [Criterion, string]);
   const client = useQueryClient();
   const viewer = useCardViewer();
   const [artError, setArtError] = useState(false);
@@ -150,7 +155,9 @@ export const GameView = () => {
       pending.current = null;
     } catch (e) {
       setError(
-        e instanceof Error ? e.message : 'Erreur réseau. Tu peux réessayer.',
+        e instanceof Error && isTranslationKey(e.message)
+          ? e.message
+          : 'errorNetwork',
       );
       // Refresh authoritative choices, retaining the request ID for a lost response.
       void client.invalidateQueries({ queryKey: ['classic'] });
@@ -179,63 +186,74 @@ export const GameView = () => {
 
     try {
       await navigator.clipboard.writeText(
-        `MTGdle · ${state.day}\n${state.guesses.length} essai(s) · ${state.status === 'won' ? 'Trouvé !' : 'Abandon'}${state.hints.some((h) => h.used) ? ' · avec indice' : ''}\n${lines.join('\n')}`,
+        `MTGdle · ${state.day}\n${t('shareResult', { count: state.guesses.length, result: t(state.status === 'won' ? 'shareWon' : 'shareAbandoned'), hint: state.hints.some((h) => h.used) ? t('withHint') : '' })}\n${lines.join('\n')}`,
       );
       setCopied(true);
     } catch {
-      setError('Le partage nécessite l’accès au presse-papiers.');
+      setError('errorClipboard');
     }
   }
 
   const chosen = choices.find((c) => c.id === selected);
   const hintLabels: Record<HintKind, string> = {
-    reduce: 'Réduire les choix',
-    art: 'Illustration',
-    text: 'Texte de règles',
+    reduce: t('reduce'),
+    art: t('art'),
+    text: t('text'),
   };
   const artUrl = state ? `${env.API_URL}/classic/${state.day}/art` : '';
 
   return (
     <div className="classic-game">
       <header className="classic-topbar">
-        <h1>
-          MTGdle <span>Classique</span>
-        </h1>
-        <output
-          aria-label={`${state?.guesses.length || 0} essais`}
-          title="Nombre d’essais"
-        >
-          {state?.guesses.length || 0}
-        </output>
+        <h1>MTGdle</h1>
+        <div className="classic-mana-cost">
+          <LanguageSwitch />
+          <a
+            aria-label="GitHub"
+            className="classic-mana-control"
+            href={siteConfig.links.github}
+            rel="noopener noreferrer"
+            target="_blank"
+            title="GitHub"
+          >
+            <GithubIcon size={20} />
+          </a>
+          <span className="classic-mana-control classic-theme-control">
+            <ThemeSwitch />
+          </span>
+        </div>
       </header>
       {game.isPending && (
         <p className="classic-muted" role="status">
-          Chargement…
+          {t('loading')}
         </p>
       )}
       {game.isError && !state && (
         <div className="classic-error" role="alert">
-          Impossible de charger le défi.{' '}
-          <button onClick={() => void game.refetch()}>Réessayer</button>
+          {t('loadError')}{' '}
+          <button onClick={() => void game.refetch()}>{t('retry')}</button>
         </div>
       )}
       {state && (
         <>
           <section
-            aria-label="Partie du jour"
+            aria-label={t('classic')}
             className="classic-panel classic-play"
           >
-            <div aria-label="Indices" className="classic-hints">
+            <div aria-label={t('hints')} className="classic-hints">
               {state.hints.map((hint, index) => (
                 <button
                   key={hint.kind}
-                  aria-label={`Indice ${index + 1} : ${hintLabels[hint.kind]}`}
+                  aria-label={t('hintLabel', {
+                    number: index + 1,
+                    label: hintLabels[hint.kind],
+                  })}
                   className={`classic-hint ${hint.used ? 'is-used' : ''}`}
                   disabled={busy || !hint.available}
                   title={
                     hint.used
-                      ? 'Indice déjà révélé'
-                      : `Disponible après ${hint.threshold} erreurs`
+                      ? t('hintUsed')
+                      : t('hintThreshold', { count: hint.threshold })
                   }
                   onClick={() => void action('hint', hint.kind)}
                 >
@@ -247,9 +265,9 @@ export const GameView = () => {
                     <small>
                       {hint.used
                         ? hint.kind === 'reduce'
-                          ? `${state.hint.removed} cartes retirées`
-                          : 'Révélé'
-                        : `${hint.threshold} erreurs`}
+                          ? t('removed', { count: state.hint.removed })
+                          : t('revealed')
+                        : t('errors', { count: hint.threshold })}
                     </small>
                   </span>
                 </button>
@@ -262,16 +280,16 @@ export const GameView = () => {
                   <div className="classic-art-hint">
                     {!artError ? (
                       <button
-                        aria-label="Agrandir l’illustration"
+                        aria-label={t('enlargeArt')}
                         onClick={() =>
                           viewer.open({
-                            name: 'Illustration du jour',
+                            name: t('artOfDay'),
                             image: artUrl,
                           })
                         }
                       >
                         <img
-                          alt="Illustration de la carte du jour"
+                          alt={t('artAlt')}
                           src={`${artUrl}?v=${artRetry}`}
                           onError={() => setArtError(true)}
                         />
@@ -283,7 +301,7 @@ export const GameView = () => {
                           setArtError(false);
                         }}
                       >
-                        Recharger l’illustration
+                        {t('reloadArt')}
                       </button>
                     )}
                   </div>
@@ -292,7 +310,12 @@ export const GameView = () => {
                   .filter((h) => h.kind === 'text' && h.used)
                   .map((h) => (
                     <p key={h.kind} className="classic-oracle">
-                      {h.text}
+                      {h.text === 'Aucun texte de règles.'
+                        ? t('noRulesText')
+                        : h.text?.replaceAll(
+                            '[cette carte]',
+                            t('cardReference'),
+                          )}
                     </p>
                   ))}
               </div>
@@ -306,12 +329,12 @@ export const GameView = () => {
                 }}
               >
                 <label className="sr-only" htmlFor="card-search">
-                  Nom de la carte (anglais)
+                  {t('cardName')}
                 </label>
                 <div className="classic-search-row">
                   {chosen?.image && (
                     <button
-                      aria-label={`Agrandir ${chosen.name}`}
+                      aria-label={t('enlarge', { name: chosen.name })}
                       className="classic-selected-card"
                       type="button"
                       onBlur={viewer.hide}
@@ -334,7 +357,7 @@ export const GameView = () => {
                       autoComplete="off"
                       disabled={busy}
                       id="card-search"
-                      placeholder="Chercher une carte…"
+                      placeholder={t('search')}
                       role="combobox"
                       value={query}
                       onChange={(e) => {
@@ -374,7 +397,7 @@ export const GameView = () => {
                     />
                     {suggestions.length > 0 && (
                       <ul
-                        aria-label="Cartes possibles"
+                        aria-label={t('possibleCards')}
                         id="card-options"
                         role="listbox"
                       >
@@ -414,12 +437,13 @@ export const GameView = () => {
                     disabled={!selected || busy}
                     type="submit"
                   >
-                    {busy ? '…' : 'Proposer'} <span aria-hidden="true">↗</span>
+                    {busy ? '…' : t('submit')}{' '}
+                    <span aria-hidden="true">↗</span>
                   </button>
                 </div>
                 {query && !selected && !suggestions.length && (
                   <p className="classic-muted" role="status">
-                    Aucune carte disponible.
+                    {t('noCards')}
                   </p>
                 )}
               </form>
@@ -427,7 +451,7 @@ export const GameView = () => {
               <div className="classic-result" role="status">
                 {state.answer?.image && (
                   <button
-                    aria-label={`Agrandir ${state.answer.name}`}
+                    aria-label={t('enlarge', { name: state.answer.name })}
                     className="classic-result-card"
                     onClick={() => viewer.open(state.answer!)}
                   >
@@ -436,16 +460,14 @@ export const GameView = () => {
                 )}
                 <div>
                   <span className="classic-eyebrow">
-                    {state.status === 'won'
-                      ? 'BIEN JOUÉ !'
-                      : 'LA CARTE DU JOUR'}
+                    {state.status === 'won' ? t('won') : t('answer')}
                   </span>
                   <h3>{state.answer?.name}</h3>
                   <button
                     className="classic-primary"
                     onClick={() => void share()}
                   >
-                    {copied ? 'Copié ✓' : 'Partager mon résultat'}
+                    {copied ? t('copied') : t('share')}
                   </button>
                 </div>
               </div>
@@ -453,33 +475,25 @@ export const GameView = () => {
           </section>
           {error && (
             <p className="classic-error" role="alert">
-              {error}
+              {isTranslationKey(error) ? t(error) : t('errorNetwork')}
             </p>
           )}
-          <section
-            aria-label="Historique des essais"
-            className="classic-history"
-          >
+          <section aria-label={t('history')} className="classic-history">
             <div className="classic-section-heading">
-              <h2>Explorations</h2>
-              <span
-                className="classic-muted"
-                title="Exact · Partiel · Plus / moins"
-              >
+              <h2>{t('gameType')}</h2>
+              <span className="classic-muted" title={t('legend')}>
                 ✓ · ≈ · ↑ ↓
               </span>
             </div>
             {!state.guesses.length ? (
-              <p className="classic-empty">Aucune proposition.</p>
+              <p className="classic-empty">{t('noGuesses')}</p>
             ) : (
               <div className="classic-table-scroll">
                 <table>
-                  <caption className="sr-only">
-                    Comparaisons avec la carte du jour
-                  </caption>
+                  <caption className="sr-only">{t('comparison')}</caption>
                   <thead>
                     <tr>
-                      <th>Carte</th>
+                      <th>{t('card')}</th>
                       {labels.map(([key, label]) => (
                         <th key={key}>{label}</th>
                       ))}
@@ -492,7 +506,7 @@ export const GameView = () => {
                           <button
                             aria-label={
                               g.card.image
-                                ? `Agrandir ${g.card.name}`
+                                ? t('enlarge', { name: g.card.name })
                                 : g.card.name
                             }
                             className="classic-history-card"
@@ -519,12 +533,12 @@ export const GameView = () => {
                               className={`classic-cell classic-${g.matches[key]}`}
                             >
                               <span
-                                aria-label={meanings[g.matches[key]]}
+                                aria-label={t(g.matches[key])}
                                 className="classic-symbol"
                               >
                                 {symbols[g.matches[key]]}
                               </span>
-                              <span>{value(g.card, key)}</span>
+                              <span>{value(g.card, key, t)}</span>
                             </div>
                           </td>
                         ))}
@@ -537,17 +551,9 @@ export const GameView = () => {
           </section>
           <div className="classic-bottom">
             <details className="classic-rules">
-              <summary>Règles</summary>
-              <p>
-                Essais illimités. Identité couleur, mana, types, première
-                édition, période de deux ans, mots-clés et capacité activée. ✓
-                Exact · ≈ Partiel · ↑ / ↓ La cible est supérieure / inférieure.
-              </p>
-              <p>
-                Indices facultatifs à 10, 20 et 30 erreurs. Ton historique est
-                sauvegardé grâce à un cookie anonyme. Nouveau défi à minuit,
-                heure de Paris.
-              </p>
+              <summary>{t('rules')}</summary>
+              <p>{t('rulesBody')}</p>
+              <p>{t('rulesHints')}</p>
             </details>
             {state.status === 'playing' && (
               <div className="classic-abandon">
@@ -557,15 +563,15 @@ export const GameView = () => {
                       disabled={busy}
                       onClick={() => void action('abandon')}
                     >
-                      Confirmer l’abandon
+                      {t('confirmAbandon')}
                     </button>
                     <button onClick={() => setConfirmAbandon(false)}>
-                      Annuler
+                      {t('cancel')}
                     </button>
                   </>
                 ) : (
                   <button onClick={() => setConfirmAbandon(true)}>
-                    Abandonner et révéler la carte
+                    {t('abandon')}
                   </button>
                 )}
               </div>
@@ -574,7 +580,31 @@ export const GameView = () => {
         </>
       )}
       <footer className="classic-credit">
-        Scryfall · Wizards of the Coast
+        <span>
+          <a
+            href="https://scryfall.com"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            Scryfall
+          </a>{' '}
+          ·{' '}
+          <a
+            href="https://magic.wizards.com"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            Wizards of the Coast
+          </a>
+        </span>
+        <output
+          aria-label={t('attempts', { count: state?.guesses.length || 0 })}
+          className="classic-power"
+          title={t('attemptCount')}
+        >
+          {state?.guesses.length || 0}
+          <span aria-hidden="true"> / ∞</span>
+        </output>
       </footer>
       {viewer.viewer}
     </div>
