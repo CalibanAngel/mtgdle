@@ -40,7 +40,7 @@ Restent à ajouter lors de leur implémentation : tests du gameplay, statistique
 
 ## Commandes
 
-Depuis la racine : `npm test`, `npm run test:http`, `npm run test:cov`, `npm run build:api`. Pour le lint, lancer `npm run lint` dans le package concerné. Le front propose aussi `npm run lint:fix`, explicitement modificateur.
+Depuis la racine : `npm run test:unit`, `npm run test:integration`, `npm run test:cov`, `npm run build:api`. Pour le lint, lancer `npm run lint` dans le package concerné. Le front propose aussi `npm run lint:fix`, explicitement modificateur.
 
 Pour le démarrage API d'inspection sous PowerShell, après compilation de `shared-types` :
 
@@ -56,3 +56,7 @@ node -r ts-node/register/transpile-only -r tsconfig-paths/register src/main.ts
 Les valeurs imposées concernent le processus lancé ; les fichiers `.env` n'ont pas été modifiés. La base existante n'a reçu aucune écriture métier pendant les vérifications.
 
 Le [plan de mise à jour](PLAN_MISE_A_JOUR.md) décrit la suite pour Node, Bun et les dépendances. Les runtimes globaux n'ont pas été mis à jour durant cette stabilisation.
+
+## Séparation des tests du 29 octobre 2026
+
+Les fichiers unitaires restent en `.spec.ts`. Les contrats HTTP et le service de santé assemblant HttpModule/Terminus sont classés en `.ti.spec.ts`. Les scénarios Playwright portent le suffixe `.e2e.spec.ts`. Les configurations et commandes sélectionnent chaque catégorie indépendamment ; voir [test/README.md](../test/README.md). Les chiffres des contrôles précédents décrivent leur classification au moment de leur exécution.

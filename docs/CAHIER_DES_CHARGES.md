@@ -197,3 +197,12 @@ Décisions restant à confirmer : fuseau de renouvellement, noms anglais ou fran
 La suite `test/browser` utilise Playwright avec Chromium desktop et mobile. Elle lance un serveur Vite dédié et simule les appels API : aucune écriture dans PostgreSQL ni appel réel à Scryfall. Commandes : `npm run test:browser` et `npm run test:browser:ui`. Installer Chromium avec `npx playwright install chromium`. Traces et captures sont conservées en cas d’échec.
 
 Les premiers scénarios couvrent recherche, soumission par clic et clavier, catalogue vide, navigation 404 et thème. Ajouter avec le moteur de jeu : doublons persistants, dixième erreur et indice, identité couleur différente des couleurs propres, premier artwork standard, reprise et modes visuels. Les mocks valident le front ; les contrats HTTP et tests SQL restent complémentaires.
+
+### Convention des fichiers et commandes
+
+- TU : `.spec.ts`, commande `npm run test:unit` (`npm test` reste limité aux TU).
+- TI : `.ti.spec.ts`, commande `npm run test:integration`.
+- Playwright : `.e2e.spec.ts` dans `test/browser`, commande `npm run test:browser`.
+- Ensemble : `npm run test:all`.
+
+Les sélections sont mutuellement exclusives. Voir [les conventions de tests](../test/README.md) pour la couverture et les contraintes des bases de test.

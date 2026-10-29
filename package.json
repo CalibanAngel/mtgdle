@@ -13,8 +13,12 @@
   "scripts": {
     "build:api": "node node_modules/typescript/bin/tsc -p packages/api/tsconfig.json",
     "test": "jest --config jest.config.ts --runInBand",
+    "test:unit": "jest --config jest.config.ts --runInBand",
+    "test:integration": "jest --config jest.integration.config.ts --runInBand",
+    "test:integration:cov": "jest --config jest.integration.config.ts --runInBand --coverage",
+    "test:all": "npm run test:unit && npm run test:integration && npm run test:browser",
     "test:cov": "jest --config jest.config.ts --runInBand --coverage",
-    "test:http": "jest --config jest.config.ts --runInBand --testMatch **/*.e2e-spec.ts",
+    "test:http": "npm run test:integration",
     "build:front": "(cd packages/front && bun run build)",
     "build:shared-types": "(cd packages/shared-types && bun run build)",
     "start:api": "(cd packages/api && bun run dev)",
