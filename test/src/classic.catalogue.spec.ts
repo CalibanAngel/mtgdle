@@ -1,22 +1,8 @@
-// The catalogue script is also used as a pure mapping helper in these tests.
-const { hasActivated, standard, toClassicCard } =
-  require('../../scripts/prepare-classic.cjs') as {
-    toClassicCard: (
-      id: string,
-      first: object,
-      art: object,
-    ) => { rarity: string; image: string; edition: string; released: string };
-    hasActivated: (card: {
-      oracle_text?: string;
-      keywords?: string[];
-    }) => boolean;
-    standard: (card: {
-      promo?: boolean;
-      full_art?: boolean;
-      border_color?: string;
-      frame_effects?: string[];
-    }) => boolean;
-  };
+import {
+  hasActivated,
+  standard,
+  toClassicCard,
+} from '../../packages/api/src/models/classic-catalogue/classic-catalogue.mapper';
 
 describe('Classic catalogue eligibility', () => {
   it('uses the displayed standard printing rarity when an earlier promo has a different rarity', () => {

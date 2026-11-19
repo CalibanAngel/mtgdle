@@ -48,6 +48,7 @@ services:
       SCRYFALL_API_HOST: https://api.scryfall.com
       SCRYFALL_BULK_FILE: /data/default-cards.json
       SCHEDULE_ENABLED: 'false'
+      ADMIN_API_TOKEN: ${ADMIN_API_TOKEN:-}
     volumes:
       - ./data:/data:ro
     networks: [backend, public]
@@ -55,7 +56,7 @@ services:
       postgres:
         condition: service_healthy
     healthcheck:
-      test: [CMD, node, /app/scripts/healthcheck.cjs]
+      test: [CMD, node, -e, "fetch('http://127.0.0.1:3000/health/ready').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
       interval: 30s
       timeout: 10s
       retries: 3

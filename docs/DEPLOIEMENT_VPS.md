@@ -32,21 +32,23 @@ cp .env.production.sample .env.production
 chmod 600 .env.production
 # Remplacer le mot de passe d'exemple par une valeur aléatoire avant de continuer.
 mkdir -p data backups
+sudo chown 1000:1000 data
 sudo docker compose --env-file .env.production -f compose.production.yaml build
 sudo docker compose --env-file .env.production -f compose.production.yaml up -d postgres
-sudo docker compose --env-file .env.production -f compose.production.yaml run --rm api node /app/scripts/init-production.cjs
-sudo docker compose --env-file .env.production -f compose.production.yaml run --rm --no-deps -v /opt/mtgdle/data:/data api node /app/scripts/download-scryfall.cjs
-sudo docker compose --env-file .env.production -f compose.production.yaml up -d api
-sudo docker compose --env-file .env.production -f compose.production.yaml exec -T api node /app/scripts/import-production.cjs
-sudo docker compose --env-file .env.production -f compose.production.yaml exec -T api node /app/scripts/prepare-classic.cjs
+sudo docker compose --env-file .env.production -f compose.production.yaml run --rm api node dist/batches/main.js database:init
+sudo docker compose --env-file .env.production -f compose.production.yaml run --rm --no-deps -v /opt/mtgdle/data:/data:rw api node dist/batches/main.js scryfall:download
+sudo docker compose --env-file .env.production -f compose.production.yaml run --rm api node dist/batches/main.js scryfall:import
+sudo docker compose --env-file .env.production -f compose.production.yaml run --rm api node dist/batches/main.js classic:prepare
 sudo docker compose --env-file .env.production -f compose.production.yaml up -d --wait
 ```
 
-Le script d'initialisation refuse toute base qui contient déjà des tables. Il crée les anciennes tables à partir des entités du projet, puis le schéma Classic. La synchronisation reste désactivée durant l'utilisation normale. Les mises à jour du schéma nécessitent des migrations explicites.
+Le batch Nest d'initialisation refuse toute base qui contient déjà des tables. Il crée les anciennes tables à partir des entités du projet, puis exécute la migration TypeORM Classic. La synchronisation reste désactivée durant l'utilisation normale. Les mises à jour du schéma nécessitent des migrations explicites.
 
-`download-scryfall.cjs` accepte l'ancien tableau JSON et le nouveau fichier JSONL compressé de l'API Scryfall. Il convertit ce dernier en tableau JSON par streaming. Le fichier n'est pas embarqué dans les images.
+Le service Scryfall existant accepte l'ancien tableau JSON et le fichier JSONL compressé. Le batch `scryfall:download` réutilise ce service et la configuration `SCRYFALL_BULK_FILE`. Le fichier de données n'est pas embarqué dans les images.
 
-L'import Scryfall reste une opération d'administration : il est exécuté via `docker compose exec`, jamais via une route publique. Le catalogue est préparé après l'import. Les données et les parties du poste de développement ne sont pas transférées.
+L'import est une opération d'administration. Le batch `scryfall:import` et la route existante `/scryfall/import/all` appellent le même service Nest. Le catalogue est préparé après l'import. Les données et les parties du poste de développement ne sont pas transférées. Voir [les batchs et droits d'administration](BATCHS_ET_ADMINISTRATION.md).
+
+Le contrôle de santé Docker appelle `/health/ready`, qui vérifie le catalogue via le DataSource injecté. Cette route ne crée pas de session et ne dépend pas de la disponibilité de Scryfall.
 
 Le répertoire `data` doit être accessible en lecture par l'UID 1000 du conteneur. Pour exécuter le téléchargement avec l'utilisateur du conteneur, ce répertoire doit également lui être accessible en écriture.
 

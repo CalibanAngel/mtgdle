@@ -28,6 +28,15 @@ async function bootstrap() {
     .setTitle('Mtgdle')
     .setDescription('The mtgdle API description')
     .setVersion('1.0')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        description:
+          'Technical administrator token; does not represent player accounts.',
+      },
+      'admin',
+    )
     .build();
 
   const swaggerFactory = () => SwaggerModule.createDocument(app, swaggerConfig);

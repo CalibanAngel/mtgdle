@@ -1,4 +1,4 @@
-> MTGdle : voir le [démarrage local et le partage à un ami](docs/DEMARRAGE_ET_PARTAGE.md), le [guide du premier jet jouable](docs/PREMIER_JET.md), le [cahier des charges](docs/CAHIER_DES_CHARGES.md) et les [conventions de tests](test/README.md). Le contenu ci-dessous est le README historique du starter Nest.
+> MTGdle : voir le [démarrage local et le partage à un ami](docs/DEMARRAGE_ET_PARTAGE.md), les [batchs Nest et droits d'administration](docs/BATCHS_ET_ADMINISTRATION.md), le [déploiement Docker](docs/DEPLOIEMENT_VPS.md), le [guide du premier jet jouable](docs/PREMIER_JET.md), le [cahier des charges](docs/CAHIER_DES_CHARGES.md) et les [conventions de tests](test/README.md). Le contenu ci-dessous est le README historique du starter Nest.
 
 ```sh
 npm run start:local    # Jouer/développer sur son PC

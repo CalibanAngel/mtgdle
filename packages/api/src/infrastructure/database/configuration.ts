@@ -2,6 +2,7 @@ import { TypeOrmModuleOptions } from '@nestjs/typeorm/dist/interfaces/typeorm-op
 import { ConfigService } from '@nestjs/config';
 import { Entities } from './entities';
 import { Configuration } from '../../config/config';
+import { ClassicSchema1761955200000 } from './migrations/classic-schema.migration';
 
 export const databaseConfiguration = (
   configService: ConfigService<Configuration>,
@@ -20,8 +21,10 @@ export const databaseConfiguration = (
       infer: true,
     }),
     entities: Entities,
-    dropSchema: configService.getOrThrow('database.dropSchema', {infer: true}),
+    dropSchema: configService.getOrThrow('database.dropSchema', {
+      infer: true,
+    }),
     // autoLoadEntities: configService.getOrThrow('database.autoLoadEntities', {infer: true}),
-    migrations: [],
+    migrations: [ClassicSchema1761955200000],
   };
 };

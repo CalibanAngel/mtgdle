@@ -15,7 +15,8 @@ export interface ScryfallBulkData {
   name: string;
   description: string;
   size: number;
-  download_uri: string;
+  download_uri?: string;
+  jsonl_download_uri?: string;
   content_type: string;
   content_encoding: string;
 }

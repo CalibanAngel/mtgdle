@@ -8,6 +8,7 @@ import { PlayableCardApiModule } from '../playable-card/playable-card.api-module
 @Module({
   controllers: [BulkController],
   providers: [BulkApiService],
+  exports: [BulkApiService],
   imports: [CardApiModule, SetApiModule, PlayableCardApiModule],
 })
 export class BulkApiModule {}

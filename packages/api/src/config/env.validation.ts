@@ -12,8 +12,8 @@ type EnvironmentVariables = {
   BACK_API_HOST: string;
   BACK_API_PORT: number;
 
-  FRONT_API_HOST: string
-  FRONT_API_PORT: number
+  FRONT_API_HOST: string;
+  FRONT_API_PORT: number;
 
   DATABASE_HOST: string;
   DATABASE_PORT: number;
@@ -23,6 +23,7 @@ type EnvironmentVariables = {
   DATABASE_PASSWORD: string;
   DATABASE_NAME: string;
   DATABASE_BATCH_SIZE: number;
+  ADMIN_API_TOKEN?: string;
 };
 
 export const envValidationSchema = Joi.object<EnvironmentVariables>({
@@ -43,4 +44,5 @@ export const envValidationSchema = Joi.object<EnvironmentVariables>({
   DATABASE_NAME: Joi.string().required(),
   DATABASE_BATCH_SIZE: Joi.number().default(500),
   SCRYFALL_API_HOST: Joi.string().uri().required(),
+  ADMIN_API_TOKEN: Joi.string().min(32).allow('').optional(),
 });

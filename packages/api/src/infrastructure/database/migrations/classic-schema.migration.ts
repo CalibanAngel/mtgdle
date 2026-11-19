@@ -1,4 +1,6 @@
--- Additive, idempotent migration. Existing card/game tables are untouched.
+import { MigrationInterface, QueryRunner } from 'typeorm';
+
+export const CLASSIC_SCHEMA_SQL = String.raw`-- Additive, idempotent migration. Existing card/game tables are untouched.
 CREATE TABLE IF NOT EXISTS classic_catalogue (
   id uuid PRIMARY KEY,
   data jsonb NOT NULL
@@ -21,3 +23,14 @@ CREATE TABLE IF NOT EXISTS classic_progress (
 
 ALTER TABLE classic_progress ADD COLUMN IF NOT EXISTS art_used boolean NOT NULL DEFAULT false;
 ALTER TABLE classic_progress ADD COLUMN IF NOT EXISTS text_used boolean NOT NULL DEFAULT false;
+`;
+
+export class ClassicSchema1761955200000 implements MigrationInterface {
+  name = 'ClassicSchema1761955200000';
+  async up(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(CLASSIC_SCHEMA_SQL);
+  }
+  async down(): Promise<void> {
+    throw new Error('Automatic rollback would delete game progress. Restore from a reviewed backup instead.');
+  }
+}

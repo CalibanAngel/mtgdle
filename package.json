@@ -26,10 +26,11 @@
     "start:shared-types": "(cd packages/shared-types && bun run dev)",
     "test:browser": "playwright test",
     "test:browser:ui": "playwright test --ui",
-    "prepare:classic": "node scripts/prepare-classic.cjs",
-    "dev:classic": "node scripts/dev-classic.cjs",
-    "start:local": "node scripts/dev-classic.cjs",
-    "start:distant": "node scripts/dev-classic.cjs --distant"
+    "batch": "node packages/api/dist/batches/main.js",
+    "prepare:classic": "npm run batch -- classic:prepare",
+    "dev:classic": "node tools/dev/dev-classic.cjs",
+    "start:local": "node tools/dev/dev-classic.cjs",
+    "start:distant": "node tools/dev/dev-classic.cjs --distant"
   },
   "engines": {
     "npm": ">=10.0.0",

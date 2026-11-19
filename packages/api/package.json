@@ -5,6 +5,7 @@
   "main": "dist/main.js",
   "scripts": {
     "build:nest": "nest build",
+    "batch": "node dist/batches/main.js",
     "dev:nest": "nest start --watch --builder swc",
     "dev": "ts-node-dev --respawn --transpile-only --prefer-ts-exts -r tsconfig-paths/register src/main.ts",
     "lint": "eslint . --ext .ts"

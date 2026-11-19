@@ -4,6 +4,7 @@ import { envValidationSchema } from './env.validation';
 import { databaseConfig } from './database.config';
 import { httpConfig } from './http.config';
 import { scryfallConfig } from './scryfall.config';
+import { adminConfig } from './admin.config';
 import * as path from 'node:path';
 import * as fs from 'node:fs';
 
@@ -18,7 +19,7 @@ function existing(files: string[]) {
 @Module({
   imports: [
     ConfigModule.forRoot({
-      load: [databaseConfig, httpConfig, scryfallConfig],
+      load: [databaseConfig, httpConfig, scryfallConfig, adminConfig],
       isGlobal: true,
       validationSchema: envValidationSchema,
       envFilePath: existing([

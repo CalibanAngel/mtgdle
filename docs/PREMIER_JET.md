@@ -12,11 +12,13 @@
 
 ## Préparer et lancer
 
+Les commandes de préparation utilisent désormais les batchs Nest compilés : exécuter `npm run build:shared-types` puis `npm run build:api` avant la première préparation. Voir [les batchs et droits d'administration](BATCHS_ET_ADMINISTRATION.md).
+
 Les dépendances installées et PostgreSQL doivent être disponibles. Les paramètres de connexion viennent des fichiers `.env` racine puis `packages/api/.env`, avec priorité aux variables du processus. Le script utilise le fichier bulk Scryfall local déjà présent ; `SCRYFALL_BULK_FILE` permet de spécifier un autre chemin.
 
 ```powershell
 # Validation sans écriture
-node scripts/prepare-classic.cjs --check
+npm run batch -- classic:prepare --check
 
 # Migration additive et préparation du catalogue
 npm run prepare:classic
@@ -56,7 +58,7 @@ npm run test:browser
 
 # Base SQL séparée : jamais DATABASE_NAME
 $env:CLASSIC_TEST_DATABASE='mtgdle_classic_test'
-node scripts/init-classic-test.cjs
+node tools/testing/init-classic-test.cjs
 npm run test:integration
 ```
 

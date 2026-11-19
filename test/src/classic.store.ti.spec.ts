@@ -1,6 +1,6 @@
 import { DataSource } from 'typeorm';
 import { randomUUID } from 'node:crypto';
-import { readFileSync } from 'node:fs';
+import { CLASSIC_SCHEMA_SQL } from '../../packages/api/src/infrastructure/database/migrations/classic-schema.migration';
 import path from 'node:path';
 import dotenv from 'dotenv';
 import type { ClassicCard } from '@mtgdle/shared-types';
@@ -47,9 +47,7 @@ integration('Classic persistence (dedicated PostgreSQL)', () => {
       synchronize: false,
       entities: [],
     }).initialize();
-    await db.query(
-      readFileSync(path.resolve('scripts/classic-schema.sql'), 'utf8'),
-    );
+    await db.query(CLASSIC_SCHEMA_SQL);
     store = new ClassicStore(db);
   });
   beforeEach(async () => {

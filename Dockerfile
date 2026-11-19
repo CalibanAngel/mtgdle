@@ -28,7 +28,6 @@ WORKDIR /app
 COPY --from=production-dependencies --chown=node:node /app/ ./
 COPY --from=build --chown=node:node /app/packages/api/dist ./packages/api/dist
 COPY --from=build --chown=node:node /app/packages/shared-types/dist ./packages/shared-types/dist
-COPY --from=build --chown=node:node /app/scripts ./scripts
 USER node
 WORKDIR /app/packages/api
 EXPOSE 3000

@@ -7,12 +7,12 @@ import path from 'node:path';
 import request from 'supertest';
 import { randomUUID } from 'node:crypto';
 
-const { available } = require('../../scripts/ports.cjs') as {
+const { available } = require('../../tools/dev/ports.cjs') as {
   available: (port: number) => Promise<void>;
 };
 
 const { createPreviewServer } =
-  require('../../scripts/classic-preview.cjs') as {
+  require('../../tools/dev/classic-preview.cjs') as {
     createPreviewServer: (options: {
       directory: string;
       apiOrigin: string;

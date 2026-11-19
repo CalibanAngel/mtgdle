@@ -16,6 +16,10 @@ export class ScryfallBulkDataService {
     return this.scryfallBulkDataDao.getDefaultCardFileInfo();
   }
 
+  downloadDefaultCards(): Promise<string> {
+    return this.scryfallBulkDataDao.downloadDefaultCards();
+  }
+
   async importCardsFromFile(
     local: boolean,
     onItem: (card: ScryfallCard.Any[]) => Promise<void>,
