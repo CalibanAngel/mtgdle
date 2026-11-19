@@ -1,7 +1,8 @@
 import { DataSource } from 'typeorm';
 import { randomUUID } from 'node:crypto';
 import { ClassicCatalogueService } from '../../packages/api/src/models/classic-catalogue/classic-catalogue.service';
-import { ClassicSchema1761955200000 } from '../../packages/api/src/infrastructure/database/migrations/classic-schema.migration';
+import { ClassicEntities } from '../../packages/api/src/infrastructure/database/entities';
+import { ClassicCatalogueRepository } from '../../packages/api/src/models/classic-catalogue/classic-catalogue.repository';
 
 const database = process.env.CLASSIC_TEST_DATABASE;
 const integration = database ? describe : describe.skip;
@@ -45,25 +46,21 @@ integration('Catalogue preparation with PostgreSQL', () => {
       username: process.env.DATABASE_USER,
       password: process.env.DATABASE_PASSWORD,
       database,
-      migrations: [ClassicSchema1761955200000],
+      entities: ClassicEntities,
       synchronize: false,
     }).initialize();
-    await db.runMigrations();
-    await db.query(
-      'CREATE TABLE IF NOT EXISTS playable_card(name text PRIMARY KEY)',
-    );
-    catalogue = new ClassicCatalogueService(db, bulk as never);
+    await db.synchronize();
+    const repository = new ClassicCatalogueRepository(db);
+    jest.spyOn(repository, 'selectedNames').mockResolvedValue([printing.name]);
+    catalogue = new ClassicCatalogueService(repository, bulk as never);
   });
   afterAll(async () => {
     if (db?.isInitialized) await db.destroy();
   });
   beforeEach(async () => {
     await db.query(
-      'TRUNCATE classic_progress, classic_daily, classic_catalogue, playable_card',
+      'TRUNCATE classic_progress, classic_daily, classic_catalogue',
     );
-    await db.query('INSERT INTO playable_card(name) VALUES($1)', [
-      printing.name,
-    ]);
     await db.query(
       'INSERT INTO classic_daily(day,answer_id,cards) VALUES($1,$2,$3)',
       [

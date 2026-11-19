@@ -5,6 +5,15 @@ import { ManaCostEntity } from '../../models/card/mana-cost/mana-cost.schema';
 import { SetEntity } from '../../models/set/set.schema';
 import { PlayableCardEntity } from '../../models/playable-card/playable-card.schema';
 import { GameEntity } from '../../models/game/game.schema';
+import { ClassicCatalogueEntity } from '../../models/classic-catalogue/classic-catalogue.schema';
+import { ClassicDailyEntity } from '../../models/classic-daily/classic-daily.schema';
+import { ClassicProgressEntity } from '../../models/classic-progress/classic-progress.schema';
+
+export const ClassicEntities = [
+  ClassicCatalogueEntity,
+  ClassicDailyEntity,
+  ClassicProgressEntity,
+];
 
 export const Entities = [
   CardEntity,
@@ -14,4 +23,5 @@ export const Entities = [
   ManaCostEntity,
   PlayableCardEntity,
   SetEntity,
+  ...ClassicEntities,
 ];

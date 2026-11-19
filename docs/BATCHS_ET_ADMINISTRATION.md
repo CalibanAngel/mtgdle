@@ -6,12 +6,14 @@ Le métier appartient à l'API Nest, en TypeScript. Le CLI n'ouvre aucun serveur
 
 | Commande | Service utilisé | Effet |
 | --- | --- | --- |
-| `database:init` | `BatchService` et DataSource configuré par l'API | Initialise uniquement une base sans tables, puis applique la migration Classic. Refuse une base existante. |
+| `database:sync` | DataSource configuré par l'API | Crée ou actualise le schéma de développement à partir de tous les modèles TypeORM enregistrés. |
 | `scryfall:download` | `ScryfallBulkDataService` et son DAO | Télécharge le snapshot vers le chemin configuré. Conversion JSONL/gzip en streaming ; remplace le fichier seulement après succès. |
 | `scryfall:import` | `BulkApiService.importAll` | Exécute le même import que la route HTTP existante, depuis le snapshot local. |
 | `classic:prepare` | `ClassicCatalogueService.prepare` | Prépare le catalogue et enrichit les médias des défis existants en conservant les réponses et les parties. |
 
-`classic:prepare --check` parcourt les données sans écrire ni appliquer de migration.
+`classic:prepare --check` parcourt les données sans écrire. La préparation du catalogue ne modifie jamais le schéma.
+
+Les modèles Classic suivent la même architecture que les autres modèles : classes TypeScript, `EntitySchema`, repositories et services Nest. `ClassicCatalogueRepository` porte les lectures et écritures du catalogue ; `ClassicRepository` porte les transactions, les accès aux défis et les verrous sur les progressions. Aucun SQL n'est écrit dans les services Classic.
 
 ## Sur le poste de développement
 
@@ -20,15 +22,20 @@ Depuis la racine, avec les fichiers `.env` habituels et PostgreSQL démarré :
 ```bash
 npm run build:shared-types
 npm run build:api
+npm run batch -- database:sync
 npm run batch -- scryfall:download
 npm run batch -- scryfall:import
 npm run batch -- classic:prepare --check
 npm run prepare:classic
 ```
 
-Ne lancer `database:init` que pour une installation neuve. Après modification du code TypeScript des batchs, recompiler l'API. Le raccourci historique `prepare:classic` appelle désormais le batch Nest.
+Pendant cette phase de développement, `database:sync` remplace la gestion des migrations. Le schéma est défini par les modèles, et les données peuvent être repeuplées avec les batchs d'import et de préparation. La commande peut changer le schéma et les données concernées par une modification de modèle : elle est volontairement explicite. La synchronisation automatique au démarrage reste désactivée. Après modification du code TypeScript des batchs, recompiler l'API. Le raccourci historique `prepare:classic` appelle le batch Nest.
 
-En production, le JavaScript compilé se trouve dans `packages/api/dist/batches`, comme celui du serveur API. Aucune dépendance à ts-node n'est nécessaire dans les images runtime. Voir [le déploiement VPS](DEPLOIEMENT_VPS.md) pour les commandes Docker.
+Dans Docker, le JavaScript compilé se trouve dans `packages/api/dist/batches`, comme celui du serveur API. Aucune dépendance à ts-node n'est nécessaire dans les images runtime. Voir [le déploiement VPS](DEPLOIEMENT_VPS.md) pour les commandes Docker.
+
+## Santé du service
+
+Le contrôle de santé réutilise `HealthApiService` et les indicateurs Terminus existants. `GET /health` conserve le diagnostic complet PostgreSQL et Scryfall ; `GET /health/database` réutilise seulement l'indicateur PostgreSQL pour Docker. Une panne de Scryfall ne doit pas empêcher le jeu de servir le catalogue déjà importé. Aucun service de readiness ni requête SQL de santé séparée n'est nécessaire.
 
 ## Routes d'administration
 

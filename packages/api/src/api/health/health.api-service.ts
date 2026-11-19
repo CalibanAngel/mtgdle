@@ -54,4 +54,8 @@ export class HealthApiService extends WithLogger {
       () => this.isDatabaseAlive(),
     ]);
   }
+
+  checkDatabase(): Promise<HealthCheckResult> {
+    return this.health.check([() => this.isDatabaseAlive()]);
+  }
 }

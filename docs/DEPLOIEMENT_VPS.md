@@ -25,7 +25,7 @@ sudo docker compose --env-file .env.production -f compose.production.yaml restar
 
 Ne jamais utiliser `down -v` : cela supprimerait la base.
 
-## Première installation sur une base vide
+## Installation de la version de développement
 
 ```bash
 cp .env.production.sample .env.production
@@ -35,20 +35,20 @@ mkdir -p data backups
 sudo chown 1000:1000 data
 sudo docker compose --env-file .env.production -f compose.production.yaml build
 sudo docker compose --env-file .env.production -f compose.production.yaml up -d postgres
-sudo docker compose --env-file .env.production -f compose.production.yaml run --rm api node dist/batches/main.js database:init
+sudo docker compose --env-file .env.production -f compose.production.yaml run --rm api node dist/batches/main.js database:sync
 sudo docker compose --env-file .env.production -f compose.production.yaml run --rm --no-deps -v /opt/mtgdle/data:/data:rw api node dist/batches/main.js scryfall:download
 sudo docker compose --env-file .env.production -f compose.production.yaml run --rm api node dist/batches/main.js scryfall:import
 sudo docker compose --env-file .env.production -f compose.production.yaml run --rm api node dist/batches/main.js classic:prepare
 sudo docker compose --env-file .env.production -f compose.production.yaml up -d --wait
 ```
 
-Le batch Nest d'initialisation refuse toute base qui contient déjà des tables. Il crée les anciennes tables à partir des entités du projet, puis exécute la migration TypeORM Classic. La synchronisation reste désactivée durant l'utilisation normale. Les mises à jour du schéma nécessitent des migrations explicites.
+Le projet est en développement : le batch `database:sync` synchronise le schéma directement à partir des modèles TypeORM, Classic compris. Il n'y a pas de migration Classic manuelle. Cette opération explicite peut modifier le schéma lorsque les modèles changent ; les données de cette version peuvent être repeuplées. La synchronisation automatique au démarrage reste désactivée.
 
 Le service Scryfall existant accepte l'ancien tableau JSON et le fichier JSONL compressé. Le batch `scryfall:download` réutilise ce service et la configuration `SCRYFALL_BULK_FILE`. Le fichier de données n'est pas embarqué dans les images.
 
 L'import est une opération d'administration. Le batch `scryfall:import` et la route existante `/scryfall/import/all` appellent le même service Nest. Le catalogue est préparé après l'import. Les données et les parties du poste de développement ne sont pas transférées. Voir [les batchs et droits d'administration](BATCHS_ET_ADMINISTRATION.md).
 
-Le contrôle de santé Docker appelle `/health/ready`, qui vérifie le catalogue via le DataSource injecté. Cette route ne crée pas de session et ne dépend pas de la disponibilité de Scryfall.
+Le contrôle de santé Docker appelle `/health/database`, via le service `HealthApiService` et son indicateur PostgreSQL existants. `/health` conserve le diagnostic complet, Scryfall compris. Aucun service de readiness séparé n'est utilisé.
 
 Le répertoire `data` doit être accessible en lecture par l'UID 1000 du conteneur. Pour exécuter le téléchargement avec l'utilisateur du conteneur, ce répertoire doit également lui être accessible en écriture.
 
@@ -88,7 +88,7 @@ Préparer l'environnement GitHub `production`, avec revue obligatoire si disponi
 
 Le compte distant doit être autorisé à exécuter `sudo -n /opt/mtgdle/deploy/release.sh <SHA>`. Avant de lui donner ce droit, rendre le script et les fichiers qu'il exécute non modifiables par ce compte et restreindre la clé SSH à la commande de déploiement. Ne pas ajouter ce compte au groupe Docker : ce groupe donne des privilèges équivalents à root.
 
-Rendre les packages GHCR publics, ou configurer sur le VPS un accès limité à leur lecture. Le déploiement télécharge les images, sauvegarde la base, change les références d'images, puis attend les contrôles de santé. En cas d'échec, il restaure les anciennes références d'images. Il ne remplace pas la base et n'applique aucune migration destructive. Une évolution de schéma doit être traitée séparément.
+Rendre les packages GHCR publics, ou configurer sur le VPS un accès limité à leur lecture. Le déploiement télécharge les images, sauvegarde la base, change les références d'images, puis attend les contrôles de santé. En cas d'échec, il restaure les anciennes références d'images. Le déploiement des images ne synchronise pas le schéma : pendant le développement, utiliser explicitement `database:sync` quand les modèles évoluent.
 
 ## Domaine et HTTPS
 

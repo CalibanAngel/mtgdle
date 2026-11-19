@@ -4,11 +4,16 @@ import {
   NotFoundException,
   ServiceUnavailableException,
 } from '@nestjs/common';
-import { DataSource, EntityManager } from 'typeorm';
+import {
+  ClassicRepository,
+  ClassicTransaction,
+} from '../../models/classic-progress/classic.repository';
+import { ClassicDaily as Daily } from '../../models/classic-daily/classic-daily';
+import { ClassicProgress as Progress } from '../../models/classic-progress/classic-progress';
+import type { ClassicStoredCard as StoredCard } from '../../models/classic-catalogue/classic-card';
 import { randomInt } from 'node:crypto';
 import type {
   ClassicCard,
-  ClassicGuess,
   ClassicState,
   ClassicStatistics,
   HintKind,
@@ -21,30 +26,12 @@ import {
   parisDay,
 } from './classic.rules';
 
-interface StoredCard extends ClassicCard {
-  artCrop?: string | null;
-  oracleText?: string;
-}
-interface Daily {
-  day: string;
-  answer_id: string;
-  cards: StoredCard[];
-}
-interface Progress {
-  status: ClassicState['status'];
-  guesses: ClassicGuess[];
-  removed: string[];
-  hint_used: boolean;
-  art_used: boolean;
-  text_used: boolean;
-}
-
 @Injectable()
 export class ClassicStore {
-  constructor(private readonly db: DataSource) {}
+  constructor(private readonly repository: ClassicRepository) {}
 
   async state(session: string): Promise<ClassicState> {
-    return this.db.transaction(async (manager) => {
+    return this.repository.transaction(async (manager) => {
       const day = parisDay();
       await this.ensureDay(manager, day);
       return this.read(manager, day, session);
@@ -64,7 +51,7 @@ export class ClassicStore {
         code: 'errorExpired',
         message: 'Ce défi est terminé. Charge le nouveau défi.',
       });
-    return this.db.transaction(async (manager) => {
+    return this.repository.transaction(async (manager) => {
       const daily = await this.daily(manager, day);
       const progress = await this.progress(manager, day, session);
       if (day !== parisDay())
@@ -88,10 +75,10 @@ export class ClassicStore {
       }
       const hintUsed =
         hintKind === 'reduce'
-          ? progress.hint_used
+          ? progress.hintUsed
           : hintKind === 'art'
-            ? progress.art_used
-            : progress.text_used;
+            ? progress.artUsed
+            : progress.textUsed;
       if (action === 'hint' && hintUsed)
         return this.present(manager, daily, progress);
       if (action === 'abandon' && progress.status === 'abandoned')
@@ -101,7 +88,7 @@ export class ClassicStore {
           code: 'errorFinished',
           message: 'Cette partie est déjà terminée.',
         });
-      const target = daily.cards.find((card) => card.id === daily.answer_id)!;
+      const target = daily.cards.find((card) => card.id === daily.answerId)!;
       if (action === 'guess') {
         const card = daily.cards.find((c) => c.id === cardId);
         if (!card)
@@ -133,14 +120,14 @@ export class ClassicStore {
               code: 'errorArt',
               message: 'Illustration indisponible pour cette carte.',
             });
-          progress.art_used = true;
+          progress.artUsed = true;
         } else if (hintKind === 'text') {
           if (target.oracleText === undefined || target.oracleText === null)
             throw new ConflictException({
               code: 'errorText',
               message: 'Texte de règles indisponible.',
             });
-          progress.text_used = true;
+          progress.textUsed = true;
         } else {
           const remaining = daily.cards.filter(
             (c) => !progress.guesses.some((g) => g.card.id === c.id),
@@ -157,37 +144,25 @@ export class ClassicStore {
             [removable[i], removable[j]] = [removable[j], removable[i]];
           }
           progress.removed = removable.slice(0, count).map((c) => c.id);
-          progress.hint_used = true;
+          progress.hintUsed = true;
         }
       } else progress.status = 'abandoned';
-      await manager.query(
-        'UPDATE classic_progress SET status=$3, guesses=$4::jsonb, removed=$5::jsonb, hint_used=$6, art_used=$7, text_used=$8 WHERE day=$1 AND session_id=$2',
-        [
-          day,
-          session,
-          progress.status,
-          JSON.stringify(progress.guesses),
-          JSON.stringify(progress.removed),
-          progress.hint_used,
-          progress.art_used,
-          progress.text_used,
-        ],
-      );
+      await manager.saveProgress(progress);
       return this.present(manager, daily, progress);
     });
   }
 
   // Authorize the crop separately so its source URL/printing ID is never in public state.
   async artSource(day: string, session: string): Promise<string> {
-    return this.db.transaction(async (manager) => {
+    return this.repository.transaction(async (manager) => {
       const daily = await this.daily(manager, day);
       const progress = await this.progress(manager, day, session);
-      if (!progress.art_used)
+      if (!progress.artUsed)
         throw new ConflictException({
           code: 'errorHint',
           message: 'Débloque d’abord l’indice illustration.',
         });
-      const source = daily.cards.find((c) => c.id === daily.answer_id)?.artCrop;
+      const source = daily.cards.find((c) => c.id === daily.answerId)?.artCrop;
       if (!source)
         throw new NotFoundException({
           code: 'errorArt',
@@ -228,62 +203,42 @@ export class ClassicStore {
     };
   }
 
-  private async ensureDay(manager: EntityManager, day: string): Promise<void> {
-    // Advisory transaction lock makes the lazy daily creation safe across processes.
-    await manager.query('SELECT pg_advisory_xact_lock(713294, hashtext($1))', [
-      day,
-    ]);
-    const found: Daily[] = await manager.query(
-      'SELECT day FROM classic_daily WHERE day=$1',
-      [day],
-    );
-    if (found.length) return;
-    const rows: { data: ClassicCard }[] = await manager.query(
-      'SELECT data FROM classic_catalogue ORDER BY id',
-    );
-    if (!rows.length)
+  private async ensureDay(
+    manager: ClassicTransaction,
+    day: string,
+  ): Promise<void> {
+    if (await manager.findDaily(day)) return;
+    const cards = await manager.catalogueCards();
+    if (!cards.length)
       throw new ServiceUnavailableException({
         code: 'errorCatalogue',
         message: 'Le catalogue de jeu doit être préparé.',
       });
-    const cards = rows.map((row) => row.data);
-    await manager.query(
-      'INSERT INTO classic_daily(day, answer_id, cards) VALUES ($1,$2,$3::jsonb) ON CONFLICT DO NOTHING',
-      [day, cards[randomInt(cards.length)].id, JSON.stringify(cards)],
-    );
+    await manager.insertDaily(day, cards[randomInt(cards.length)].id, cards);
   }
 
-  private async daily(manager: EntityManager, day: string): Promise<Daily> {
-    const rows: Daily[] = await manager.query(
-      'SELECT day, answer_id, cards FROM classic_daily WHERE day=$1',
-      [day],
-    );
-    if (!rows[0])
+  private async daily(
+    manager: ClassicTransaction,
+    day: string,
+  ): Promise<Daily> {
+    const daily = await manager.findDaily(day);
+    if (!daily)
       throw new NotFoundException({
         code: 'errorChallenge',
         message: 'Défi introuvable.',
       });
-    return rows[0];
+    return daily;
   }
 
-  private async progress(
-    manager: EntityManager,
+  private progress(
+    manager: ClassicTransaction,
     day: string,
     session: string,
   ): Promise<Progress> {
-    await manager.query(
-      'INSERT INTO classic_progress(day, session_id) VALUES ($1,$2) ON CONFLICT DO NOTHING',
-      [day, session],
-    );
-    const rows: Progress[] = await manager.query(
-      'SELECT status, guesses, removed, hint_used, art_used, text_used FROM classic_progress WHERE day=$1 AND session_id=$2 FOR UPDATE',
-      [day, session],
-    );
-    return rows[0];
+    return manager.progressForUpdate(day, session);
   }
-
   private async read(
-    manager: EntityManager,
+    manager: ClassicTransaction,
     day: string,
     session: string,
   ): Promise<ClassicState> {
@@ -295,53 +250,44 @@ export class ClassicStore {
   }
 
   private async statistics(
-    manager: EntityManager,
+    manager: ClassicTransaction,
     day: string,
     progress: Progress,
   ): Promise<ClassicStatistics> {
-    // A single SQL snapshot keeps percentages consistent under concurrent guesses.
-    // Visitors with no guesses are excluded; frequencies only cover this player's cards.
-    const [summary]: {
-      participants: number;
-      solved: number;
-      abandoned: number;
-      average: string | null;
-      frequencies: Record<string, number>;
-    }[] = await manager.query(
-      `
-      WITH summary AS (
-        SELECT count(*) FILTER (WHERE jsonb_array_length(guesses) > 0)::int AS participants,
-               count(*) FILTER (WHERE status = 'won')::int AS solved,
-               count(*) FILTER (WHERE status = 'abandoned')::int AS abandoned,
-               avg(jsonb_array_length(guesses)) FILTER (WHERE status = 'won') AS average
-        FROM classic_progress WHERE day = $1
-      ), frequencies AS (
-        SELECT item->'card'->>'id' AS card_id, count(DISTINCT session_id)::int AS players
-        FROM classic_progress CROSS JOIN LATERAL jsonb_array_elements(guesses) AS guesses(item)
-        WHERE day = $1 AND item->'card'->>'id' = ANY($2::text[])
-        GROUP BY item->'card'->>'id'
-      )
-      SELECT summary.*, coalesce((SELECT jsonb_object_agg(card_id, players) FROM frequencies), '{}'::jsonb) AS frequencies
-      FROM summary`,
-      [day, progress.guesses.map((g) => g.card.id)],
-    );
+    const players = await manager.listProgress(day);
+    const participants = players.filter(
+      (player) => player.guesses.length > 0,
+    ).length;
+    const winners = players.filter((player) => player.status === 'won');
+    const counts = new Map<string, number>();
+    const selected = new Set(progress.guesses.map((guess) => guess.card.id));
+    for (const player of players) {
+      for (const cardId of new Set(
+        player.guesses.map((guess) => guess.card.id),
+      )) {
+        if (selected.has(cardId))
+          counts.set(cardId, (counts.get(cardId) || 0) + 1);
+      }
+    }
     return {
-      participants: summary.participants,
-      solved: summary.solved,
-      abandoned: summary.abandoned,
-      averageWinningGuesses:
-        summary.average === null ? null : Number(summary.average),
+      participants,
+      solved: winners.length,
+      abandoned: players.filter((player) => player.status === 'abandoned')
+        .length,
+      averageWinningGuesses: winners.length
+        ? winners.reduce((sum, player) => sum + player.guesses.length, 0) /
+          winners.length
+        : null,
       guessPercentages: Object.fromEntries(
-        Object.entries(summary.frequencies).map(([cardId, players]) => [
-          cardId,
-          summary.participants ? (100 * players) / summary.participants : 0,
+        [...counts].map(([id, count]) => [
+          id,
+          participants ? (100 * count) / participants : 0,
         ]),
       ),
     };
   }
-
   private async present(
-    manager: EntityManager,
+    manager: ClassicTransaction,
     daily: Daily,
     progress: Progress,
   ): Promise<ClassicState> {
@@ -359,7 +305,7 @@ export class ClassicStore {
           previewImage: reference?.previewImage,
           rarity: reference?.rarity ?? g.card.rarity,
         });
-        const target = daily.cards.find((c) => c.id === daily.answer_id)!;
+        const target = daily.cards.find((c) => c.id === daily.answerId)!;
         return {
           ...g,
           card,
@@ -387,11 +333,11 @@ export class ClassicStore {
       hints: (['reduce', 'art', 'text'] as const).map((kind) => {
         const used =
           kind === 'reduce'
-            ? progress.hint_used
+            ? progress.hintUsed
             : kind === 'art'
-              ? progress.art_used
-              : progress.text_used;
-        const target = daily.cards.find((c) => c.id === daily.answer_id)!;
+              ? progress.artUsed
+              : progress.textUsed;
+        const target = daily.cards.find((c) => c.id === daily.answerId)!;
         const supported =
           kind === 'reduce'
             ? true
@@ -422,15 +368,15 @@ export class ClassicStore {
         available:
           progress.status === 'playing' &&
           progress.guesses.length >= HINT_THRESHOLD &&
-          !progress.hint_used,
-        used: progress.hint_used,
+          !progress.hintUsed,
+        used: progress.hintUsed,
         removed: progress.removed.length,
       },
       ...(progress.status === 'playing'
         ? {}
         : {
             answer: this.publicCard(
-              daily.cards.find((c) => c.id === daily.answer_id)!,
+              daily.cards.find((c) => c.id === daily.answerId)!,
             ),
           }),
     };

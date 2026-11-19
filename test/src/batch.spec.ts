@@ -1,11 +1,7 @@
 import { BatchService } from '../../packages/api/src/batches/batch.service';
 
 describe('Nest batch operations', () => {
-  const db = {
-    query: jest.fn(),
-    synchronize: jest.fn(),
-    runMigrations: jest.fn(),
-  };
+  const db = { synchronize: jest.fn() };
   const bulk = { downloadDefaultCards: jest.fn() };
   const importer = { importAll: jest.fn() };
   const catalogue = { prepare: jest.fn() };
@@ -18,17 +14,9 @@ describe('Nest batch operations', () => {
   beforeEach(() => {
     jest.resetAllMocks();
   });
-  it('refuses schema initialization on an existing database', async () => {
-    db.query.mockResolvedValue([{ count: 1 }]);
-    await expect(batch.run('database:init')).rejects.toThrow('not empty');
-    expect(db.synchronize).not.toHaveBeenCalled();
-    expect(db.runMigrations).not.toHaveBeenCalled();
-  });
-  it('initializes an empty database and applies the registered migration', async () => {
-    db.query.mockResolvedValue([{ count: 0 }]);
-    await batch.run('database:init');
+  it('synchronizes the development schema from the registered TypeORM models', async () => {
+    await batch.run('database:sync');
     expect(db.synchronize).toHaveBeenCalledWith(false);
-    expect(db.runMigrations).toHaveBeenCalledTimes(1);
   });
   it('uses the same bulk import service as the HTTP controller', async () => {
     importer.importAll.mockResolvedValue({

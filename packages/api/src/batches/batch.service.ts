@@ -5,7 +5,7 @@ import { ScryfallBulkDataService } from '../infrastructure/external/scryfall/bul
 import { ClassicCatalogueService } from '../models/classic-catalogue/classic-catalogue.service';
 
 export const batchCommands = [
-  'database:init',
+  'database:sync',
   'scryfall:download',
   'scryfall:import',
   'classic:prepare',
@@ -24,18 +24,10 @@ export class BatchService {
 
   async run(command: BatchCommand, checkOnly = false): Promise<void> {
     switch (command) {
-      case 'database:init': {
-        const [{ count }]: { count: number }[] = await this.db.query(
-          "SELECT count(*)::int AS count FROM information_schema.tables WHERE table_schema='public' AND table_type='BASE TABLE'",
-        );
-        if (count !== 0)
-          throw new Error(
-            'Initialization refused: database is not empty. Use migrations for an existing installation.',
-          );
+      case 'database:sync': {
         await this.db.synchronize(false);
-        await this.db.runMigrations();
         this.logger.log(
-          'Empty database initialized; automatic synchronization remains disabled.',
+          'Development schema synchronized from the TypeORM models.',
         );
         break;
       }

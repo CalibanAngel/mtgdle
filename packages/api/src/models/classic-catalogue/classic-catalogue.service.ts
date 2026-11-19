@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { DataSource } from 'typeorm';
+import { ClassicCatalogueRepository } from './classic-catalogue.repository';
 import type { ScryfallCard } from '@scryfall/api-types';
 import { ScryfallBulkDataService } from '../../infrastructure/external/scryfall/bulk-data/scryfall-bulk-data.service';
 import { standard, toClassicCard } from './classic-catalogue.mapper';
@@ -12,17 +12,14 @@ const earlier = (a: Printing, b?: Printing) =>
 export class ClassicCatalogueService {
   private readonly logger = new Logger(ClassicCatalogueService.name);
   constructor(
-    private readonly db: DataSource,
+    private readonly repository: ClassicCatalogueRepository,
     private readonly bulk: ScryfallBulkDataService,
   ) {}
 
   async prepare(
     checkOnly = false,
   ): Promise<{ cards: number; selectedNames: number }> {
-    const rows: { name: string }[] = await this.db.query(
-      'SELECT name FROM playable_card',
-    );
-    const names = new Set(rows.map((row) => row.name));
+    const names = new Set(await this.repository.selectedNames());
     const entries = new Map<string, { first?: Printing; art?: Printing }>();
     await this.bulk.importCardsFromFile(true, async (batch) => {
       for (const card of batch) {
@@ -50,25 +47,7 @@ export class ClassicCatalogueService {
     this.logger.log(
       `Catalogue: ${cards.length} logical cards from ${names.size} selected names.`,
     );
-    if (!checkOnly) {
-      await this.db.runMigrations();
-      await this.db.transaction(async (manager) => {
-        for (const card of cards) {
-          await manager.query(
-            'INSERT INTO classic_catalogue(id,data) VALUES($1,$2) ON CONFLICT(id) DO UPDATE SET data=EXCLUDED.data',
-            [card.id, card],
-          );
-        }
-        await manager.query(`UPDATE classic_daily d SET cards = (
-          SELECT jsonb_agg(item || jsonb_build_object(
-            'previewImage', c.data->'previewImage', 'artCrop', c.data->'artCrop',
-            'oracleText', c.data->'oracleText', 'rarity', c.data->'rarity'
-          ) ORDER BY position)
-          FROM jsonb_array_elements(d.cards) WITH ORDINALITY AS items(item, position)
-          LEFT JOIN classic_catalogue c ON c.id::text = item->>'id'
-        )`);
-      });
-    }
+    if (!checkOnly) await this.repository.refresh(cards);
     return { cards: cards.length, selectedNames: names.size };
   }
 }

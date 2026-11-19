@@ -1,6 +1,7 @@
 import { DataSource } from 'typeorm';
 import { randomUUID } from 'node:crypto';
-import { CLASSIC_SCHEMA_SQL } from '../../packages/api/src/infrastructure/database/migrations/classic-schema.migration';
+import { ClassicEntities } from '../../packages/api/src/infrastructure/database/entities';
+import { ClassicRepository } from '../../packages/api/src/models/classic-progress/classic.repository';
 import path from 'node:path';
 import dotenv from 'dotenv';
 import type { ClassicCard } from '@mtgdle/shared-types';
@@ -45,10 +46,10 @@ integration('Classic persistence (dedicated PostgreSQL)', () => {
       password: process.env.DATABASE_PASSWORD,
       database,
       synchronize: false,
-      entities: [],
+      entities: ClassicEntities,
     }).initialize();
-    await db.query(CLASSIC_SCHEMA_SQL);
-    store = new ClassicStore(db);
+    await db.synchronize();
+    store = new ClassicStore(new ClassicRepository(db));
   });
   beforeEach(async () => {
     await db.query(

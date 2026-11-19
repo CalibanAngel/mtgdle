@@ -83,4 +83,20 @@ describe('HealthApiService', () => {
     expect(result.info?.scryfall?.status).toEqual('up');
     expect(result.info?.database?.status).toEqual('up');
   });
+
+  it('checks Docker database health without contacting Scryfall', async () => {
+    const scryfall = jest.spyOn(service, 'isScryfallAlive');
+    const result = await service.checkDatabase();
+    expect(result.status).toBe('ok');
+    expect(result.info?.database?.status).toBe('up');
+    expect(scryfall).not.toHaveBeenCalled();
+    scryfall.mockRestore();
+  });
+
+  it('propagates database failures in the database-only check', async () => {
+    mockTypeOrmHealthIndicator.pingCheck.mockRejectedValueOnce(
+      new Error('database unavailable'),
+    );
+    await expect(service.checkDatabase()).rejects.toThrow();
+  });
 });

@@ -9,10 +9,7 @@ describe('HealthController', () => {
         .mockRejectedValue(new Error('database unavailable')),
     };
     await expect(
-      new HealthController(
-        service as unknown as HealthApiService,
-        {} as never,
-      ).check(),
+      new HealthController(service as unknown as HealthApiService).check(),
     ).rejects.toThrow('database unavailable');
   });
 });
