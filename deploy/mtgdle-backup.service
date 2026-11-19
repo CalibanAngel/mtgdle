@@ -1,0 +1,9 @@
+[Unit]
+Description=MTGdle PostgreSQL backup
+After=docker.service
+Requires=docker.service
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/mtgdle
+ExecStart=/bin/bash /opt/mtgdle/deploy/backup.sh
+UMask=0077

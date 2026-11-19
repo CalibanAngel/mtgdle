@@ -1,0 +1,75 @@
+name: Verify and build Docker images
+on:
+  pull_request:
+  push:
+    branches: [master]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: mtgdle
+          POSTGRES_PASSWORD: ci-only-password
+          POSTGRES_DB: mtgdle_classic_test
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U mtgdle -d mtgdle_classic_test"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      DATABASE_HOST: 127.0.0.1
+      DATABASE_PORT: '5432'
+      DATABASE_USER: mtgdle
+      DATABASE_PASSWORD: ci-only-password
+      DATABASE_NAME: mtgdle
+      CLASSIC_TEST_DATABASE: mtgdle_classic_test
+      BACK_API_HOST: localhost
+      BACK_API_PORT: '3000'
+      VITE_API_URL: /api
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: '1.3.3'
+      - run: bun install --frozen-lockfile
+      - run: bun run build:shared-types && bun run build:api && bun run build:front
+      - run: bun run test:unit && bun run test:integration
+      - run: bunx playwright install --with-deps chromium
+      - run: bun run test:browser
+      - name: Build runtime images
+        run: |
+          docker build --target api -t mtgdle-api:ci .
+          docker build --target web -t mtgdle-web:ci .
+  publish:
+    needs: verify
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build and publish immutable commit tags
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          repository="${GITHUB_REPOSITORY,,}"
+          printf '%s' "$GH_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+          for target in api web; do
+            image="ghcr.io/${repository}-${target}:${GITHUB_SHA}"
+            docker build --target "$target" --label "org.opencontainers.image.source=https://github.com/${GITHUB_REPOSITORY}" -t "$image" .
+            docker push "$image"
+          done

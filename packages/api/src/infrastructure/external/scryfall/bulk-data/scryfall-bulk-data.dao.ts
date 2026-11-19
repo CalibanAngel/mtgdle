@@ -127,7 +127,7 @@ export class ScryfallBulkDataDao extends WithLogger {
    * Convenience wrapper to parse the bundled mock data incrementally.
    */
   getLocalStream(): Readable {
-    const filePath = join(
+    const filePath = process.env.SCRYFALL_BULK_FILE || join(
       process.cwd(),
       'src',
       'infrastructure',

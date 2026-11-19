@@ -11,6 +11,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@heroui/card": "^2.0.0",
+    "@heroui/chip": "^2.0.0",
+    "@heroui/table": "^2.0.0",
+    "@heroui/spinner": "2.2.24",
     "@heroui/autocomplete": "^2.3.29",
     "@heroui/button": "^2.2.24",
     "@heroui/code": "^2.2.18",
@@ -34,6 +38,7 @@
     "@tanstack/react-query-devtools": "^5.32.0",
     "@types/stream-json": "^1.7.8",
     "clsx": "2.1.1",
+    "joi": "17.13.3",
     "framer-motion": "11.18.2",
     "mana-font": "^1.18.0",
     "react": "18.3.1",

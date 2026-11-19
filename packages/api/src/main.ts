@@ -18,7 +18,9 @@ async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     logger: new ConsoleLogger(),
   });
-  if (process.env.TRUST_LOCAL_PROXY === 'true') {
+  if (process.env.TRUSTED_PROXY_IP) {
+    app.set('trust proxy', process.env.TRUSTED_PROXY_IP);
+  } else if (process.env.TRUST_LOCAL_PROXY === 'true') {
     app.set('trust proxy', 'loopback');
   }
 
