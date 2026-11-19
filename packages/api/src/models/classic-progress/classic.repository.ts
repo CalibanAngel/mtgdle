@@ -7,7 +7,7 @@ import { ClassicProgressEntity } from './classic-progress.schema';
 import { ClassicDaily } from '../classic-daily/classic-daily';
 import { ClassicDailyEntity } from '../classic-daily/classic-daily.schema';
 import { ClassicCatalogueEntity } from '../classic-catalogue/classic-catalogue.schema';
-import type { ClassicStoredCard } from '../classic-catalogue/classic-card';
+import type { ClassicCard } from '../classic-catalogue/classic-card';
 
 // All repositories in a transaction share its EntityManager and row locks.
 export class ClassicTransaction {
@@ -17,7 +17,7 @@ export class ClassicTransaction {
     return this.manager.getRepository(ClassicDailyEntity).findOneBy({ day });
   }
 
-  async catalogueCards(): Promise<ClassicStoredCard[]> {
+  async catalogueCards(): Promise<ClassicCard[]> {
     const rows = await this.manager
       .getRepository(ClassicCatalogueEntity)
       .find({ order: { id: 'ASC' } });
@@ -27,7 +27,7 @@ export class ClassicTransaction {
   async insertDaily(
     day: string,
     answerId: string,
-    cards: ClassicStoredCard[],
+    cards: ClassicCard[],
   ): Promise<void> {
     // The unique day key arbitrates concurrent creators; the persisted winner is
     // always read back before presenting a challenge to either player.

@@ -1,4 +1,4 @@
-import type { ClassicCard } from '@mtgdle/shared-types';
+import type { ClassicCard } from './classic-card';
 
 interface AbilityText {
   oracle_text?: string;
@@ -19,10 +19,6 @@ interface ReferencePrinting extends AbilityText {
   released_at: string;
   color_identity?: string[];
   cmc?: number;
-}
-export interface CatalogueCard extends ClassicCard {
-  artCrop: string | null;
-  oracleText: string;
 }
 const activatedKeywords = new Set([
   'Equip',
@@ -80,7 +76,7 @@ export function toClassicCard(
   id: string,
   first: ReferencePrinting,
   art: Artwork,
-): CatalogueCard {
+): ClassicCard {
   return {
     id,
     name: first.name,

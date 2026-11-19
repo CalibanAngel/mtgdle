@@ -5,7 +5,7 @@ import { ClassicCatalogue } from './classic-catalogue';
 import { ClassicCatalogueEntity } from './classic-catalogue.schema';
 import { ClassicDailyEntity } from '../classic-daily/classic-daily.schema';
 import { PlayableCardEntity } from '../playable-card/playable-card.schema';
-import type { ClassicStoredCard } from './classic-card';
+import type { ClassicCard } from './classic-card';
 
 @Injectable()
 @CustomRepository(ClassicCatalogueEntity)
@@ -17,7 +17,7 @@ export class ClassicCatalogueRepository extends CustomRepositoryBase<ClassicCata
     return rows.map((row) => row.name);
   }
 
-  async refresh(cards: ClassicStoredCard[]): Promise<void> {
+  async refresh(cards: ClassicCard[]): Promise<void> {
     await this.manager.transaction(async (manager) => {
       await manager.getRepository(ClassicCatalogueEntity).upsert(
         cards.map((data) => ({ id: data.id, data })),

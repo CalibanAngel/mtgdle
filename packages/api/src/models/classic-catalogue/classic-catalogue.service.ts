@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ClassicCatalogueRepository } from './classic-catalogue.repository';
+import type { ClassicCataloguePreparation } from './classic-catalogue';
 import type { ScryfallCard } from '@scryfall/api-types';
 import { ScryfallBulkDataService } from '../../infrastructure/external/scryfall/bulk-data/scryfall-bulk-data.service';
 import { standard, toClassicCard } from './classic-catalogue.mapper';
@@ -16,9 +17,7 @@ export class ClassicCatalogueService {
     private readonly bulk: ScryfallBulkDataService,
   ) {}
 
-  async prepare(
-    checkOnly = false,
-  ): Promise<{ cards: number; selectedNames: number }> {
+  async prepare(checkOnly = false): Promise<ClassicCataloguePreparation> {
     const names = new Set(await this.repository.selectedNames());
     const entries = new Map<string, { first?: Printing; art?: Printing }>();
     await this.bulk.importCardsFromFile(true, async (batch) => {

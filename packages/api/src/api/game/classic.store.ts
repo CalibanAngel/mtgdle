@@ -10,7 +10,7 @@ import {
 } from '../../models/classic-progress/classic.repository';
 import { ClassicDaily as Daily } from '../../models/classic-daily/classic-daily';
 import { ClassicProgress as Progress } from '../../models/classic-progress/classic-progress';
-import type { ClassicStoredCard as StoredCard } from '../../models/classic-catalogue/classic-card';
+import type { ClassicCard as StoredCard } from '../../models/classic-catalogue/classic-card';
 import { randomInt } from 'node:crypto';
 import type {
   ClassicCard,

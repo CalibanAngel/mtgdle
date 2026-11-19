@@ -60,3 +60,11 @@ Le proxy public actuel conserve sa liste de routes de jeu autorisées. Les route
 Les fichiers `.cjs` de `tools/` sont des utilitaires Node pour les développeurs et les agents ; ils ne sont ni chargés par Nest ni embarqués dans l'image runtime de l'API.
 
 Les types de santé partagés sont définis dans `packages/shared-types/src/health.interface.ts`, exportés par le point d'entrée `@mtgdle/shared-types`. Le frontend importe les contrats via ce package, sans accéder à ses fichiers `dist` ni redéfinir les types dans un service frontend.
+
+## Documentation Swagger des objets Classic
+
+Les modèles de l'API sont des classes compatibles avec les interfaces de `@mtgdle/shared-types` ; le package partagé reste indépendant de Nest et de Swagger. Les champs publics portent `@ApiProperty` ou `@ApiPropertyOptional`, avec leurs descriptions, formats et types imbriqués.
+
+Les sources privées des indices (`artCrop`, `oracleText`), la réponse stockée du défi et les identifiants internes de progression portent `@ApiHideProperty` et `@Exclude({ toPlainOnly: true })`. Ils restent disponibles aux services et à la persistance, mais sont masqués lors de la sérialisation HTTP. `@Type` applique aussi cette règle aux objets imbriqués.
+
+Les routes de jeu déclarent explicitement leurs réponses via `ClassicStateDto`, car les interfaces TypeScript ne produisent pas de schéma Swagger à l'exécution. L'image d'indice est documentée comme un contenu binaire JPEG/PNG. Les tests génèrent le document OpenAPI et vérifient aussi les réponses HTTP sérialisées.
