@@ -20,7 +20,9 @@ export const databaseConfiguration = (
       infer: true,
     }),
     entities: Entities,
-    dropSchema: configService.getOrThrow('database.dropSchema', {infer: true}),
+    dropSchema: configService.getOrThrow('database.dropSchema', {
+      infer: true,
+    }),
     // autoLoadEntities: configService.getOrThrow('database.autoLoadEntities', {infer: true}),
     migrations: [],
   };

@@ -11,7 +11,7 @@ describe('Playable catalogue', () => {
     repository as unknown as PlayableCardRepository,
   );
   beforeEach(() => jest.resetAllMocks());
-  it('does not write for an empty selection', async () => {
+  it('should skip insertion when the selected card list is empty', async () => {
     expect(await service.insertManualCards([])).toEqual({
       inserted: [],
       alreadyPresent: [],
@@ -19,16 +19,16 @@ describe('Playable catalogue', () => {
     });
     expect(repository.insertFromCardNames).not.toHaveBeenCalled();
   });
-  it('preserves the detailed manual insertion result', async () => {
+  it('should return the detailed insertion result when named cards are inserted', async () => {
     const result = { inserted: ['A'], alreadyPresent: ['B'], notFound: ['C'] };
     repository.insertFromCardNames.mockResolvedValue(result);
     expect(await service.insertManualCards(['A', 'B', 'C'])).toEqual(result);
   });
-  it('applies the existing popularity threshold', async () => {
+  it('should apply the popularity threshold when selecting cards automatically', async () => {
     await service.insertAutomaticCards();
     expect(repository.insertAutomaticByEdhrcRank).toHaveBeenCalledWith(500);
   });
-  it('propagates an empty-catalogue selection failure', async () => {
+  it('should propagate selection failure when the catalogue is empty', async () => {
     repository.getRandom.mockRejectedValue(new Error('empty catalogue'));
     await expect(service.getRandom()).rejects.toThrow('empty catalogue');
   });

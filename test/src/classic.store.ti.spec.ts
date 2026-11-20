@@ -1,6 +1,7 @@
 import { DataSource } from 'typeorm';
 import { randomUUID } from 'node:crypto';
-import { readFileSync } from 'node:fs';
+import { ClassicEntities } from '../../packages/api/src/infrastructure/database/entities';
+import { ClassicRepository } from '../../packages/api/src/models/classic-progress/classic.repository';
 import path from 'node:path';
 import dotenv from 'dotenv';
 import type { ClassicCard } from '@mtgdle/shared-types';
@@ -45,12 +46,10 @@ integration('Classic persistence (dedicated PostgreSQL)', () => {
       password: process.env.DATABASE_PASSWORD,
       database,
       synchronize: false,
-      entities: [],
+      entities: ClassicEntities,
     }).initialize();
-    await db.query(
-      readFileSync(path.resolve('scripts/classic-schema.sql'), 'utf8'),
-    );
-    store = new ClassicStore(db);
+    await db.synchronize();
+    store = new ClassicStore(new ClassicRepository(db));
   });
   beforeEach(async () => {
     await db.query(
@@ -72,7 +71,7 @@ integration('Classic persistence (dedicated PostgreSQL)', () => {
     );
     return rows[0].answer_id;
   }
-  it('creates one shared daily challenge concurrently and never discloses its answer', async () => {
+  it('should create one shared challenge without revealing its answer when sessions open concurrently', async () => {
     const states = await Promise.all([
       store.state(session),
       store.state(randomUUID()),
@@ -82,7 +81,7 @@ integration('Classic persistence (dedicated PostgreSQL)', () => {
     expect(states[0]).not.toHaveProperty('statistics');
     expect(await db.query('SELECT day FROM classic_daily')).toHaveLength(1);
   });
-  it('aggregates daily wins, winner-only average and per-session card frequencies after finishing', async () => {
+  it('should aggregate daily results and card frequencies when a session finishes', async () => {
     const initial = await store.state(session);
     const target = await answer();
     const [wrong, other] = cards.filter((c) => c.id !== target);
@@ -131,7 +130,7 @@ integration('Classic persistence (dedicated PostgreSQL)', () => {
     );
     expect(retry.statistics).toEqual(finished.statistics);
   });
-  it('handles abandonment without guesses or winners and never divides by zero', async () => {
+  it('should avoid empty averages and division by zero when a player abandons before guessing', async () => {
     const initial = await store.state(session);
     const result = await store.act(initial.day, session, 'abandon');
     expect(result.statistics).toEqual({
@@ -143,7 +142,7 @@ integration('Classic persistence (dedicated PostgreSQL)', () => {
     });
     expect((await store.state(session)).statistics).toEqual(result.statistics);
   });
-  it('enriches saved legacy guesses with rarity without changing progress or earlier comparisons', async () => {
+  it('should preserve progress and earlier comparisons when enriching saved guesses with rarity', async () => {
     const state = await store.state(session);
     const target = await answer();
     const wrong = cards.find((c) => c.id !== target)!;
@@ -176,7 +175,7 @@ integration('Classic persistence (dedicated PostgreSQL)', () => {
     expect(await answer()).toBe(target);
     expect(reloaded).not.toHaveProperty('answer');
   });
-  it('serializes duplicate guesses and preserves retry idempotence', async () => {
+  it('should preserve idempotence when duplicate guesses arrive concurrently', async () => {
     const state = await store.state(session);
     const target = await answer();
     const wrong = cards.find((c) => c.id !== target)!;
@@ -194,7 +193,7 @@ integration('Classic persistence (dedicated PostgreSQL)', () => {
       (await store.state(session)).choices.some((c) => c.id === wrong.id),
     ).toBe(false);
   });
-  it('unlocks the hint at ten errors, removes half the choices and preserves the target', async () => {
+  it('should remove half the choices and preserve the answer when the reduction hint unlocks', async () => {
     const state = await store.state(session);
     const target = await answer();
     await expect(store.act(state.day, session, 'hint')).rejects.toThrow();
@@ -219,7 +218,7 @@ integration('Classic persistence (dedicated PostgreSQL)', () => {
       store.act(state.day, session, 'guess', excluded.id, randomUUID()),
     ).rejects.toThrow();
   });
-  it('accepts more than ten attempts, then reveals the answer only on victory', async () => {
+  it('should reveal the answer only after victory when a session exceeds ten attempts', async () => {
     const state = await store.state(session);
     const target = await answer();
     for (const card of cards.filter((c) => c.id !== target).slice(0, 12))
@@ -238,7 +237,7 @@ integration('Classic persistence (dedicated PostgreSQL)', () => {
       store.act(state.day, session, 'guess', cards[0].id, randomUUID()),
     ).rejects.toThrow();
   });
-  it('isolates sessions, persists abandonment and rejects expired challenges', async () => {
+  it('should isolate progress and reject expired actions when sessions abandon or challenges change', async () => {
     const state = await store.state(session);
     expect(
       (await store.act(state.day, session, 'abandon')).answer,
@@ -247,7 +246,7 @@ integration('Classic persistence (dedicated PostgreSQL)', () => {
     expect((await store.state(session)).status).toBe('abandoned');
     await expect(store.act('2000-01-01', session, 'hint')).rejects.toThrow();
   });
-  it('gates illustration and text independently at 15 and 20 errors, without exposing private data', async () => {
+  it('should gate illustration and text independently when their error thresholds are reached', async () => {
     const initial = await store.state(session);
     const target = await answer();
     const wrong = cards.filter((c) => c.id !== target);

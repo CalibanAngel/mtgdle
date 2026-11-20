@@ -6,6 +6,12 @@ import { HealthApiService } from './health.api-service';
 export class HealthController {
   constructor(private readonly healthApiService: HealthApiService) {}
 
+  @Get('database')
+  @HealthCheck()
+  database() {
+    return this.healthApiService.checkDatabase();
+  }
+
   @Get()
   @HealthCheck()
   check() {

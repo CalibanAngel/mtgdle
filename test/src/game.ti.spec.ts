@@ -20,13 +20,13 @@ describe('Game HTTP contract', () => {
     await app.close();
   });
   beforeEach(() => guessCard.mockClear());
-  it('rejects invalid UUIDs before invoking the service', async () => {
+  it('should reject the request when the card ID is not a UUID', async () => {
     await request(app.getHttpServer())
       .post('/game/guess-card/invalid')
       .expect(400);
     expect(guessCard).not.toHaveBeenCalled();
   });
-  it('accepts a UUID', async () => {
+  it('should invoke the service when the card ID is a valid UUID', async () => {
     const id = '4bb07091-86d6-4735-82b6-6e71e26710f4';
     await request(app.getHttpServer())
       .post(`/game/guess-card/${id}`)

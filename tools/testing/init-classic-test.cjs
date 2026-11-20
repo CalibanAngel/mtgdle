@@ -1,11 +1,11 @@
 const { Client } = require('pg');
 const path = require('node:path');
 require('dotenv').config({
-  path: path.join(__dirname, '../.env'),
+  path: path.join(__dirname, '../../.env'),
   quiet: true,
 });
 require('dotenv').config({
-  path: path.join(__dirname, '../packages/api/.env'),
+  path: path.join(__dirname, '../../packages/api/.env'),
   quiet: true,
 });
 const name = process.env.CLASSIC_TEST_DATABASE;

@@ -1,9 +1,4 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Post,
-} from '@nestjs/common';
+import { Body, Controller, Get, Post } from '@nestjs/common';
 import {
   ApiBody,
   ApiCreatedResponse,
@@ -14,6 +9,7 @@ import { PlayableCardApiService } from './playable-card.api-service';
 import { InsertManualCardsDto } from './playable-card.dto';
 import { PlayableCard } from '../../models/playable-card/playable-card';
 import { InsertedResult } from '../../infrastructure/database/database.interface';
+import { AdminOnly } from '../../auth/admin-only.decorator';
 
 @ApiTags('playable-cards')
 @Controller('playable-cards')
@@ -32,19 +28,23 @@ export class PlayableCardController {
   }
 
   @Post('manual')
+  @AdminOnly()
   @ApiBody({
     type: InsertManualCardsDto,
   })
   @ApiCreatedResponse({
-    type: InsertedResult
+    type: InsertedResult,
   })
-  insertManualCards(@Body() { cardsName }: InsertManualCardsDto): Promise<InsertedResult> {
+  insertManualCards(
+    @Body() { cardsName }: InsertManualCardsDto,
+  ): Promise<InsertedResult> {
     return this.playableCardApiService.insertManualCards(cardsName);
   }
 
   @Post('automatic')
+  @AdminOnly()
   @ApiCreatedResponse({
-    type: InsertedResult
+    type: InsertedResult,
   })
   insertAutomaticCards(): Promise<InsertedResult> {
     return this.playableCardApiService.insertAutomaticCards();

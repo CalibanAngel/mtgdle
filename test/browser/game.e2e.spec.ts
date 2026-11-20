@@ -1,8 +1,6 @@
 import { test as base, expect } from '@playwright/test';
-import type {
-  ClassicCard,
-  ClassicState,
-} from '../../packages/shared-types/src/classic.interface';
+import { ClassicStatus } from '@mtgdle/shared-types';
+import type { ClassicCard, ClassicState } from '@mtgdle/shared-types';
 
 const cards: ClassicCard[] = Array.from({ length: 64 }, (_, i) => ({
   id: `00000000-0000-4000-8000-${String(i).padStart(12, '0')}`,
@@ -39,7 +37,7 @@ const test = base.extend<{ server: Server }>({
       state: {
         day: '2026-10-29',
         expiresAt: '2099-01-01T00:00:00Z',
-        status: 'playing',
+        status: ClassicStatus.Playing,
         guesses: [],
         choices: cards.map(({ id, name, image, previewImage }) => ({
           id,
@@ -96,7 +94,7 @@ const test = base.extend<{ server: Server }>({
                 server.state.guesses.length >= h.threshold && !h.used;
             });
             if (card.id === cards[23].id) {
-              server.state.status = 'won';
+              server.state.status = ClassicStatus.Won;
               server.state.answer = card;
             }
           } else if (url.pathname.endsWith('/hint')) {
@@ -115,11 +113,14 @@ const test = base.extend<{ server: Server }>({
             } else if (kind === 'art') hint.hasImage = true;
             else hint.text = '[cette carte] deals 2 damage to any target.';
           } else if (url.pathname.endsWith('/abandon')) {
-            server.state.status = 'abandoned';
+            server.state.status = ClassicStatus.Abandoned;
             server.state.answer = cards[23];
           }
         }
-        if (server.state.status !== 'playing' && !server.state.statistics) {
+        if (
+          server.state.status !== ClassicStatus.Playing &&
+          !server.state.statistics
+        ) {
           server.state.statistics = {
             participants: 4,
             solved: 2,
@@ -154,7 +155,7 @@ async function select(
   await page.getByRole('option', { name, exact: true }).click();
 }
 
-test('selection requires confirmation and removes a submitted card after reload', async ({
+test('should require confirmation and keep the card removed when a selection is submitted and reloaded', async ({
   page,
   server,
 }) => {
@@ -175,7 +176,7 @@ test('selection requires confirmation and removes a submitted card after reload'
   );
 });
 
-test('keyboard chooses a card, then confirmation submits it', async ({
+test('should submit the keyboard selection when the player confirms it', async ({
   page,
   server,
 }) => {
@@ -193,7 +194,7 @@ test('keyboard chooses a card, then confirmation submits it', async ({
   ).toBeVisible();
 });
 
-test('network failure allows retry without removing the choice', async ({
+test('should retain the choice and allow retry when the network request fails', async ({
   page,
   server,
 }) => {
@@ -210,7 +211,9 @@ test('network failure allows retry without removing the choice', async ({
   expect(server.requests).toHaveLength(1);
 });
 
-test('hint unlocks after ten errors and survives reload', async ({ page }) => {
+test('should unlock and retain the reduction hint when ten errors are reached and the page reloads', async ({
+  page,
+}) => {
   await page.goto('/');
   await expect(
     page.getByRole('button', { name: 'Indice 1 : Réduire les choix' }),
@@ -230,7 +233,9 @@ test('hint unlocks after ten errors and survives reload', async ({ page }) => {
   await expect(page.getByText('27 cartes retirées')).toBeVisible();
 });
 
-test('victory reveals the answer and stops proposals', async ({ page }) => {
+test('should reveal the answer and stop proposals when the player wins', async ({
+  page,
+}) => {
   await page.goto('/');
   await select(page, cards[23].name);
   await page.getByRole('button', { name: 'Proposer' }).click();
@@ -244,7 +249,7 @@ test('victory reveals the answer and stops proposals', async ({ page }) => {
   ).toBeVisible();
 });
 
-test('finished games show daily statistics and per-card percentages in both languages after reload', async ({
+test('should show translated statistics and percentages when a finished game is reloaded', async ({
   page,
 }) => {
   await page.goto('/');
@@ -278,11 +283,11 @@ test('finished games show daily statistics and per-card percentages in both lang
   ).toHaveCount(1);
 });
 
-test('statistics display a dash when nobody has won and handle no guesses', async ({
+test('should display empty statistics safely when nobody has guessed or won', async ({
   page,
   server,
 }) => {
-  server.state.status = 'abandoned';
+  server.state.status = ClassicStatus.Abandoned;
   server.state.answer = cards[23];
   server.state.statistics = {
     participants: 0,
@@ -300,7 +305,9 @@ test('statistics display a dash when nobody has won and handle no guesses', asyn
   ).toHaveCount(0);
 });
 
-test('abandonment requires confirmation and persists', async ({ page }) => {
+test('should persist abandonment when the player confirms it', async ({
+  page,
+}) => {
   await page.goto('/');
   await page
     .getByRole('button', { name: 'Abandonner et révéler la carte' })
@@ -312,7 +319,7 @@ test('abandonment requires confirmation and persists', async ({ page }) => {
   await expect(page.getByRole('combobox')).toHaveCount(0);
 });
 
-test('failed initial load offers recovery', async ({ page }) => {
+test('should offer recovery when the initial load fails', async ({ page }) => {
   await page.route('**/classic/today', (route) =>
     route.fulfill({ status: 503, json: { message: 'Unavailable' } }),
   );
@@ -321,7 +328,7 @@ test('failed initial load offers recovery', async ({ page }) => {
   await expect(page.getByRole('button', { name: 'Réessayer' })).toBeVisible();
 });
 
-test('unknown URLs return to the game from the not-found page', async ({
+test('should offer a return to the game when an unknown URL is opened', async ({
   page,
 }) => {
   await page.goto('/missing-page');
@@ -332,7 +339,7 @@ test('unknown URLs return to the game from the not-found page', async ({
   await expect(page.getByRole('combobox')).toBeVisible();
 });
 
-test('theme remains keyboard accessible on every viewport', async ({
+test('should keep the theme control keyboard accessible when the viewport changes', async ({
   page,
 }) => {
   await page.goto('/');
@@ -342,7 +349,7 @@ test('theme remains keyboard accessible on every viewport', async ({
   await expect(toggle).toBeChecked({ checked: !wasChecked });
 });
 
-test('compact layout offers large previews in search and history', async ({
+test('should display large previews when cards are opened from search or history', async ({
   page,
   isMobile,
 }, testInfo) => {
@@ -382,7 +389,7 @@ test('compact layout offers large previews in search and history', async ({
   });
 });
 
-test('illustration and masked rules text remain revealed after reload', async ({
+test('should retain the illustration and masked rules text when activated hints are reloaded', async ({
   page,
   server,
 }) => {
@@ -444,7 +451,7 @@ test('illustration and masked rules text remain revealed after reload', async ({
   ).toBeVisible();
 });
 
-test('English translation persists without resetting the game', async ({
+test('should preserve the game and selected language when English is enabled and the page reloads', async ({
   page,
 }) => {
   await page.goto('/');
@@ -487,7 +494,7 @@ test('English translation persists without resetting the game', async ({
   ).toHaveCount(1);
 });
 
-test('card frame contains controls and partner links without an outer header', async ({
+test('should display controls and partner links inside the card frame when the game loads', async ({
   page,
 }) => {
   await page.goto('/');
@@ -509,7 +516,7 @@ test('card frame contains controls and partner links without an outer header', a
   await expect(page.getByText('Powered by')).toHaveCount(0);
 });
 
-test('English errors, previews and confirmation are translated', async ({
+test('should translate errors, previews and confirmation when English is selected', async ({
   page,
 }) => {
   await page.goto('/');
@@ -540,7 +547,7 @@ test('English errors, previews and confirmation are translated', async ({
   ).toBeVisible();
 });
 
-test('Omnath frame uses a white border in light mode and a black border in dark mode', async ({
+test('should adapt the Omnath border color when the theme changes', async ({
   page,
 }, testInfo) => {
   await page.goto('/');

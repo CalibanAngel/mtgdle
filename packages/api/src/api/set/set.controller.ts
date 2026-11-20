@@ -9,6 +9,7 @@ import { Observable } from 'rxjs';
 import { SetApiService } from './set.api-service';
 import { CardSet } from '../../models/set/set';
 import { UpsertResult } from '../../infrastructure/database/database.interface';
+import { AdminOnly } from '../../auth/admin-only.decorator';
 
 @ApiTags('set')
 @Controller('set')
@@ -16,6 +17,7 @@ export class SetController {
   constructor(private readonly setApiService: SetApiService) {}
 
   @Post('scryfall/import')
+  @AdminOnly()
   @ApiQuery({
     name: 'onlyExpansion',
     type: Boolean,
@@ -23,7 +25,7 @@ export class SetController {
     description: 'Only insert expansion sets',
   })
   @ApiCreatedResponse({
-    type: UpsertResult<CardSet> // todo: type is not pretty in swagger
+    type: UpsertResult<CardSet>, // todo: type is not pretty in swagger
   })
   insertAllFromScryfall(
     @Query('onlyExpansion', new ParseBoolPipe()) onlyExpansion: boolean,

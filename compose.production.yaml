@@ -1,0 +1,96 @@
+name: mtgdle
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: 10m
+    max-file: '3'
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: mtgdle
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:?Set DATABASE_PASSWORD in .env.production}
+      POSTGRES_DB: mtgdle
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks: [backend]
+    healthcheck:
+      test: [CMD-SHELL, 'pg_isready -U mtgdle -d mtgdle']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    logging: *logging
+  api:
+    image: ${API_IMAGE:-mtgdle-api:local}
+    build:
+      context: .
+      target: api
+    restart: unless-stopped
+    init: true
+    environment:
+      NODE_ENV: production
+      BACK_API_HOST: api
+      BACK_API_PORT: '3000'
+      FRONT_API_HOST: ${PUBLIC_HOST:-57.129.189.95}
+      FRONT_API_PORT: '80'
+      API_BIND_HOST: 0.0.0.0
+      TRUSTED_PROXY_IP: 172.30.50.4
+      DATABASE_HOST: postgres
+      DATABASE_PORT: '5432'
+      DATABASE_USER: mtgdle
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD:?Set DATABASE_PASSWORD}
+      DATABASE_NAME: mtgdle
+      DATABASE_SYNCHRONIZE: 'false'
+      DATABASE_DROP_SCHEMA: 'false'
+      DATABASE_AUTO_LOAD_ENTITIES: 'false'
+      DATABASE_BATCH_SIZE: '500'
+      SCRYFALL_API_HOST: https://api.scryfall.com
+      SCRYFALL_BULK_FILE: /data/default-cards.json
+      SCHEDULE_ENABLED: 'false'
+      ADMIN_API_TOKEN: ${ADMIN_API_TOKEN:-}
+    volumes:
+      - ./data:/data:ro
+    networks: [backend, public]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: [CMD, node, -e, "fetch('http://127.0.0.1:3000/health/database').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    security_opt: [no-new-privileges:true]
+    cap_drop: [ALL]
+    logging: *logging
+  web:
+    image: ${WEB_IMAGE:-mtgdle-web:local}
+    build:
+      context: .
+      target: web
+    restart: unless-stopped
+    ports:
+      - '${HTTP_BIND:-0.0.0.0}:${HTTP_PORT:-80}:8080'
+    networks:
+      public:
+        ipv4_address: 172.30.50.4
+    depends_on: [api]
+    healthcheck:
+      test: [CMD, wget, -q, --spider, http://127.0.0.1:8080/healthz]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    security_opt: [no-new-privileges:true]
+    cap_drop: [ALL]
+    logging: *logging
+networks:
+  backend:
+    internal: true
+  public:
+    ipam:
+      config:
+        - subnet: 172.30.50.0/24
+volumes:
+  pgdata:
+

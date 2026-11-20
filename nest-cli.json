@@ -25,11 +25,14 @@
         "tsConfigPath": "packages/api/tsconfig.json"
       }
     },
-    "scripts": {
+    "batch": {
       "type": "application",
-      "root": "packages/scripts",
-      "entryFile": "index",
-      "sourceRoot": "packages/scripts/src"
+      "root": "packages/api",
+      "entryFile": "batches/main",
+      "sourceRoot": "packages/api/src",
+      "compilerOptions": {
+        "tsConfigPath": "packages/api/tsconfig.json"
+      }
     }
   }
 }

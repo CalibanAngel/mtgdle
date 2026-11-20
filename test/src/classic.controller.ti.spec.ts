@@ -33,7 +33,7 @@ describe('Classic HTTP session and validation', () => {
     artSource.mockReset();
   });
 
-  it('creates an opaque HttpOnly session and reuses it for a valid guess', async () => {
+  it('should reuse the opaque HttpOnly session when a valid guess follows the initial visit', async () => {
     const initial = await request(app.getHttpServer())
       .get('/classic/today')
       .expect(200);
@@ -57,14 +57,14 @@ describe('Classic HTTP session and validation', () => {
       requestId,
     );
   });
-  it('rejects malformed proposals before invoking persistence', async () => {
+  it('should reject malformed proposals when validating a guess before persistence', async () => {
     await request(app.getHttpServer())
       .post('/classic/2026-10-29/guesses')
       .send({ cardId: 'invalid' })
       .expect(400);
     expect(act).not.toHaveBeenCalled();
   });
-  it('validates the requested hint kind', async () => {
+  it('should reject the hint request when its kind is invalid', async () => {
     await request(app.getHttpServer())
       .post('/classic/2026-10-29/hint')
       .send({ kind: 'answer' })
@@ -76,7 +76,7 @@ describe('Classic HTTP session and validation', () => {
       .expect(201);
     expect(act.mock.calls[0][5]).toBe('text');
   });
-  it('never downloads a locked illustration or an untrusted source', async () => {
+  it('should reject illustration access when the hint is locked or the source is untrusted', async () => {
     const download = jest.spyOn(globalThis, 'fetch');
     try {
       artSource.mockRejectedValueOnce(new ConflictException('Locked'));
@@ -94,7 +94,7 @@ describe('Classic HTTP session and validation', () => {
       download.mockRestore();
     }
   });
-  it('serves only image bytes, without revealing the source URL', async () => {
+  it('should return only image bytes when serving an authorized illustration', async () => {
     artSource.mockResolvedValue(
       'https://cards.scryfall.io/art_crop/front/secret.jpg',
     );

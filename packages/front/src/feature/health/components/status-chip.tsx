@@ -1,5 +1,5 @@
 import { useI18n } from '@/i18n';
-import { Overall, UpDown } from '@mtgdle/shared-types/dist/health';
+import type { Overall, UpDown } from '@mtgdle/shared-types';
 import { Chip } from '@heroui/chip';
 import { Spinner } from '@heroui/spinner';
 

@@ -5,7 +5,7 @@ const { once } = require('node:events');
 const { setTimeout: delay } = require('node:timers/promises');
 const { createPreviewServer } = require('./classic-preview.cjs');
 const { ensureCloudflared } = require('./cloudflared.cjs');
-const root = path.resolve(__dirname, '..');
+const root = path.resolve(__dirname, '../..');
 require('dotenv').config({ path: path.join(root, '.env'), quiet: true });
 require('dotenv').config({
   path: path.join(root, 'packages/api/.env'),

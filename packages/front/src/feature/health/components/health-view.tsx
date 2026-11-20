@@ -2,9 +2,9 @@ import { useI18n } from '@/i18n';
 import { useCallback, useRef, useState } from 'react';
 import { Button } from '@heroui/button';
 import { Card, CardBody, CardHeader, CardFooter } from '@heroui/card';
-import { UpDown } from '@mtgdle/shared-types/dist/health';
+import type { HealthResponse, UpDown } from '@mtgdle/shared-types';
 
-import { HealthResponse, useHealth } from '../api/get-health';
+import { useHealth } from '@/feature/health/api/get-health';
 
 import { StatusChip } from './status-chip';
 

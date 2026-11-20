@@ -39,6 +39,9 @@ bun.lockb
 # environment files
 .env
 **/.env
+.env.production
+/data/
+/backups/
 .env.*.local
 
 # bundled artifacts, logs, miscellaneous

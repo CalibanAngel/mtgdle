@@ -1,4 +1,4 @@
-import { Autocomplete, AutocompleteItem } from '@heroui/react';
+import { Autocomplete, AutocompleteItem } from '@heroui/autocomplete';
 import { Image } from '@heroui/image';
 import { useCallback, useMemo, useState } from 'react';
 

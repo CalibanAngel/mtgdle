@@ -18,7 +18,9 @@ async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     logger: new ConsoleLogger(),
   });
-  if (process.env.TRUST_LOCAL_PROXY === 'true') {
+  if (process.env.TRUSTED_PROXY_IP) {
+    app.set('trust proxy', process.env.TRUSTED_PROXY_IP);
+  } else if (process.env.TRUST_LOCAL_PROXY === 'true') {
     app.set('trust proxy', 'loopback');
   }
 
@@ -26,6 +28,15 @@ async function bootstrap() {
     .setTitle('Mtgdle')
     .setDescription('The mtgdle API description')
     .setVersion('1.0')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        description:
+          'Technical administrator token; does not represent player accounts.',
+      },
+      'admin',
+    )
     .build();
 
   const swaggerFactory = () => SwaggerModule.createDocument(app, swaggerConfig);

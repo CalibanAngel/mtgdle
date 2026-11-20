@@ -2,6 +2,7 @@ import { Controller, ParseBoolPipe, Post, Query } from '@nestjs/common';
 import { BulkApiService } from './bulk.api-service';
 import { ApiCreatedResponse, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { ImportAllType } from './bulk.type';
+import { AdminOnly } from '../../auth/admin-only.decorator';
 
 @Controller()
 @ApiTags('bulk')
@@ -9,6 +10,7 @@ export class BulkController {
   constructor(private readonly bulkApiService: BulkApiService) {}
 
   @Post('scryfall/import/all')
+  @AdminOnly()
   @ApiQuery({
     name: 'local',
     type: Boolean,

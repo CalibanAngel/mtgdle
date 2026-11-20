@@ -18,6 +18,7 @@ import { CardApiService } from './card.api-service';
 import { CardService } from '../../models/card/card.service';
 import { Card } from '../../models/card/card';
 import { ImportStats } from '../common/import-stats';
+import { AdminOnly } from '../../auth/admin-only.decorator';
 
 @ApiTags('card')
 @Controller('card')
@@ -45,6 +46,7 @@ export class CardController {
   }
 
   @Post('/scryfall/create/:id')
+  @AdminOnly()
   @ApiParam({
     name: 'id',
     type: String,
@@ -56,6 +58,7 @@ export class CardController {
   }
 
   @Post('/scryfall/import')
+  @AdminOnly()
   @ApiQuery({
     name: 'local',
     type: Boolean,

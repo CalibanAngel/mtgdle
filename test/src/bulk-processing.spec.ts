@@ -11,7 +11,7 @@ describe('Bulk processing', () => {
     } as unknown as ConfigService<Configuration>,
     {} as HttpService,
   );
-  it('processes full and trailing batches without dropping items', async () => {
+  it('should process every item when the final batch is incomplete', async () => {
     const items = [{ id: 'a' }, { id: 'b' }, { id: 'c' }];
     const consume = jest.fn().mockResolvedValue(undefined);
     const result = await dao.processInBatches(
@@ -25,14 +25,14 @@ describe('Bulk processing', () => {
     ]);
     expect(result).toMatchObject({ totalItems: 3, batchCount: 2 });
   });
-  it('does not invoke storage for an empty file', async () => {
+  it('should skip storage when the input file is empty', async () => {
     const consume = jest.fn();
     expect(
       await dao.processInBatches(Readable.from(['[]']), 2, consume),
     ).toMatchObject({ totalItems: 0, batchCount: 0 });
     expect(consume).not.toHaveBeenCalled();
   });
-  it('stops after a failed batch and destroys the input stream', async () => {
+  it('should stop processing and destroy the input stream when storage fails', async () => {
     const stream = Readable.from(['[{"id":"a"},{"id":"b"}]']);
     const consume = jest.fn().mockRejectedValue(new Error('storage failure'));
     await expect(dao.processInBatches(stream, 1, consume)).rejects.toThrow(
