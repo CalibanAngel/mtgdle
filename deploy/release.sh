@@ -19,9 +19,23 @@ cp .env.production "$previous"
 sed '/^API_IMAGE=/d; /^WEB_IMAGE=/d' .env.production > .env.production.next
 printf 'API_IMAGE=%s\nWEB_IMAGE=%s\n' "$api_image" "$web_image" >> .env.production.next
 mv .env.production.next .env.production
-if ! docker compose --env-file .env.production -f compose.production.yaml up -d --no-build --wait --wait-timeout 180; then
+compose=(docker compose --env-file .env.production -f compose.production.yaml)
+activate_release() {
+  "${compose[@]}" up -d --no-build --wait --wait-timeout 180 || return 1
+  # Nginx must resolve the API again after its container has been replaced.
+  "${compose[@]}" restart web || return 1
+  "${compose[@]}" up -d --no-build --wait --wait-timeout 180 || return 1
+  for attempt in $(seq 1 15); do
+    if "${compose[@]}" exec -T web wget -q -O /dev/null http://127.0.0.1:8080/api/classic/today; then
+      return 0
+    fi
+    sleep 2
+  done
+  return 1
+}
+if ! activate_release; then
   cp "$previous" .env.production
-  docker compose --env-file .env.production -f compose.production.yaml up -d --no-build --wait --wait-timeout 180
+  activate_release
   echo 'Deployment failed; previous images restored. Database was preserved.' >&2
   exit 1
 fi
