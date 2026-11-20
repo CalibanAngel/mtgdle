@@ -88,7 +88,11 @@ Préparer l'environnement GitHub `production`, avec revue obligatoire si disponi
 
 Le compte distant doit être autorisé à exécuter `sudo -n /opt/mtgdle/deploy/release.sh <SHA>`. Avant de lui donner ce droit, rendre le script et les fichiers qu'il exécute non modifiables par ce compte et restreindre la clé SSH à la commande de déploiement. Ne pas ajouter ce compte au groupe Docker : ce groupe donne des privilèges équivalents à root.
 
-Rendre les packages GHCR publics, ou configurer sur le VPS un accès limité à leur lecture. Le déploiement télécharge les images, sauvegarde la base, change les références d'images, puis attend les contrôles de santé. En cas d'échec, il restaure les anciennes références d'images. Le déploiement des images ne synchronise pas le schéma : pendant le développement, utiliser explicitement `database:sync` quand les modèles évoluent.
+Les packages GHCR peuvent rester privés : le job transmet son `GITHUB_TOKEN` temporaire, avec `packages: read`, sur l'entrée standard de SSH. Le script utilise une configuration Docker temporaire, supprimée après les téléchargements et en cas d'échec. Aucun token personnel ni identifiant de registre permanent n'est installé sur le VPS. Les packages doivent autoriser l'accès du dépôt qui exécute le workflow.
+
+La commande SSH autorisée est `sudo -n /opt/mtgdle/deploy/release.sh <SHA> --registry-token-stdin`. Le compte dédié `mtgdle-deploy` utilise une clé avec `restrict` et une commande forcée qui valide ce format et le SHA. Il ne dispose pas d'un shell libre ni d'un accès au groupe Docker. Le script, le wrapper SSH, le fichier Compose et leurs répertoires parents appartiennent à root et ne sont pas modifiables par ce compte.
+
+Le déploiement télécharge les images, sauvegarde la base, change les références d'images, puis attend les contrôles de santé. Nginx est redémarré pour résoudre la nouvelle adresse de l'API ; une requête à `/api/classic/today` vérifie ensuite la chaîne proxy/API/base. En cas d'échec, il restaure les anciennes références d'images. Le déploiement des images ne synchronise pas le schéma : pendant le développement, utiliser explicitement `database:sync` quand les modèles évoluent.
 
 ## Domaine et HTTPS
 
