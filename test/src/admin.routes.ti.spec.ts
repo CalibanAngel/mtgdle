@@ -73,7 +73,7 @@ describe('Administrative API authorization', () => {
     operation.mockClear();
   });
   it.each(routes)(
-    'rejects anonymous mutation before calling the service: %s',
+    'should reject the mutation when administrator credentials are missing: %s',
     async (route) => {
       await request(app.getHttpServer())
         .post(route)
@@ -82,22 +82,25 @@ describe('Administrative API authorization', () => {
       expect(operation).not.toHaveBeenCalled();
     },
   );
-  it.each(routes)('allows the technical administrator: %s', async (route) => {
-    await request(app.getHttpServer())
-      .post(route)
-      .set('Authorization', `Bearer ${token}`)
-      .send({ cardsName: [] })
-      .expect(201);
-    expect(operation).toHaveBeenCalledTimes(1);
-  });
-  it('rejects an incorrect token without starting an import', async () => {
+  it.each(routes)(
+    'should allow the mutation when the administrator token is valid: %s',
+    async (route) => {
+      await request(app.getHttpServer())
+        .post(route)
+        .set('Authorization', `Bearer ${token}`)
+        .send({ cardsName: [] })
+        .expect(201);
+      expect(operation).toHaveBeenCalledTimes(1);
+    },
+  );
+  it('should reject the request when the administrator token is incorrect', async () => {
     await request(app.getHttpServer())
       .post(routes[0])
       .set('Authorization', 'Bearer incorrect')
       .expect(401);
     expect(operation).not.toHaveBeenCalled();
   });
-  it('disables HTTP administration when no token is configured', async () => {
+  it('should disable HTTP administration when no token is configured', async () => {
     configuredToken = '';
     await request(app.getHttpServer())
       .post(routes[0])

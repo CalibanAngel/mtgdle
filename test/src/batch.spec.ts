@@ -14,11 +14,11 @@ describe('Nest batch operations', () => {
   beforeEach(() => {
     jest.resetAllMocks();
   });
-  it('synchronizes the development schema from the registered TypeORM models', async () => {
+  it('should synchronize registered TypeORM models when the development schema batch runs', async () => {
     await batch.run('database:sync');
     expect(db.synchronize).toHaveBeenCalledWith(false);
   });
-  it('uses the same bulk import service as the HTTP controller', async () => {
+  it('should use the existing bulk import service when the import batch runs', async () => {
     importer.importAll.mockResolvedValue({
       cards: { totalItems: 500 },
       playableCards: { inserted: [] },
@@ -26,11 +26,11 @@ describe('Nest batch operations', () => {
     await batch.run('scryfall:import');
     expect(importer.importAll).toHaveBeenCalledWith(true, true);
   });
-  it('uses the Scryfall service to download the snapshot', async () => {
+  it('should use the Scryfall service when the download batch runs', async () => {
     await batch.run('scryfall:download');
     expect(bulk.downloadDefaultCards).toHaveBeenCalledTimes(1);
   });
-  it('passes check-only mode to the catalogue service', async () => {
+  it('should preserve check-only mode when preparing the catalogue', async () => {
     await batch.run('classic:prepare', true);
     expect(catalogue.prepare).toHaveBeenCalledWith(true);
   });

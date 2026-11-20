@@ -1,5 +1,13 @@
 # Conventions de tests
 
+Les intitulés suivent la forme `it('should <résultat attendu> when <condition>', () => ...)`. Le résultat décrit le comportement observable et la condition indique ce qui le déclenche. La même convention s'applique aux tests paramétrés `it.each(...)`. Les tests Playwright conservent leur API `test(...)`, avec des intitulés `should ... when ...`.
+
+```ts
+it('should reject the request when the card ID is not a UUID', async () => {
+  // Arrange, act, assert.
+});
+```
+
 | Catégorie             | Suffixe        | Emplacement     | Commande                          |
 | --------------------- | -------------- | --------------- | --------------------------------- |
 | Unitaire (TU)         | `.spec.ts`     | `test/src/`     | `npm run test:unit` ou `npm test` |

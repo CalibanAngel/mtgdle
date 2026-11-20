@@ -75,7 +75,7 @@ describe('Shared classic preview gateway', () => {
   beforeEach(() => {
     calls = [];
   });
-  it('detects occupied IPv4 and IPv6 ports without interrupting their owners', async () => {
+  it('should preserve existing listeners when detecting occupied IPv4 and IPv6 ports', async () => {
     await expect(
       available((api.address() as import('node:net').AddressInfo).port),
     ).rejects.toThrow('déjà occupé');
@@ -99,7 +99,7 @@ describe('Shared classic preview gateway', () => {
     ]);
     await rm(folder, { recursive: true, force: true });
   });
-  it('serves built files and HEAD requests without exposing source maps or files outside the web root', async () => {
+  it('should serve built files safely when handling GET and HEAD requests', async () => {
     await request(preview)
       .get('/')
       .expect(200)
@@ -122,7 +122,7 @@ describe('Shared classic preview gateway', () => {
     }
     expect(calls).toHaveLength(0);
   });
-  it('forwards anonymous cookies and preserves Secure over the HTTPS tunnel', async () => {
+  it('should preserve anonymous session cookies when forwarding through the HTTPS tunnel', async () => {
     const first = await request(preview)
       .get('/api/classic/today')
       .set('X-Forwarded-Proto', 'https')
@@ -140,7 +140,7 @@ describe('Shared classic preview gateway', () => {
     expect(other.body.session).not.toBe(first.body.session);
     expect(calls.every((c) => c.path === '/classic/today')).toBe(true);
   });
-  it('forwards guess payloads, error codes, abandonment and image bytes through the same origin', async () => {
+  it('should preserve game payloads, errors and images when proxying through the same origin', async () => {
     const body = { cardId: randomUUID(), requestId: randomUUID() };
     await request(preview)
       .post('/api/classic/2026-10-29/guesses')
@@ -163,7 +163,7 @@ describe('Shared classic preview gateway', () => {
       .expect('Cache-Control', 'no-store');
     expect(image.body).toEqual(Buffer.from([137, 80, 78, 71]));
   });
-  it('rejects admin routes, unexpected methods and oversized bodies before reaching the API', async () => {
+  it('should reject requests before reaching the API when routes, methods or body sizes are forbidden', async () => {
     for (const url of [
       '/api/api',
       '/api/game/today',
@@ -184,7 +184,7 @@ describe('Shared classic preview gateway', () => {
       .expect(413);
     expect(calls).toHaveLength(0);
   });
-  it('returns a controlled error if the API is unavailable', async () => {
+  it('should return a controlled error when the upstream API is unavailable', async () => {
     const unavailable = createPreviewServer({
       directory: path.join(folder, 'public'),
       apiOrigin: 'http://127.0.0.1:1',

@@ -3,7 +3,7 @@ import { scryfallSetToSetMapper } from '../../../../../../packages/api/src/infra
 import { ScryfallSet } from '@scryfall/api-types';
 
 describe('scryfallSetToSetMapper', () => {
-  it('should correctly map a ScryfallSet to a CardSet', () => {
+  it('should map all expected fields when converting a Scryfall set', () => {
     const fakeScryfallSet = {
       id: 'set1',
       name: 'Test Set',

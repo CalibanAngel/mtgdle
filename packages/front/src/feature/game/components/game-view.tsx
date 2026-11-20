@@ -1,3 +1,4 @@
+import { ClassicStatus } from '@mtgdle/shared-types';
 import type {
   ClassicCard,
   ClassicState,
@@ -200,7 +201,7 @@ export const GameView = () => {
 
     try {
       await navigator.clipboard.writeText(
-        `MTGdle · ${state.day}\n${t('shareResult', { count: state.guesses.length, result: t(state.status === 'won' ? 'shareWon' : 'shareAbandoned'), hint: state.hints.some((h) => h.used) ? t('withHint') : '' })}\n${lines.join('\n')}`,
+        `MTGdle · ${state.day}\n${t('shareResult', { count: state.guesses.length, result: t(state.status === ClassicStatus.Won ? 'shareWon' : 'shareAbandoned'), hint: state.hints.some((h) => h.used) ? t('withHint') : '' })}\n${lines.join('\n')}`,
       );
       setCopied(true);
     } catch {
@@ -334,7 +335,7 @@ export const GameView = () => {
                   ))}
               </div>
             )}
-            {state.status === 'playing' ? (
+            {state.status === ClassicStatus.Playing ? (
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
@@ -474,7 +475,9 @@ export const GameView = () => {
                 )}
                 <div>
                   <span className="classic-eyebrow">
-                    {state.status === 'won' ? t('won') : t('answer')}
+                    {state.status === ClassicStatus.Won
+                      ? t('won')
+                      : t('answer')}
                   </span>
                   <h3>{state.answer?.name}</h3>
                   <button
@@ -492,7 +495,7 @@ export const GameView = () => {
               {isTranslationKey(error) ? t(error) : t('errorNetwork')}
             </p>
           )}
-          {state.status !== 'playing' && state.statistics && (
+          {state.status !== ClassicStatus.Playing && state.statistics && (
             <section
               aria-label={t('statistics')}
               className="classic-history classic-statistics"
@@ -546,9 +549,8 @@ export const GameView = () => {
                       {labels.map(([key, label]) => (
                         <th key={key}>{label}</th>
                       ))}
-                      {state.status !== 'playing' && state.statistics && (
-                        <th>{t('alsoGuessed')}</th>
-                      )}
+                      {state.status !== ClassicStatus.Playing &&
+                        state.statistics && <th>{t('alsoGuessed')}</th>}
                     </tr>
                   </thead>
                   <tbody>
@@ -594,14 +596,16 @@ export const GameView = () => {
                             </div>
                           </td>
                         ))}
-                        {state.status !== 'playing' && state.statistics && (
-                          <td className="classic-guess-percentage">
-                            {number.format(
-                              state.statistics.guessPercentages[g.card.id] ?? 0,
-                            )}{' '}
-                            %
-                          </td>
-                        )}
+                        {state.status !== ClassicStatus.Playing &&
+                          state.statistics && (
+                            <td className="classic-guess-percentage">
+                              {number.format(
+                                state.statistics.guessPercentages[g.card.id] ??
+                                  0,
+                              )}{' '}
+                              %
+                            </td>
+                          )}
                       </tr>
                     ))}
                   </tbody>
@@ -615,7 +619,7 @@ export const GameView = () => {
               <p>{t('rulesBody')}</p>
               <p>{t('rulesHints')}</p>
             </details>
-            {state.status === 'playing' && (
+            {state.status === ClassicStatus.Playing && (
               <div className="classic-abandon">
                 {confirmAbandon ? (
                   <>

@@ -57,7 +57,7 @@ describe('HealthApiService', () => {
     nock.cleanAll();
   });
 
-  it('should return "up" for scryfall health check', async () => {
+  it('should report Scryfall as up when the remote health endpoint responds', async () => {
     // Intercept the HTTP call to scryfall endpoint.
     nock(scryfallHost).get('/symbology').reply(200);
 
@@ -65,7 +65,7 @@ describe('HealthApiService', () => {
     expect(scryfall.status).toEqual('up');
   });
 
-  it('should return "up" for database health check', async () => {
+  it('should report PostgreSQL as up when the database ping succeeds', async () => {
     const { database } = await service.isDatabaseAlive();
     expect(database.status).toEqual('up');
     // Ensure the TypeOrmHealthIndicator.pingCheck was called.
@@ -84,7 +84,7 @@ describe('HealthApiService', () => {
     expect(result.info?.database?.status).toEqual('up');
   });
 
-  it('checks Docker database health without contacting Scryfall', async () => {
+  it('should check only PostgreSQL when Docker requests database health', async () => {
     const scryfall = jest.spyOn(service, 'isScryfallAlive');
     const result = await service.checkDatabase();
     expect(result.status).toBe('ok');
@@ -93,7 +93,7 @@ describe('HealthApiService', () => {
     scryfall.mockRestore();
   });
 
-  it('propagates database failures in the database-only check', async () => {
+  it('should propagate database failures when checking database-only health', async () => {
     mockTypeOrmHealthIndicator.pingCheck.mockRejectedValueOnce(
       new Error('database unavailable'),
     );

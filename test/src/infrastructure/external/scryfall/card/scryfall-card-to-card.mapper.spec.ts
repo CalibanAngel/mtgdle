@@ -176,9 +176,12 @@ describe('Scryfall Card Mapper', () => {
   it.each<EachType>([
     { param: scryfallSplitCard, expected: splitCard },
     { param: scryfallNormalCard, expected: normaleCard },
-  ])('should parse a $param.layout card', ({ param, expected }) => {
-    const result = scryfallAnyCardToCard(param);
+  ])(
+    'should map the expected card fields when the layout is $param.layout',
+    ({ param, expected }) => {
+      const result = scryfallAnyCardToCard(param);
 
-    expect(result).toEqual(expect.objectContaining(expected));
-  });
+      expect(result).toEqual(expect.objectContaining(expected));
+    },
+  );
 });

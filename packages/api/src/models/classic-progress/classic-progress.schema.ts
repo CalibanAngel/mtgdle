@@ -1,5 +1,6 @@
 import { EntitySchema } from 'typeorm';
 import { ClassicProgress } from './classic-progress';
+import { ClassicStatus } from '@mtgdle/shared-types';
 
 export const ClassicProgressEntity = new EntitySchema<ClassicProgress>({
   name: 'ClassicProgress',
@@ -7,7 +8,12 @@ export const ClassicProgressEntity = new EntitySchema<ClassicProgress>({
   columns: {
     day: { type: 'text', primary: true },
     sessionId: { name: 'session_id', type: 'uuid', primary: true },
-    status: { type: 'text', default: 'playing' },
+    status: {
+      type: 'enum',
+      enum: ClassicStatus,
+      enumName: 'classic_status_enum',
+      default: ClassicStatus.Playing,
+    },
     guesses: { type: 'jsonb', default: () => "'[]'::jsonb" },
     removed: { type: 'jsonb', default: () => "'[]'::jsonb" },
     hintUsed: { name: 'hint_used', type: 'boolean', default: false },

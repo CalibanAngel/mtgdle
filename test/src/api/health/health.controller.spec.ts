@@ -2,7 +2,7 @@ import { HealthController } from '../../../../packages/api/src/api/health/health
 import { HealthApiService } from '../../../../packages/api/src/api/health/health.api-service';
 
 describe('HealthController', () => {
-  it('preserves dependency failures', async () => {
+  it('should propagate the failure when a health dependency is unavailable', async () => {
     const service = {
       areAllServicesAlive: jest
         .fn()

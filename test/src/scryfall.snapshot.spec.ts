@@ -27,7 +27,7 @@ describe('Scryfall bulk snapshots', () => {
   afterEach(async () => {
     await rm(directory, { recursive: true, force: true });
   });
-  it('keeps JSON array snapshots readable by the existing importer', async () => {
+  it('should preserve the JSON array format when downloading a legacy snapshot', async () => {
     metadata.mockReturnValue(
       of({ data: { download_uri: 'https://data.scryfall.io/cards.json' } }),
     );
@@ -35,7 +35,7 @@ describe('Scryfall bulk snapshots', () => {
     await dao.downloadDefaultCards();
     expect(JSON.parse(await readFile(file, 'utf8'))).toEqual([{ id: 'one' }]);
   });
-  it('converts compressed JSONL into a JSON array without losing Unicode', async () => {
+  it('should preserve Unicode when converting compressed JSONL to a JSON array', async () => {
     metadata.mockReturnValue(
       of({
         data: { jsonl_download_uri: 'https://data.scryfall.io/cards.jsonl.gz' },
@@ -51,7 +51,7 @@ describe('Scryfall bulk snapshots', () => {
       { name: '火' },
     ]);
   });
-  it('preserves an existing snapshot and removes temporary data after invalid JSONL', async () => {
+  it('should preserve the previous snapshot and remove temporary data when JSONL is invalid', async () => {
     await writeFile(file, '[{"name":"original"}]');
     metadata.mockReturnValue(
       of({
@@ -67,7 +67,7 @@ describe('Scryfall bulk snapshots', () => {
     ]);
     expect(await readdir(directory)).toEqual(['cards.json']);
   });
-  it('rejects an unexpected download host before making a request', async () => {
+  it('should reject the download before sending a request when its host is unexpected', async () => {
     metadata.mockReturnValue(
       of({ data: { download_uri: 'https://example.com/cards.json' } }),
     );

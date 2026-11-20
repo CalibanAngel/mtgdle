@@ -29,6 +29,15 @@ function mergedClientEnv(mode: string) {
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
+  // The linked shared package emits CommonJS and also provides runtime enums.
+  optimizeDeps: {
+    include: ['@mtgdle/shared-types'],
+  },
+  build: {
+    commonjsOptions: {
+      include: [/node_modules/, /packages[\\/]shared-types[\\/]/],
+    },
+  },
   server: {
     proxy: {
       '/api': {

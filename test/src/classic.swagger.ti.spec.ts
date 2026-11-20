@@ -109,7 +109,7 @@ describe('Classic OpenAPI documentation and serialization', () => {
     state.mockResolvedValue(playing);
   });
 
-  it('generates concrete card, choice, comparison and conditional state schemas', () => {
+  it('should generate concrete and conditional schemas when building Classic OpenAPI documentation', () => {
     expect(schema('ClassicCard').properties!.id).toMatchObject({
       type: 'string',
       format: 'uuid',
@@ -129,12 +129,22 @@ describe('Classic OpenAPI documentation and serialization', () => {
     );
     expect(schema('ClassicStateDto').required).not.toContain('answer');
     expect(schema('ClassicStateDto').required).not.toContain('statistics');
+    expect(schema('ClassicStatus').enum).toEqual([
+      'playing',
+      'won',
+      'abandoned',
+    ]);
+    for (const name of ['ClassicStateDto', 'ClassicProgress']) {
+      expect(JSON.stringify(schema(name).properties!.status)).toContain(
+        '#/components/schemas/ClassicStatus',
+      );
+    }
     expect(schema('ClassicStateDto').properties!.answer).toMatchObject({
       description: expect.stringContaining('victory'),
     });
   });
 
-  it('documents the actual JSON response schemas for all game operations', () => {
+  it('should reference the actual JSON response models when documenting game operations', () => {
     const response = {
       content: {
         'application/json': {
@@ -166,7 +176,7 @@ describe('Classic OpenAPI documentation and serialization', () => {
     expect(schema('ClassicHintDto').required || []).not.toContain('kind');
   });
 
-  it('documents illustration bytes as image content rather than a JSON object', () => {
+  it('should describe binary image content when documenting the illustration endpoint', () => {
     expect(
       document.paths['/classic/{day}/art'].get!.responses['200'],
     ).toMatchObject({
@@ -177,7 +187,7 @@ describe('Classic OpenAPI documentation and serialization', () => {
     });
   });
 
-  it('hides private hint sources and storage identifiers from Swagger', () => {
+  it('should hide private fields when generating Swagger schemas', () => {
     for (const name of ['artCrop', 'oracleText'])
       expect(schema('ClassicCard').properties).not.toHaveProperty(name);
     for (const name of ['answerId', 'cards'])
@@ -194,7 +204,7 @@ describe('Classic OpenAPI documentation and serialization', () => {
     }
   });
 
-  it('retains private fields for business use but excludes them from nested serialization', () => {
+  it('should retain internal data and hide private fields when serializing nested models', () => {
     const catalogue = plainToInstance(ClassicCatalogue, {
       id: card.id,
       data: card,
@@ -234,7 +244,7 @@ describe('Classic OpenAPI documentation and serialization', () => {
     expect(serialized.guesses[0].card).not.toHaveProperty('oracleText');
   });
 
-  it('applies exclusions to real HTTP responses without losing an activated text hint', async () => {
+  it('should hide private card fields and retain activated text when serializing HTTP responses', async () => {
     const response = await request(app.getHttpServer())
       .get('/classic/today')
       .expect(200);
@@ -246,7 +256,7 @@ describe('Classic OpenAPI documentation and serialization', () => {
     expect(response.body).not.toHaveProperty('statistics');
   });
 
-  it('serializes the revealed answer and nullable statistics after the game ends', async () => {
+  it('should serialize the answer and nullable statistics when the game has ended', async () => {
     state.mockResolvedValue({
       ...playing,
       status: 'won',

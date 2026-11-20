@@ -49,7 +49,7 @@ describe('ScryfallSetService', () => {
     service = module.get<ScryfallSetService>(ScryfallSetService);
   });
 
-  it('should map Scryfall sets to CardSet objects', (done) => {
+  it('should map sets to domain objects when Scryfall returns a set list', (done) => {
     const fakeScryfallSet = {
       name: 'Test Set',
       id: 'test-id',

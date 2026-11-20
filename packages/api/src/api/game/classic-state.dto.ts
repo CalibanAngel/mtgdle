@@ -1,5 +1,6 @@
 import { ApiProperty, ApiPropertyOptional, PickType } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
+import { ClassicStatus } from '@mtgdle/shared-types';
 import type {
   ClassicHint,
   ClassicState,
@@ -123,9 +124,10 @@ export class ClassicStateDto implements ClassicState {
 
   @ApiProperty({
     description: 'Result for the current anonymous session.',
-    enum: ['playing', 'won', 'abandoned'],
+    enum: ClassicStatus,
+    enumName: 'ClassicStatus',
   })
-  status: ClassicState['status'];
+  status: ClassicStatus;
 
   @ApiProperty({
     description: 'Submitted guesses and their comparisons.',

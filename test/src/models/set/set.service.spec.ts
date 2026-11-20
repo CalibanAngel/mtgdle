@@ -26,7 +26,7 @@ describe('SetService', () => {
   });
 
   describe('upsertBulk', () => {
-    it('should call cardSetRepository.upsertBulk with provided sets and return the result', async () => {
+    it('should return the repository result when bulk upserting the provided sets', async () => {
       const fakeSets: CardSet[] = [
         {
           name: 'Test Set',

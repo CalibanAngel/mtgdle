@@ -1,3 +1,5 @@
+import { ClassicStatus } from './classic.enum';
+
 export type Match = 'exact' | 'partial' | 'different' | 'higher' | 'lower';
 export type Criterion =
   | 'identity'
@@ -40,7 +42,7 @@ export interface ClassicGuess {
 export interface ClassicState {
   day: string;
   expiresAt: string;
-  status: 'playing' | 'won' | 'abandoned';
+  status: ClassicStatus;
   guesses: ClassicGuess[];
   choices: Pick<ClassicCard, 'id' | 'name' | 'image' | 'previewImage'>[];
   hint: { available: boolean; used: boolean; removed: number };

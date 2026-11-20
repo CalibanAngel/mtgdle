@@ -22,7 +22,7 @@ const card: ClassicCard = {
   activated: false,
 };
 describe('Classic comparisons', () => {
-  it('compares rarity exactly without ranking rarities', () => {
+  it('should compare rarity without ranking when evaluating card guesses', () => {
     expect(compareCard(card, card, 'request').matches.rarity).toBe('exact');
     expect(
       compareCard(card, { ...card, rarity: 'common' }, 'request').matches
@@ -33,13 +33,13 @@ describe('Classic comparisons', () => {
         .rarity,
     ).toBe('different');
   });
-  it('compares identities as sets, including the empty identity', () => {
+  it('should compare identities as sets when colors are reordered, missing or empty', () => {
     expect(matchSet([], [])).toBe('exact');
     expect(matchSet(['W', 'U'], ['U', 'W'])).toBe('exact');
     expect(matchSet(['W'], ['W', 'U'])).toBe('partial');
     expect(matchSet([], ['U'])).toBe('different');
   });
-  it('points toward the target value and uses non-overlapping two-year periods', () => {
+  it('should indicate the target direction when comparing mana values and two-year periods', () => {
     const result = compareCard(
       card,
       { ...card, id: 'b', mana: 4, released: '2002-01-01' },
@@ -51,11 +51,11 @@ describe('Classic comparisons', () => {
     expect(period(2001)).toBe('2000–2001');
     expect(period(2002)).toBe('2002–2003');
   });
-  it('never treats identical characteristics as a win for a different card', () => {
+  it('should reject a false victory when different cards have identical characteristics', () => {
     expect(compareCard(card, { ...card, id: 'b' }, 'request').won).toBe(false);
     expect(compareCard(card, card, 'request').won).toBe(true);
   });
-  it('compares types and keywords partially and activated abilities exactly', () => {
+  it('should distinguish partial and exact matches when comparing abilities and card types', () => {
     const result = compareCard(
       { ...card, types: ['Artifact', 'Creature'], keywords: ['Flying'] },
       {
@@ -72,13 +72,13 @@ describe('Classic comparisons', () => {
       activated: 'different',
     });
   });
-  it('keeps the same period across different years inside its range', () => {
+  it('should match the release period when both years belong to the same range', () => {
     expect(
       compareCard(card, { ...card, released: '2000-01-01' }, 'request').matches
         .period,
     ).toBe('exact');
   });
-  it('uses Paris dates and handles daylight-saving boundaries at midnight', () => {
+  it('should use Paris midnight when calculating daily boundaries across daylight-saving changes', () => {
     expect(parisDay(new Date('2026-10-28T23:30:00Z'))).toBe('2026-10-29');
     expect(nextMidnight('2026-03-28')).toBe('2026-03-28T23:00:00.000Z');
     expect(nextMidnight('2026-03-29')).toBe('2026-03-29T22:00:00.000Z');
@@ -87,7 +87,7 @@ describe('Classic comparisons', () => {
 });
 
 describe('Rules-text hint redaction', () => {
-  it('masks the full card name and its shortened legendary reference', () => {
+  it('should mask full and shortened names when redacting legendary card text', () => {
     expect(
       maskCardName(
         'Atraxa, Praetors’ Voice has flying. Whenever Atraxa attacks, draw a card.',
@@ -97,7 +97,7 @@ describe('Rules-text hint redaction', () => {
       '[cette carte] has flying. Whenever [cette carte] attacks, draw a card.',
     );
   });
-  it('handles regex characters in names literally', () => {
+  it('should treat regex characters literally when redacting card names', () => {
     expect(maskCardName('A+B deals damage. AAB stays.', 'A+B')).toBe(
       '[cette carte] deals damage. AAB stays.',
     );

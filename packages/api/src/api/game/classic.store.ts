@@ -12,6 +12,7 @@ import { ClassicDaily as Daily } from '../../models/classic-daily/classic-daily'
 import { ClassicProgress as Progress } from '../../models/classic-progress/classic-progress';
 import type { ClassicCard as StoredCard } from '../../models/classic-catalogue/classic-card';
 import { randomInt } from 'node:crypto';
+import { ClassicStatus } from '@mtgdle/shared-types';
 import type {
   ClassicCard,
   ClassicState,
@@ -81,9 +82,9 @@ export class ClassicStore {
             : progress.textUsed;
       if (action === 'hint' && hintUsed)
         return this.present(manager, daily, progress);
-      if (action === 'abandon' && progress.status === 'abandoned')
+      if (action === 'abandon' && progress.status === ClassicStatus.Abandoned)
         return this.present(manager, daily, progress);
-      if (progress.status !== 'playing')
+      if (progress.status !== ClassicStatus.Playing)
         throw new ConflictException({
           code: 'errorFinished',
           message: 'Cette partie est déjà terminée.',
@@ -106,7 +107,7 @@ export class ClassicStore {
           });
         const guess = compareCard(card, target, requestId!);
         progress.guesses.push(guess);
-        if (guess.won) progress.status = 'won';
+        if (guess.won) progress.status = ClassicStatus.Won;
       } else if (action === 'hint') {
         const threshold = HINT_THRESHOLDS[hintKind];
         if (progress.guesses.length < threshold)
@@ -146,7 +147,7 @@ export class ClassicStore {
           progress.removed = removable.slice(0, count).map((c) => c.id);
           progress.hintUsed = true;
         }
-      } else progress.status = 'abandoned';
+      } else progress.status = ClassicStatus.Abandoned;
       await manager.saveProgress(progress);
       return this.present(manager, daily, progress);
     });
@@ -258,7 +259,9 @@ export class ClassicStore {
     const participants = players.filter(
       (player) => player.guesses.length > 0,
     ).length;
-    const winners = players.filter((player) => player.status === 'won');
+    const winners = players.filter(
+      (player) => player.status === ClassicStatus.Won,
+    );
     const counts = new Map<string, number>();
     const selected = new Set(progress.guesses.map((guess) => guess.card.id));
     for (const player of players) {
@@ -272,8 +275,9 @@ export class ClassicStore {
     return {
       participants,
       solved: winners.length,
-      abandoned: players.filter((player) => player.status === 'abandoned')
-        .length,
+      abandoned: players.filter(
+        (player) => player.status === ClassicStatus.Abandoned,
+      ).length,
       averageWinningGuesses: winners.length
         ? winners.reduce((sum, player) => sum + player.guesses.length, 0) /
           winners.length
@@ -292,7 +296,7 @@ export class ClassicStore {
     progress: Progress,
   ): Promise<ClassicState> {
     return {
-      ...(progress.status === 'playing'
+      ...(progress.status === ClassicStatus.Playing
         ? {}
         : { statistics: await this.statistics(manager, daily.day, progress) }),
       day: daily.day,
@@ -316,7 +320,7 @@ export class ClassicStore {
         };
       }),
       choices:
-        progress.status === 'playing'
+        progress.status === ClassicStatus.Playing
           ? daily.cards
               .filter(
                 (c) =>
@@ -350,7 +354,7 @@ export class ClassicStore {
           used,
           available:
             supported &&
-            progress.status === 'playing' &&
+            progress.status === ClassicStatus.Playing &&
             progress.guesses.length >= HINT_THRESHOLDS[kind] &&
             !used,
           ...(kind === 'art' && used ? { hasImage: true } : {}),
@@ -366,13 +370,13 @@ export class ClassicStore {
       }),
       hint: {
         available:
-          progress.status === 'playing' &&
+          progress.status === ClassicStatus.Playing &&
           progress.guesses.length >= HINT_THRESHOLD &&
           !progress.hintUsed,
         used: progress.hintUsed,
         removed: progress.removed.length,
       },
-      ...(progress.status === 'playing'
+      ...(progress.status === ClassicStatus.Playing
         ? {}
         : {
             answer: this.publicCard(

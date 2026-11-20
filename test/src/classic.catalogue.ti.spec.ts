@@ -77,7 +77,7 @@ integration('Catalogue preparation with PostgreSQL', () => {
       await callback([printing]);
     });
   });
-  it('refreshes media while preserving the answer, original criteria and player progress', async () => {
+  it('should preserve the answer, criteria and progress when catalogue media are refreshed', async () => {
     await expect(catalogue.prepare()).resolves.toMatchObject({ cards: 1 });
     const [daily] = await db.query('SELECT answer_id,cards FROM classic_daily');
     expect(daily.answer_id).toBe(oracleId);
@@ -93,14 +93,14 @@ integration('Catalogue preparation with PostgreSQL', () => {
       guesses: [{ requestId: 'original' }],
     });
   });
-  it('does not write during check-only mode', async () => {
+  it('should leave stored data unchanged when preparation runs in check-only mode', async () => {
     await catalogue.prepare(true);
     expect(await db.query('SELECT * FROM classic_catalogue')).toHaveLength(0);
     expect(
       (await db.query('SELECT cards FROM classic_daily'))[0].cards[0],
     ).toEqual({ id: oracleId, name: printing.name, mana: 9 });
   });
-  it('preserves the existing catalogue when no eligible printing is found', async () => {
+  it('should preserve the existing catalogue when no eligible printing is found', async () => {
     await catalogue.prepare();
     bulk.importCardsFromFile.mockImplementation(async (_local, callback) => {
       await callback([]);
