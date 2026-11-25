@@ -37,7 +37,13 @@ activate_release() {
   "${compose[@]}" up -d --no-build --wait --wait-timeout 180 || return 1
   for attempt in $(seq 1 15); do
     if "${compose[@]}" exec -T web wget -q -O /dev/null http://127.0.0.1:8080/api/classic/today; then
-      return 0
+      if [[ -n $("${compose[@]}" ps -q caddy) ]]; then
+        if "${compose[@]}" exec -T caddy sh -c 'wget -q -T 10 -O /dev/null "https://${PUBLIC_HOST}/api/classic/today"'; then
+          return 0
+        fi
+      else
+        return 0
+      fi
     fi
     sleep 2
   done

@@ -98,6 +98,20 @@ Le déploiement télécharge les images, sauvegarde la base, change les référe
 
 L'installation initiale fonctionne sur l'adresse IP en HTTP. Les cookies ne sont alors pas chiffrés en transit.
 
-Une fois le domaine acheté : créer un enregistrement DNS A vers l'IPv4 du VPS, puis ajouter un frontal HTTPS (par exemple Caddy). Ne créer un AAAA que si le service est également configuré et vérifié en IPv6.
+Pour `mtgdle.calibanangel.fr`, créer un enregistrement DNS A vers `57.129.189.95`. Ne créer un AAAA que si le service est également configuré et vérifié en IPv6.
 
-Lors de l'ajout d'un frontal HTTPS, adapter explicitement la chaîne de confiance du proxy et les en-têtes `X-Forwarded-Proto` : la configuration actuelle de Nginx utilise son propre protocole HTTP et n'accepte pas les en-têtes fournis par les visiteurs. Vérifier ensuite que le cookie de session est bien `Secure` et que le renouvellement du certificat fonctionne.
+Activer HTTPS dans `.env.production` après résolution correcte du DNS :
+
+```dotenv
+COMPOSE_PROFILES=https
+PUBLIC_HOST=mtgdle.calibanangel.fr
+PUBLIC_PORT=443
+HTTP_BIND=127.0.0.1
+HTTP_PORT=8080
+```
+
+Exécuter ensuite la commande Compose habituelle `up -d --no-build --wait`. Le profil `https` démarre Caddy sur les ports publics 80 et 443. Nginx reste accessible uniquement sur la boucle locale du VPS et le réseau Docker. Caddy obtient et renouvelle automatiquement le certificat ; conserver les volumes `mtgdle_caddy_data` et `mtgdle_caddy_config`. Les ports 80 et 443 doivent rester accessibles pour la validation du certificat et la redirection HTTP vers HTTPS.
+
+Les configurations Nginx sont montées en lecture seule depuis `deploy/`. Seul Caddy (`172.30.50.5`) est autorisé à transmettre le protocole HTTPS et l'adresse du visiteur ; l'API continue à faire confiance uniquement à Nginx (`172.30.50.4`). Un en-tête fourni directement par un visiteur ne suffit donc pas à modifier le protocole reconnu. Les cookies de session du domaine sont `Secure`, `HttpOnly` et `SameSite=Lax`.
+
+Vérification après installation : ouvrir `https://mtgdle.calibanangel.fr`, proposer une carte, recharger la page, contrôler le certificat et le cookie de session. Une requête HTTP vers le domaine ou l'ancienne IP doit rediriger vers le domaine HTTPS, en conservant le chemin. Le script de déploiement teste aussi la route de jeu HTTPS lorsque Caddy est actif. Les sessions historiques de l'adresse IP ne sont pas transférées automatiquement au domaine : les cookies sont propres à chaque hôte.
