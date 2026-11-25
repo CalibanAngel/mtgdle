@@ -211,6 +211,44 @@ test('should retain the choice and allow retry when the network request fails', 
   expect(server.requests).toHaveLength(1);
 });
 
+test('should submit with a stable UUID when randomUUID is unavailable and the request is retried', async ({
+  page,
+  server,
+}) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(Crypto.prototype, 'randomUUID', {
+      configurable: true,
+      value: undefined,
+    });
+  });
+  const requestIds: string[] = [];
+  page.on('request', (request) => {
+    if (request.method() === 'POST' && request.url().endsWith('/guesses')) {
+      requestIds.push(request.postDataJSON().requestId);
+    }
+  });
+  await page.goto('/');
+  await select(page);
+  server.fail = true;
+  await page.getByRole('button', { name: 'Proposer' }).click();
+  await expect(page.getByRole('alert')).toBeVisible();
+  await page.getByRole('button', { name: 'Proposer' }).click();
+  await expect(
+    page.getByRole('rowheader').filter({ hasText: 'Path to Exile' }),
+  ).toBeVisible();
+  expect(requestIds).toHaveLength(2);
+  expect(requestIds[0]).toMatch(
+    /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/,
+  );
+  expect(requestIds[1]).toBe(requestIds[0]);
+  await select(page, 'Test Card 1');
+  await page.getByRole('button', { name: 'Proposer' }).click();
+  await expect(
+    page.getByRole('rowheader').filter({ hasText: 'Test Card 1' }),
+  ).toBeVisible();
+  expect(requestIds[2]).not.toBe(requestIds[0]);
+});
+
 test('should unlock and retain the reduction hint when ten errors are reached and the page reloads', async ({
   page,
 }) => {
