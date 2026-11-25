@@ -11,6 +11,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { useCardViewer } from './card-viewer';
+import { createRequestId } from '../api/create-request-id';
 
 import { env } from '@/config/env.validation';
 import { useI18n, LanguageSwitch, isTranslationKey } from '@/i18n';
@@ -154,7 +155,7 @@ export const GameView = () => {
     setError('');
     try {
       if (kind === 'guesses' && pending.current?.id !== selected)
-        pending.current = { id: selected!, requestId: crypto.randomUUID() };
+        pending.current = { id: selected!, requestId: createRequestId() };
       const body =
         kind === 'guesses'
           ? { cardId: selected, requestId: pending.current!.requestId }
