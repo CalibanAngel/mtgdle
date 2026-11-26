@@ -28,6 +28,11 @@ async function bootstrap() {
     .setTitle('Mtgdle')
     .setDescription('The mtgdle API description')
     .setVersion('1.0')
+    .addCookieAuth(
+      'mtgdle_admin',
+      { type: 'apiKey', in: 'cookie' },
+      'admin-session',
+    )
     .addBearerAuth(
       {
         type: 'http',

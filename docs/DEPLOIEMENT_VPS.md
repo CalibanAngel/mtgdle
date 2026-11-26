@@ -115,3 +115,7 @@ Exécuter ensuite la commande Compose habituelle `up -d --no-build --wait`. Le p
 Les configurations Nginx sont montées en lecture seule depuis `deploy/`. Seul Caddy (`172.30.50.5`) est autorisé à transmettre le protocole HTTPS et l'adresse du visiteur ; l'API continue à faire confiance uniquement à Nginx (`172.30.50.4`). Un en-tête fourni directement par un visiteur ne suffit donc pas à modifier le protocole reconnu. Les cookies de session du domaine sont `Secure`, `HttpOnly` et `SameSite=Lax`.
 
 Vérification après installation : ouvrir `https://mtgdle.calibanangel.fr`, proposer une carte, recharger la page, contrôler le certificat et le cookie de session. Une requête HTTP vers le domaine ou l'ancienne IP doit rediriger vers le domaine HTTPS, en conservant le chemin. Le script de déploiement teste aussi la route de jeu HTTPS lorsque Caddy est actif. Les sessions historiques de l'adresse IP ne sont pas transférées automatiquement au domaine : les cookies sont propres à chaque hôte.
+
+## Portail administrateur
+
+Le portail est accessible sur https://mtgdle.calibanangel.fr/admin. Configurer ADMIN_USERNAME et ADMIN_PASSWORD_HASH sur le VPS ; les secrets restent hors de Git et de GitHub Actions. Voir [le guide du portail](PORTAIL_ADMIN.md) pour la connexion, les opérations disponibles et l’explorateur de base en lecture seule.

@@ -49,8 +49,10 @@ services:
       SCRYFALL_BULK_FILE: /data/default-cards.json
       SCHEDULE_ENABLED: 'false'
       ADMIN_API_TOKEN: ${ADMIN_API_TOKEN:-}
+      ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
+      ADMIN_PASSWORD_HASH: ${ADMIN_PASSWORD_HASH:-}
     volumes:
-      - ./data:/data:ro
+      - ./data:/data:rw
     networks: [backend, public]
     depends_on:
       postgres:
