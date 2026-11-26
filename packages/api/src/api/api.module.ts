@@ -8,9 +8,11 @@ import { ConfigurationModule } from '../config/config.module';
 import { PlayableCardApiModule } from './playable-card/playable-card.api-module';
 import { BulkApiModule } from './bulk/bulk.api-module';
 import { GameApiModule } from './game/game.api-module';
+import { AdminApiModule } from './admin/admin.api-module';
 
 @Module({
   imports: [
+    AdminApiModule,
     BulkApiModule,
     CardApiModule,
     ConfigurationModule,

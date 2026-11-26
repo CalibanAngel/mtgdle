@@ -7,6 +7,7 @@ import { HealthApiService } from './health.api-service';
 @Module({
   imports: [TerminusModule, HttpModule],
   providers: [HealthApiService],
+  exports: [HealthApiService],
   controllers: [HealthController],
 })
 export class HealthApiModule {}

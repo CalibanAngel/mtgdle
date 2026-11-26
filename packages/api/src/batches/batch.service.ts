@@ -3,12 +3,14 @@ import { DataSource } from 'typeorm';
 import { BulkApiService } from '../api/bulk/bulk.api-service';
 import { ScryfallBulkDataService } from '../infrastructure/external/scryfall/bulk-data/scryfall-bulk-data.service';
 import { ClassicCatalogueService } from '../models/classic-catalogue/classic-catalogue.service';
+import { hashAdminPassword } from '../auth/admin-password';
 
 export const batchCommands = [
   'database:sync',
   'scryfall:download',
   'scryfall:import',
   'classic:prepare',
+  'admin:password',
 ] as const;
 export type BatchCommand = (typeof batchCommands)[number];
 
@@ -24,6 +26,16 @@ export class BatchService {
 
   async run(command: BatchCommand, checkOnly = false): Promise<void> {
     switch (command) {
+      case 'admin:password': {
+        let password = '';
+        for await (const chunk of process.stdin) {
+          password += chunk.toString();
+          if (password.length > 258) throw new Error('Password is too long.');
+        }
+        const hash = await hashAdminPassword(password.replace(/\r?\n$/, ''));
+        console.log(`ADMIN_PASSWORD_HASH='${hash}'`);
+        break;
+      }
       case 'database:sync': {
         await this.db.synchronize(false);
         this.logger.log(

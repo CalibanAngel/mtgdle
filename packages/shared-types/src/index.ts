@@ -6,3 +6,4 @@ export * from './card-image-uris.interface';
 export * from './classic.interface';
 export * from './classic.enum';
 export * from './health.interface';
+export * from './admin.interface';

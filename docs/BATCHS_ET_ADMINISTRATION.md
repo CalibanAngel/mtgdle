@@ -10,6 +10,7 @@ Le métier appartient à l'API Nest, en TypeScript. Le CLI n'ouvre aucun serveur
 | `scryfall:download` | `ScryfallBulkDataService` et son DAO | Télécharge le snapshot vers le chemin configuré. Conversion JSONL/gzip en streaming ; remplace le fichier seulement après succès. |
 | `scryfall:import` | `BulkApiService.importAll` | Exécute le même import que la route HTTP existante, depuis le snapshot local. |
 | `classic:prepare` | `ClassicCatalogueService.prepare` | Prépare le catalogue et enrichit les médias des défis existants en conservant les réponses et les parties. |
+| `admin:password` | Dérivation scrypt partagée avec l’authentification Nest | Lit un mot de passe sur l’entrée standard et affiche uniquement sa configuration hashée. |
 
 `classic:prepare --check` parcourt les données sans écrire. La préparation du catalogue ne modifie jamais le schéma.
 
@@ -39,7 +40,7 @@ Le contrôle de santé réutilise `HealthApiService` et les indicateurs Terminus
 
 ## Routes d'administration
 
-Le projet n'a pas encore de comptes administrateurs ni d'authentification des joueurs. La protection mise en place est une identité technique d'administration : un token Bearer à configurer dans `ADMIN_API_TOKEN` (au moins 32 caractères). Le token doit rester dans l'environnement serveur, jamais dans le frontend ni dans Git.
+Le portail dispose d’un compte administrateur configuré par mot de passe et d’une session serveur ; voir [le guide du portail](PORTAIL_ADMIN.md). Il n’y a pas de comptes joueurs ni de système de rôles. Pour l’outillage existant, l’identité technique Bearer reste disponible via `ADMIN_API_TOKEN` (au moins 32 caractères). Ce token ne doit jamais être conservé dans le frontend ni dans Git.
 
 - Token absent : administration HTTP désactivée, réponse 403.
 - Token manquant ou incorrect côté requête : réponse 401, sans lancer le traitement.
@@ -49,7 +50,7 @@ Les opérations protégées sont l'import global Scryfall, les imports/création
 
 Cette identité technique ne constitue pas un système de comptes et de rôles utilisateurs. Un futur système d'authentification pourra remplacer le guard en conservant les services métier.
 
-Le proxy public actuel conserve sa liste de routes de jeu autorisées. Les routes d'administration sont donc aussi filtrées par Nginx. Pour les utiliser, passer par un tunnel SSH ; ne transmettre le token sur Internet qu'après configuration de HTTPS. Les batchs, exécutés directement sur le serveur, n'utilisent pas le token HTTP.
+Le proxy public autorise les routes de jeu et le namespace `/api/admin` du portail. Les autres routes historiques de mutation restent filtrées ; elles sont accessibles via un tunnel SSH avec le token technique. Les batchs, exécutés directement sur le serveur, n’utilisent pas le token HTTP. Les endpoints de données du portail sont protégés par `AdminGuard`, qui accepte soit la session serveur, soit le Bearer technique.
 
 ## Infrastructure et outillage
 

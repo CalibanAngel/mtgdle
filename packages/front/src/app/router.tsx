@@ -19,6 +19,10 @@ const convert = (queryClient: QueryClient) => (m: any) => {
 export const createAppRouter = (queryClient: QueryClient) =>
   createBrowserRouter([
     {
+      path: '/admin',
+      lazy: () => import('./routes/admin').then(convert(queryClient)),
+    },
+    {
       path: paths.home.path,
       lazy: () => import('./routes/landing').then(convert(queryClient)),
     },
