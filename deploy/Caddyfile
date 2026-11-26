@@ -1,0 +1,7 @@
+{$PUBLIC_HOST} {
+	reverse_proxy web:8080
+}
+
+http://57.129.189.95 {
+	redir https://{$PUBLIC_HOST}{uri} permanent
+}

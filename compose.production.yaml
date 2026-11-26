@@ -33,7 +33,7 @@ services:
       BACK_API_HOST: api
       BACK_API_PORT: '3000'
       FRONT_API_HOST: ${PUBLIC_HOST:-57.129.189.95}
-      FRONT_API_PORT: '80'
+      FRONT_API_PORT: ${PUBLIC_PORT:-80}
       API_BIND_HOST: 0.0.0.0
       TRUSTED_PROXY_IP: 172.30.50.4
       DATABASE_HOST: postgres
@@ -72,6 +72,9 @@ services:
     restart: unless-stopped
     ports:
       - '${HTTP_BIND:-0.0.0.0}:${HTTP_PORT:-80}:8080'
+    volumes:
+      - ./deploy/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./deploy/game-proxy.conf:/etc/nginx/game-proxy.conf:ro
     networks:
       public:
         ipv4_address: 172.30.50.4
@@ -84,6 +87,27 @@ services:
     security_opt: [no-new-privileges:true]
     cap_drop: [ALL]
     logging: *logging
+  caddy:
+    image: caddy:2-alpine@sha256:003a97808e781aa9f7e75cc2f43d34d461099031faf5e20faefb9f61126836f0
+    profiles: [https]
+    restart: unless-stopped
+    environment:
+      PUBLIC_HOST: ${PUBLIC_HOST:-localhost}
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      public:
+        ipv4_address: 172.30.50.5
+    depends_on: [web]
+    security_opt: [no-new-privileges:true]
+    cap_drop: [ALL]
+    cap_add: [NET_BIND_SERVICE]
+    logging: *logging
 networks:
   backend:
     internal: true
@@ -93,4 +117,6 @@ networks:
         - subnet: 172.30.50.0/24
 volumes:
   pgdata:
+  caddy_data:
+  caddy_config:
 
